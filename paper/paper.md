@@ -1,203 +1,146 @@
 ---
-title: 'Gala: A Python package for galactic dynamics'
+title: 'HEPDataset: A configurable framework for constructing machine-learning datasets from Delphes ROOT files'
 tags:
   - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - milky way
+  - High Energy Physics
+  - Machine Learning
 authors:
-  - name: Adrian M. Price-Whelan
-    orcid: 0000-0000-0000-0000
+  - name: A.M.M Elsayed
+    orcid: 0000-0002-4955-4958
     equal-contrib: true
-    affiliation: "1, 2" # (Multiple affiliations must be quoted)
-  - name: Author Without ORCID
-    equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
-    affiliation: 2
-  - name: Author with no affiliation
-    corresponding: true # (This is how to denote the corresponding author)
-    affiliation: 3
-  - given-names: Ludwig
-    dropping-particle: van
-    surname: Beethoven
-    affiliation: 3
+    affiliation: 1
+  - name: Yusheng Wu
+    corresponding: true
+    orcid: 0000-0002-1528-4865
+    equal-contrib: true 
+    affiliation: 1
 affiliations:
- - name: Lyman Spitzer, Jr. Fellow, Princeton University, United States
+ - name: Department of Modern Physics and State Key Laboratory of Particle Detection and Electronics, University of Science and Technology of China, Hefei, China
    index: 1
-   ror: 00hx57361
- - name: Institution Name, Country
-   index: 2
- - name: Independent Researcher, Country
-   index: 3
-date: 13 August 2017
+date: 17 July 2026
 bibliography: paper.bib
-
-# Optional fields for papers that are part of a joint submission.
-# For example, submitting to a AAS journal too, see this blog post:
-# https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-#
-# If you are not making a joint submission you should remove these lines.
-#
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
-
 # Summary
 
-The forces on stars, galaxies, and dark matter under external gravitational
-fields lead to the dynamical evolution of structures in the universe. The orbits
-of these bodies are therefore key to understanding the formation, history, and
-future state of galaxies. The field of "galactic dynamics," which aims to model
-the gravitating components of galaxies to study their structure and evolution,
-is now well-established, commonly taught, and frequently used in astronomy.
-Aside from toy problems and demonstrations, the majority of problems require
-efficient numerical tools, many of which require the same base code (e.g., for
-performing numerical orbit integration).
+Searches for physics beyond the Standard Model (BSM) at the LHC increasingly rely
+on multivariate classifiers — boosted decision trees (BDTs) or neural networks —
+trained on flat, per-event feature tables built from reconstructed-object
+kinematics, rather than on a small number of hand-picked cut variables. Building
+these tables from `Delphes` [@delphes] fast-detector-simulation output is,
+however, a recurring and largely bespoke engineering task: every analysis
+re-implements object quality selections, signal-region classification, N-body
+kinematic combinatorics, and cross-section-weighted sample bookkeeping from
+scratch.
+
+`HEPDataset` is a Python package that generalizes this task into a
+configurable pipeline. Users supply (i) a registry of background and signal
+`Delphes` ROOT samples with associated cross sections, defined via YAML;
+(ii) object definitions specifying which reconstructed objects and kinematic
+branches to read, including automatically generated combinatorial N-body
+observables ($\Delta R$, $\Delta \phi$, $M_{T}$, $M_{T2}$, and others) for
+user-chosen object groupings; and (iii) a signal-region classification function
+that maps per-event reconstructed objects to a signal-region label. The
+package reads events via `ROOT`'s `TTreeReader`/`ExRootTreeReader` interfaces
+[@root], applies the user's object and region logic, computes event-shape and
+kinematic observables (some accelerated via `numba` [@numba]), and writes the
+result to per-region tabular output (ROOT trees, Parquet, or CSV) suitable for
+direct use with tools such as `XGBoost` [@xgboost]. Event processing is
+parallelized across chunks of each sample, with per-chunk outputs merged via
+`hadd`, allowing datasets built from many signal mass points and background
+processes to scale across available cores without manual chunk management.
+
+Machine learning has become an essential component of modern
+high-energy physics (HEP), with applications ranging from event
+classification and anomaly detection to particle reconstruction and
+jet tagging. Despite the availability of mature software for event generation,
+detector simulation, and data analysis, there remains no lightweight
+framework dedicated to transforming simulated Delphes events into
+machine-learning-ready tabular datasets.
+
+HEPDataset is an open-source Python framework designed to bridge this
+gap. The package reads Delphes ROOT files, performs configurable object
+selection, computes user-defined physics observables, constructs
+multi-object kinematic variables, and exports flattened datasets in
+formats suitable for downstream machine-learning workflows.
+
+The framework is analysis-independent and is configured through simple
+YAML files together with optional user-defined Python analysis modules.
+This allows users to describe physics objects, define signal regions,
+specify feature sets, and process arbitrary collections of signal and
+background samples without modifying the core software.
 
 # Statement of need
 
-`Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
-enables wrapping low-level languages (e.g., C) for speed without losing
-flexibility or ease-of-use in the user-interface. The API for `Gala` was
-designed to provide a class-based and user-friendly interface to fast (C or
-Cython-optimized) implementations of common operations such as gravitational
-potential and force evaluation, orbit integration, dynamical transformations,
-and chaos indicators for nonlinear dynamics. `Gala` also relies heavily on and
-interfaces well with the implementations of physical units and astronomical
-coordinate systems in the `Astropy` package [@astropy] (`astropy.units` and
-`astropy.coordinates`).
+Several mature, public frameworks exist for confronting BSM models with LHC
+data using `Delphes`-level simulation: `MadAnalysis 5`
+[@madanalysis5a; @madanalysis5b], `CheckMATE` [@checkmate1; @checkmate2], and
+`Rivet` [@rivet]. These tools excel at *recasting* — reproducing a specific,
+already-published experimental analysis (its cuts, signal regions, and
+efficiencies) so that a new theoretical model can be tested against it. Their
+unit of output is typically a small number of signal-region yields or
+efficiencies, matched to a specific published cut-and-count or simplified-likelihood
+analysis.
 
-`Gala` was designed to be used by both astronomical researchers and by
-students in courses on gravitational dynamics or astronomy. It has already been
-used in a number of scientific publications [@Pearson:2017] and has also been
-used in graduate courses on Galactic dynamics to, e.g., provide interactive
-visualizations of textbook material [@Binney:2008]. The combination of speed,
-design, and support for Astropy functionality in `Gala` will enable exciting
-scientific explorations of forthcoming data releases from the *Gaia* mission
-[@gaia] by students and experts alike.
+This is a different problem from the one facing an analysis that is *itself*
+being designed around a multivariate classifier, before any public
+recast-ready implementation exists. In that setting, what is needed is not a
+yield in a fixed set of signal regions, but a large, flat table of per-event
+kinematic features — spanning single-object kinematics, all relevant N-body
+combinations, and event-shape variables — computed consistently across many
+background processes and many signal mass points, correctly weighted by
+cross section and luminosity, and split by an analysis-specific signal-region
+definition that may itself evolve during BDT development. Assembling this by
+hand for every new analysis leads to substantial duplicated engineering effort
+across phenomenology groups, and to pipelines whose object/branch/region logic
+is difficult to disentangle from I/O and parallelization concerns, making
+them hard to validate or reuse.
 
-# State of the field                                                                                                                  
+`HEPDataset` targets this gap directly: it separates *what to read*
+(object and kinematic definitions), *how to select* (per-object quality
+selections and a user-supplied signal-region function), and *what samples to
+run over* (a YAML-configured, cross-section-weighted sample registry) from the
+I/O, chunking, and merging machinery, which is handled once, generically, for
+any configuration. The result is a reusable tool for producing ML-ready
+datasets from `Delphes` samples that complements, rather than duplicates,
+existing recasting frameworks: it is intended for the dataset-construction
+stage of a BDT- or NN-based search, upstream of tools such as `pyhf`
+[@pyhf] that are used for the subsequent statistical inference.
 
-Several tools exist for galactic dynamics computations:                                                     
-`galpy` [@Bovy:2015] is a Python package with similar goals,
-providing orbit integration and potential classes for galactic dynamics.                                                              
-`NEMO` [@Teuben:1995] is a well-established, comprehensive stellar dynamics                                                           
-toolbox written primarily in C, offering extensive functionality but with a                                                           
-steeper learning curve and less integration with modern Python workflows.                                                             
-Other tools like `GalPot` provide specific Milky Way potential models but lack                                                        
-the broader dynamical analysis capabilities.                                                                                          
-                                                                                                                                        
-`Gala` was built rather than contributing to existing projects for several                                                            
-reasons. First, `Gala` was designed from the ground up to integrate seamlessly                                                        
-with the Astropy ecosystem, using `astropy.units` and `astropy.coordinates`                                                           
-as core dependencies rather than optional features. This tight integration                                                            
-enables natural workflows for astronomers already using Astropy. Second,                                                              
-`Gala`'s object-oriented API with consistent interfaces across subpackages                                                            
-(potentials, integrators, dynamics) provides a more modular and extensible                                                            
-design than alternatives available at the time. Third, `Gala` fills a specific                                                        
-niche between simple demonstration codes and full N-body simulation packages                                                          
-like `Gadget` [@Springel:2005] – it focuses on the common tasks in galactic                                                             
-dynamics research (orbit integration, potential evaluation, coordinate                                                                
-transformations) while maintaining both performance through C implementations                                                         
-and usability through its Python interface.  
+Preparing machine-learning datasets is one of the most repetitive
+tasks in collider phenomenology.
+Although Delphes provides detector-level ROOT files and ROOT itself
+offers flexible event access, each analysis typically develops a
+custom event loop that performs object selection, computes derived
+kinematic variables, flattens event information, and writes a dataset
+for machine learning.
 
-# Software design
+These analysis-specific implementations often duplicate substantial
+amounts of code, making them difficult to reuse, maintain, or compare
+across different analyses. 
+Furthermore, introducing additional reconstructed objects or derived
+features usually requires modifying multiple components of the analysis
+pipeline.
 
-`Gala`'s design philosophy is based on three core principles: (1) to provide a
-user-friendly, modular, object-oriented API, (2) to use community tools and
-standards (e.g., Astropy for coordinates and units handling), and (3) to use
-low-level code (C/C++/Cython) for performance while keeping the user interface
-in Python. Within each of the main subpackages in `gala` (`gala.potential`,
-`gala.dynamics`, `gala.integrate`, etc.), we try to maintain a consistent API
-for classes and functions. For example, all potential classes share a common
-base class and implement methods for computing the potential, forces, density,
-and other derived quantities at given positions. This also works for
-compositions of potentials (i.e., multi-component potential models), which
-share the potential base class but also act as a dictionary-like container for
-different potential components. As another example, all integrators implement a
-common interface for numerically integrating orbits. The integrators and core
-potential functions are all implemented in C without support for units, but the
-Python layer handles unit conversions and prepares data to dispatch to the C
-layer appropriately.Within the coordinates subpackage, we extend Astropy's
-coordinate classes to add more specialized coordinate frames and
-transformations that are relevant for Galactic dynamics and Milky Way research.
+HEPDataset addresses this problem by providing a configurable feature
+engineering framework for Delphes events.
+Rather than hard-coding variables inside the event loop, users specify
 
-# Research impact statement
+\begin{itemize}
+\item physics objects,
+\item object representations,
+\item analysis selections,
+\item signal-region definitions,
+\item desired observables,
+\item output formats,
+\end{itemize}
 
-`Gala` has demonstrated significant research impact and grown both its user base
-and contributor community since its initial release. The package has evolved
-through contributions from over 18 developers beyond the original core developer
-(@adrn), with community members adding new features, reporting bugs, and
-suggesting new features.
-
-While `Gala` started as a tool primarily to support the core developer's
-research, it has expanded organically to support a range of applications across
-domains in astrophysics related to Milky Way and galactic dynamics. The package
-has been used in over 400 publications (according to Google Scholar) spanning
-topics in galactic dynamics such as modeling stellar streams [@Pearson:2017],
-Milky Way mass modeling, and interpreting kinematic and stellar population
-trends in the Galaxy. `Gala` is integrated within the Astropy ecosystem as an
-affiliated package and has built functionality that extends the widely-used
-`astropy.units` and `astropy.coordinates` subpackages. `Gala`'s impact extends
-beyond citations in research: Because of its focus on usability and user
-interface design, `Gala` has also been incorporated into graduate-level galactic
-dynamics curricula at multiple institutions.
-
-`Gala` has been downloaded over 100,000 times from PyPI and conda-forge yearly
-(or ~2,000 downloads per week) over the past few years, demonstrating a broad
-and active user community. Users span career stages from graduate students to
-faculty and other established researchers and represent institutions around the
-world. This broad adoption and active participation validate `Gala`'s role as
-core community infrastructure for galactic dynamics research.
-
-# Mathematics
-
-Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
-
-Double dollars make self-standing equations:
-
-$$\Theta(x) = \left\{\begin{array}{l}
-0\textrm{ if } x < 0\cr
-1\textrm{ else}
-\end{array}\right.$$
-
-You can also use plain \LaTeX for equations
-\begin{equation}\label{eq:fourier}
-\hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
-\end{equation}
-and refer to \autoref{eq:fourier} from text.
-
-# Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-# Figures
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
-
-# AI usage disclosure
-
-No generative AI tools were used in the development of this software, the writing
-of this manuscript, or the preparation of supporting materials.
+which are automatically translated into a complete event-processing
+pipeline.
 
 # Acknowledgements
 
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
+The author acknowledges the support of the University of Science and
+Technology of China and valuable discussions with members of the
+particle physics group.
 
 # References
