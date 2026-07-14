@@ -1,4 +1,8 @@
 name: Draft PDF
+
+permissions: 
+  contents: write
+
 on:
   push:
     branches:
