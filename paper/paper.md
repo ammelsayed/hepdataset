@@ -137,10 +137,28 @@ Rather than hard-coding variables inside the event loop, users specify
 which are automatically translated into a complete event-processing
 pipeline.
 
+# State of the field
+
+A description of how this software compares to other commonly-used packages in the research area. 
+If related tools exist, provide a clear “build vs. contribute” justification explaining your unique scholarly contribution and why existing alternatives are insufficient.
+
+# Software design
+
+An explanation of the trade-offs you weighed, the design/architecture you chose,
+and why it matters for your research application.
+This should demonstrate meaningful design thinking beyond a superficial code structure description.
+
 # Acknowledgements
 
 The author acknowledges the support of the University of Science and
 Technology of China and valuable discussions with members of the
 particle physics group.
+
+
+# AI usage disclosure
+
+Transparent disclosure of any use of generative AI in the software creation, documentation, 
+or paper authoring. If no AI tools were used, state this explicitly. If AI tools were used, 
+describe how they were used and how the quality and correctness of AI-generated content was verified.
 
 # References
