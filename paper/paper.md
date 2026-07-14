@@ -7,12 +7,10 @@ tags:
 authors:
   - name: A.M.M Elsayed
     orcid: 0000-0002-4955-4958
-    equal-contrib: true
     affiliation: 1
   - name: Yusheng Wu
     corresponding: true
     orcid: 0000-0002-1528-4865
-    equal-contrib: true 
     affiliation: 1
 affiliations:
  - name: Department of Modern Physics and State Key Laboratory of Particle Detection and Electronics, University of Science and Technology of China, Hefei, China
