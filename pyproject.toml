@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=64.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hepdataset"
+version = "3.0.0"
+description = "Software for making ML-ready datasets from Delphes ROOT files for HEP studies"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "A.M.M. Elsayed", email = "ammelsayed@mail.ustc.edu.cn" }
+]
+maintainers = [
+    { name = "A.M.M. Elsayed", email = "ahmedphysica@outlook.com" }
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "HEP",
+    "high-energy-physics",
+    "Delphes",
+    "ROOT",
+    "machine-learning",
+    "dataset",
+    "particle-physics",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "tabulate",
+    "PyYAML",
+    "tqdm",
+    "numba",
+    "mt2",
+]
+
+[project.urls]
+Homepage = "https://github.com/ammelsayed/hepdataset"
+Repository = "https://github.com/ammelsayed/hepdataset.git"
+Issues = "https://github.com/ammelsayed/hepdataset/issues"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "ruff",
+]
+
+[project.scripts]
+hepdataset-make = "hepdataset.make_dataset_v3:make_datasets"
+
+[tool.setuptools.packages.find]
+include = ["hepdataset*"]
+exclude = [
+    "*.tests*",
+    "*.test*",
+    "paper*",
+    ".github*",
+]
+
+[tool.setuptools.package-data]
+hepdataset = [
+    "cpp_loop/**/*",
+]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.pyc", "*.so", "*.dll", "*.dylib", "__pycache__"]

@@ -1,0 +1,16 @@
+include README.md
+include LICENSE
+include pyproject.toml
+
+recursive-include hepdataset *.py
+recursive-include hepdataset/cpp_loop *.h *.cc *.cpp *.hh *.c *.txt *.cmake CMakeLists.txt
+prune hepdataset/cpp_loop/external/fastjet
+
+global-exclude *.pyc
+global-exclude *.so
+global-exclude *.dll
+global-exclude *.dylib
+global-exclude __pycache__
+global-exclude *.egg-info
+global-exclude .pytest_cache
+global-exclude .mypy_cache
