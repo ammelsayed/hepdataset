@@ -87,71 +87,10 @@ tmpDir = os.path.dirname(os.path.abspath(__file__))
 tempReaderDir = os.path.join(tmpDir, "TempReaderOutput")
 
 
-def hadd_files(target_path, source_paths):
-    """Merge ROOT files using the hadd command-line tool.
-
-    Parameters
-    ----------
-    target_path : str
-        Output file path (created / overwritten by hadd).
-    source_paths : list[str] or str
-        One or more input ROOT file paths / globs.
-
-    Returns
-    -------
-    bool  – True on success, False on failure.
-    """
-    if isinstance(source_paths, str):
-        source_paths = [source_paths]
-    cmd = ["hadd", "-f", target_path] + list(source_paths)
-    # print(f"  hadd: {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        print(f"  hadd FAILED (rc={result.returncode}):\n{result.stderr}")
-        return False
-    return True
-
-## =============================
-## Helper functions for parallelization
-## =============================
-
-def build_chain(inputRootFile):
-    chain = ROOT.TChain("Delphes")
-    if isinstance(inputRootFile, list):
-        for file in inputRootFile:
-            chain.Add(file)
-    elif isinstance(inputRootFile, str):
-        chain.Add(inputRootFile)
-    else:
-        raise TypeError(f"inputRootFile must be str or list, got {type(inputRootFile).__name__}")
-    return chain
-
-def count_entries(inputRootFile):
-    return build_chain(inputRootFile).GetEntries()
-
-def split_range(total, n):
-    n = max(1, min(n, total))
-    base, rem = divmod(total, n)
-    out, start = [], 0
-    for i in range(n):
-        size = base + (1 if i < rem else 0)
-        out.append((start, start + size))
-        start += size
-    return out
-
-
 ## Main reader loop and quality selections
 ## ==========================================
 
-def isGoodMuon(muonIdx, muonPT, muonEta, muonIso):
-    idx_pt_map = {0: 30, 1: 20} #  PT thresholds for leading, subleading, etc. muons
-    IsoCutMuon = 0.1 ## looseCut = 0.3, mediumCut = 0.2, tightCut = 0.1
-    return (muonIso <= IsoCutMuon) and (muonPT >= idx_pt_map.get(muonIdx, 10)) and (abs(muonEta) <= 2.5)
 
-def isGoodElectron(electronIdx, electronPT, electronEta, electronIso):
-    idx_pt_map = {0: 30, 1: 20} #  PT thresholds for leading, subleading, etc. electrons
-    IsoCutElectron = 0.2 ## looseCut = 0.3, mediumCut = 0.2, tightCut = 0.1
-    return (electronIso < IsoCutElectron) and (electronPT >= idx_pt_map.get(electronIdx, 10)) and (abs(electronEta) <= 2.5)
 
 def loop_tree(inputRootFile, treeName, sampleWeight, signal_regions_keys, start_entry=0, end_entry=None, progress=True, debug_loop = False, max_entries=None, temp_dir_path=None):
     """Thin wrapper around :func:`hepdataset.py_loop.adaptive.loop_tree`.
@@ -188,52 +127,6 @@ def loop_tree(inputRootFile, treeName, sampleWeight, signal_regions_keys, start_
         isLooseSR=LooseSR,
     )
 
-
-def hadd_chunks(chunk_results, signal_regions_keys, treeName):
-    """Merge per-chunk temp files for each SR using hadd.
-
-    Parameters
-    ----------
-    chunk_results : list[list[str]]
-        Each element is the list of temp file paths returned by a chunk worker.
-    signal_regions_keys : list[str]
-        All known SR keys.
-    treeName : str
-        Name of the tree inside the files (e.g. "tt_sample1").
-
-    Returns
-    -------
-    dict[str, str]
-        Mapping  sr_key -> merged_sample_file_path  for SRs that got entries.
-        The merged files live under TempReaderOutput/{sr_key}/{treeName}.root
-    """
-    print("Merging chunks with hadd ..")
-    start = time.perf_counter()
-
-    # Group chunk files by sr_key
-    sr_files = {sr_key: [] for sr_key in signal_regions_keys}
-    for chunk_paths in chunk_results:
-        for path in chunk_paths:
-            # path pattern: .../{sr_key}/{treeName}.root
-            sr_key = os.path.basename(os.path.dirname(path))
-            if sr_key in sr_files:
-                sr_files[sr_key].append(path)
-
-    merged = {}
-    for sr_key, files in sr_files.items():
-        if not files:
-            continue
-        out_path = os.path.join(tempReaderDir, sr_key, f"{treeName}.root")
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        ok = hadd_files(out_path, files)
-        if ok:
-            merged[sr_key] = out_path
-        else:
-            print(f"  WARNING: hadd failed for {sr_key}")
-
-    print(f"Merged {len(chunk_results)} chunks x {len(merged)} SR(s) "
-          f"[{format_time(time.perf_counter() - start)}]")
-    return merged
 
 
 def loop_tree_advanced(inputRootFile, treeName, sampleWeight, signal_regions_keys, run_parallel=True, n_chunks=None, max_workers=None, max_entries=None):

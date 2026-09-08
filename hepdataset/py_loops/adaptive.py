@@ -17,6 +17,16 @@ from ..branch_names import (
 )
 
 
+def isGoodMuon(muonIdx, muonPT, muonEta, muonIso):
+    idx_pt_map = {0: 30, 1: 20} #  PT thresholds for leading, subleading, etc. muons
+    IsoCutMuon = 0.1 ## looseCut = 0.3, mediumCut = 0.2, tightCut = 0.1
+    return (muonIso <= IsoCutMuon) and (muonPT >= idx_pt_map.get(muonIdx, 10)) and (abs(muonEta) <= 2.5)
+
+def isGoodElectron(electronIdx, electronPT, electronEta, electronIso):
+    idx_pt_map = {0: 30, 1: 20} #  PT thresholds for leading, subleading, etc. electrons
+    IsoCutElectron = 0.2 ## looseCut = 0.3, mediumCut = 0.2, tightCut = 0.1
+    return (electronIso < IsoCutElectron) and (electronPT >= idx_pt_map.get(electronIdx, 10)) and (abs(electronEta) <= 2.5)
+
 def loop_tree(
     inputRootFile,
     treeName,
