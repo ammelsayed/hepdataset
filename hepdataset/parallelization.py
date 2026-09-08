@@ -8,6 +8,12 @@ from concurrent.futures import ProcessPoolExecutor, FIRST_COMPLETED, wait
 ## Helper functions for parallelization
 ## =============================
 
+
+# where to spill per-chunk/merge temp .root files
+tmpDir = os.path.dirname(os.path.abspath(__file__))
+tempReaderDir = os.path.join(tmpDir, "TempReaderOutput")
+
+
 def hadd_files(target_path, source_paths):
     """Merge ROOT files using the hadd command-line tool.
 
@@ -180,6 +186,59 @@ def parallel_runs(func, args_list, max_workers = None, info = "INFO", mpContext 
     if final_time != last_time_str or completed == total:
         print(f"{info}Idle: {len(pending)},  Running: {len(futures)},  Completed: {completed} [ {final_time} ]")
     return results
+
+
+## =============================
+## Actual use of parraleization
+## =============================
+
+
+def loop_tree_advanced(inputRootFile, treeName, sampleWeight, signal_regions_keys, run_parallel=True, n_chunks=None, max_workers=None, max_entries=None):
+    if not run_parallel:
+        # Non-parallel path: loop_tree returns {sr_key: TTree} in memory.
+        # Write each tree to TempReaderOutput so the rest of the pipeline
+        # (which expects file paths) works uniformly.
+        trees = loop_tree(inputRootFile, treeName, sampleWeight, signal_regions_keys, max_entries=max_entries)
+        written = {}
+        for sr_key, tree in trees.items():
+            if tree.GetEntries() == 0:
+                continue
+            out_path = os.path.join(tempReaderDir, sr_key, f"{treeName}.root")
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            f_out = ROOT.TFile.Open(out_path, "RECREATE")
+            tree.SetDirectory(f_out)
+            tree.Write()
+            f_out.Close()
+            written[sr_key] = out_path
+        return written
+
+    total = count_entries(inputRootFile)
+    n_chunks = n_chunks or (max_workers or os.cpu_count())
+
+    # Create a temp directory for this sample's chunk outputs.
+    # Each chunk gets its own subdirectory to avoid write collisions.
+    sample_temp_dir = tempfile.mkdtemp(prefix=f"make_dataset_chunks_{treeName}_", dir=tmpDir)
+
+    try:
+        chunk_dirs = []
+        chunks = []
+        for i, (s, e) in enumerate(split_range(total, n_chunks)):
+            chunk_dir = os.path.join(sample_temp_dir, f"chunk_{i}")
+            os.makedirs(chunk_dir, exist_ok=True)
+            chunk_dirs.append(chunk_dir)
+            chunks.append((inputRootFile, treeName, sampleWeight, signal_regions_keys,
+                           s, e, False, False, None, chunk_dir))
+        results = parallel_runs(loop_tree, chunks, max_workers=max_workers, info="", mpContext="fork")
+        for r in results:
+            if isinstance(r, Exception):
+                raise r
+        # results is a list of lists of file paths (one list per chunk)
+        return hadd_chunks(results, signal_regions_keys, treeName)
+    finally:
+        # Clean up the temp directory (chunk files were already removed by hadd_chunks;
+        # this removes any empty sr_key subdirs and the temp dir itself).
+        shutil.rmtree(sample_temp_dir, ignore_errors=True)
+
 
 if __name__ == "__main__":
 
