@@ -35,10 +35,3 @@ Settings:
       count: 1
       representations: ["MET"]
       kinematics: ["MET"] + !reference [Settings, basic]
-
-Samples:
-  Background:
-    Z+012j:
-      - /data/ammelsayed/new_stuff/z012j_MLM_v4/Events/FatJetPTMin50/tag_1_delphes_events.root
-  Signal:
-    # add your signal samples here
