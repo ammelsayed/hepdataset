@@ -17,6 +17,21 @@ from ..branch_names import (
 )
 
 
+DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_5_15/Delphes")
+ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
+ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
+ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/external")
+ROOT.gSystem.Load("libDelphes")
+ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
+ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
+ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
+ROOT.gROOT.SetBatch(True)
+ROOT.gROOT.SetStyle("ATLAS")
+print("Using ROOT version:", ROOT.__version__)
+print("Using Delphes libraries found at:", DELPHES_PATH)
+script_nb_version = 3
+print(f"Making datasets with script version : {script_nb_version}")
+
 def isGoodMuon(muonIdx, muonPT, muonEta, muonIso):
     idx_pt_map = {0: 30, 1: 20} #  PT thresholds for leading, subleading, etc. muons
     IsoCutMuon = 0.1 ## looseCut = 0.3, mediumCut = 0.2, tightCut = 0.1

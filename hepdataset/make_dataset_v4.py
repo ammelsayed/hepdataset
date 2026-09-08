@@ -1,61 +1,16 @@
 #!/usr/bin/env python3
-"""
-make_dataset_v3.py
-
-Build ML-ready tabular datasets from Delphes ROOT files.
-
-Memory-efficient variant of make_dataset_v2.py: in the parallel path each chunk
-worker spills its per-SR trees to individual temp .root files (one per signal
-region) and returns the file paths.  Chunks are then merged via hadd, and the
-per-sample files are finally hadd'd into the output ReaderOutput ROOT files.
-This avoids holding large TTrees in memory or writing detached trees into
-long-lived TFiles (which caused corruption in earlier attempts).
-
-Responsibilities:
-    - Read background ROOT paths from bkg_directories.yml
-    - Select objects according to SR definitions, read the required kinematics
-    - Flatten event-level information into a tabular format (ROOT Tree Bracnhs)
-    - Write output datasets in Parquet or CSV format using Pandas.
-
-Author : A.M.M. Elsayed (University of Science and Technology of China)
-Email  : ammelsayed@mail.ustc.edu.cn / ahmedphysica@outlook.com
-"""
-
 import os
 import sys
 import time
 import uuid
-import shutil
-import tempfile
+import ROOT
 import subprocess
 import numpy as np
 import pandas as pd
 import itertools
 import tabulate
-from .kinematics import EventShapes, Centrality, MtW
-from .branch_names import (
-
-    get_float_branch_names, get_int_branch_names, get_obj_repr, get_obj_count, get_obj_kinematics,
-    get_obj_instances, get_nbody_combinations, get_nbody_kinematics, print_summary
-)
-from yaml import safe_load as yml_safe_load
 from tqdm import tqdm
-from mt2 import mt2
-import ROOT
-from .parallelization import parallel_runs, format_time
-from .py_loop.adaptive import loop_tree as _adaptive_loop_tree
-DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_5_15/Delphes")
-ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
-ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
-ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/external")
-ROOT.gSystem.Load("libDelphes")
-ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
-ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
-ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
-ROOT.gROOT.SetBatch(True)
-ROOT.gROOT.SetStyle("ATLAS")
-print("Using ROOT version:", ROOT.__version__)
-print("Using Delphes libraries found at:", DELPHES_PATH)
+
 script_nb_version = 3
 print(f"Making datasets with script version : {script_nb_version}")
 
