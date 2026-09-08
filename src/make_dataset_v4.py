@@ -2,24 +2,17 @@
 import os
 import sys
 import time
-import uuid
 import ROOT
-import subprocess
-import numpy as np
-import pandas as pd
-import itertools
-import tabulate
 from tqdm import tqdm
 
 script_nb_version = 3
 print(f"Making datasets with script version : {script_nb_version}")
 
-## =============================
-## Run options
-## =============================
+def main(samples_file_dir, config_file_dir, analysis_channels_definition):
+    pass
 
 
-def read(processes, signal_regions, signal_regions_keys):
+def loop_samples(samples_file_dir, config_file_dir, analysis_channels_definition):
 
     print("\n")
     
@@ -93,10 +86,4 @@ def make_datasets():
 
 
 if __name__ == '__main__':
-
-    if testCode:
-        test()
-    else:
-        make_datasets()
-
-
+    
