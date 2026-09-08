@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hepdataset"
-version = "3.0.0"
+version = "4.0.0"
 description = "Software for making ML-ready datasets from Delphes ROOT files for HEP studies"
 readme = "README.md"
 license = { file = "LICENSE" }

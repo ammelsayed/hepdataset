@@ -1,0 +1,44 @@
+Settings:
+  # multi‑object settings
+  multiObjects_Nmax: 3
+  multiObjects_include_same_represenations: True
+  multiObjects_include_trival_kinematics: False
+  multiObjects_include_mt2: True           # only calculated for 2‑body objects (leptons and fatjets, see main loop)
+  multiObjects_combo_objects_set: ["Lepton", "FatJet", "MET"]
+
+  ## Objects and kinematics definitions
+  ## =============================================
+  basic: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy"]
+  track: ["IsolationVar", "D0", "DZ"]
+  taus: ["Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]
+  global_scalars: ["ScalarSumPT_Jets", "ScalarSumPT_FatJets", "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic", "HT", "LT", "ST", "Meff", "Significance_MET"]
+  event_shapes: ["Sphericity", "Aplanarity", "Circularity", "Centrality"]
+
+  multiObject_basic_kinematics: !reference [Settings, basic]          # reuse the 'basic' list
+  multiObject_2body_kinematics: ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+  multiObject_trival_kinematics: !reference [Settings, event_shapes] + ["ScalarSumPT", "VectorSumPT"]
+
+  objects:
+    Lepton:
+      count: 4
+      representations: ["Lepton"]               # add "Muon","Electron" when flavor matters
+      kinematics: !reference [Settings, basic] + !reference [Settings, track]
+    FatJet:
+      count: 2
+      representations: ["FatJet", "SoftDroppedFatJet"]
+      kinematics: !reference [Settings, basic] + !reference [Settings, taus]
+    Jet:
+      count: 4
+      representations: ["Jet"]                  # add "BJet","TauJet" when tagging matters
+      kinematics: !reference [Settings, basic]
+    MET:
+      count: 1
+      representations: ["MET"]
+      kinematics: ["MET"] + !reference [Settings, basic]
+
+Samples:
+  Background:
+    Z+012j:
+      - /data/ammelsayed/new_stuff/z012j_MLM_v4/Events/FatJetPTMin50/tag_1_delphes_events.root
+  Signal:
+    # add your signal samples here

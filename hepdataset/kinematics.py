@@ -5,7 +5,6 @@ from typing import Optional, Tuple
 
 SENTINEL = np.nan
 
-# Helper functions
 def DeltaR(obj1, obj2, use_rapidity=False):
     return obj1.P4().DeltaR(obj2.P4(), useRapidity=use_rapidity)
 

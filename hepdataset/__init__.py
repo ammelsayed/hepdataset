@@ -1,4 +1,4 @@
-from .make_dataset_v3 import (
+from .make_dataset_v4 import (
     make_datasets,
     make_datasets as make_dataset,
     test,
@@ -11,7 +11,18 @@ from .make_dataset_v3 import (
     loop_tree_advanced,
     classify_signal_region_key,
     get_paths_from_yml,
+    hadd_chunks,
+    build_chain,
+    count_entries,
+    split_range,
+    isGoodMuon,
+    isGoodElectron,
+    lepton_type,
 )
+
+from . import make_dataset_v3
+from . import make_dataset_v4
+from . import py_loop
 
 from .kinematics import (
     DeltaR,
@@ -45,7 +56,7 @@ from .parallelization import (
     format_time,
 )
 
-__version__ = "3.0.0"
+__version__ = "4.0.0"
 __all__ = [
     "make_datasets",
     "make_dataset",
@@ -57,8 +68,18 @@ __all__ = [
     "hadd_files",
     "loop_tree",
     "loop_tree_advanced",
+    "hadd_chunks",
+    "build_chain",
+    "count_entries",
+    "split_range",
+    "isGoodMuon",
+    "isGoodElectron",
+    "lepton_type",
     "classify_signal_region_key",
     "get_paths_from_yml",
+    "make_dataset_v3",
+    "make_dataset_v4",
+    "py_loop",
     "DeltaR",
     "DeltaPhi",
     "DeltaEta",

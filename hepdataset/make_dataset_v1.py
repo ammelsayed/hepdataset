@@ -20,8 +20,8 @@ import numpy as np
 import pandas as pd
 import itertools
 import tabulate
-from kinematics import EventShapes, Centrality, MtW
-from branch_names import (
+from .kinematics import EventShapes, Centrality, MtW
+from .branch_names import (
     get_float_branch_names, get_int_branch_names, get_obj_repr, get_obj_count, get_obj_kinematics,
     get_obj_instances, get_nbody_combinations, get_nbody_kinematics, print_summary
 )

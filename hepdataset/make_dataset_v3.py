@@ -32,8 +32,8 @@ import numpy as np
 import pandas as pd
 import itertools
 import tabulate
-from kinematics import EventShapes, Centrality, MtW
-from branch_names import (
+from .kinematics import EventShapes, Centrality, MtW
+from .branch_names import (
 
     get_float_branch_names, get_int_branch_names, get_obj_repr, get_obj_count, get_obj_kinematics,
     get_obj_instances, get_nbody_combinations, get_nbody_kinematics, print_summary
@@ -42,7 +42,7 @@ from yaml import safe_load as yml_safe_load
 from tqdm import tqdm
 from mt2 import mt2
 import ROOT
-from parallelization import parallel_runs, format_time
+from .parallelization import parallel_runs, format_time
 DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_5_15/Delphes")
 ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
 ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
@@ -143,11 +143,7 @@ def clean(args, check_root=True):
     return list(set(valid)) # use set to auto-remove duplicates
 
 
-def get_paths_from_yml(bkg_proc_name):
-    print(f"Reading .root files paths for {bkg_proc_name}")
-    with open('/data/ammelsayed/stuff/bkgModeling/bkg_directories.yml', 'r') as f:
-        data = yml_safe_load(f)
-    return clean(data[bkg_proc_name])
+
 
 
 def get_processes(just_bkg = False):
