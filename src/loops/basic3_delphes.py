@@ -43,15 +43,17 @@ def loop_tree(
     branch_names += ["weight", "gen_weight"]
 
     # book the trees and create the branch buffers
-    trees, b = {}, {}
+    trees, buffers = {}, {}
     ac_keys = ["1L", "2L", "3L"]
     for ac_key in ac_keys:
         tree_name = f"{treeName}_{ac_key}"
         tree = ROOT.TTree(tree_name, tree_name)
         tree.SetDirectory(0)
+        b = {}
         for name in branch_names:
             b[name] = np.zeros(1, dtype=np.float64)
             tree.Branch(name, b[name], f"{name}/D")
+        buffers[ac_key] = b      
         trees[ac_key] = tree
 
     # Event loop
@@ -63,11 +65,6 @@ def loop_tree(
     for entry in (tqdm(rng) if show_progress else rng):
         
         TreeReader.ReadEntry(entry)
-
-        # Reset branches to np.nan (weight defaults to 0.0 for skipped events)
-        for name in b:
-            b[name][0] = np.nan
-        b["weight"][0] = 0.0
 
         # Object selection
         selected_objects = select_objects(FatJet_branch, Electron_branch, Muon_branch)
@@ -84,6 +81,12 @@ def loop_tree(
         # Skip events that don't match any analysis channel
         if ac_key is None or ac_key not in trees.keys():
             continue  
+        
+        # Reset all branches of this tree to NaN
+        b = buffers[ac_key]
+        for name in b:
+            b[name][0] = np.nan
+        b["weight"][0] = 0.0
 
         # A dictonary to hold the selected objects' four-momenta for easier access
         P4s = {}
@@ -118,7 +121,7 @@ def loop_tree(
         
         # Fill global event variables
         met = MissingET_branch.At(0).MET
-        ht  = ScalarHT_branch.At(0).ScalarHT
+        ht  = ScalarHT_branch.At(0).HT
         lt  = sum(lep.PT for lep in goodLeptons)
         st  =  ht + lt
         meff = st + met

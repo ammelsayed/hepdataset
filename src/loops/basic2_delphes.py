@@ -103,7 +103,7 @@ def loop_tree(
         
         # Fill global event variables
         met = MissingET_branch.At(0).MET
-        ht  = ScalarHT_branch.At(0).ScalarHT
+        ht  = ScalarHT_branch.At(0).HT
         lt  = sum(lep.PT for lep in goodLeptons)
         st  =  ht + lt
         meff = st + met
