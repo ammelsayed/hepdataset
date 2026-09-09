@@ -47,7 +47,9 @@ def select_objects(FatJet_branch, Electron_branch, Muon_branch):
         electron = Electron_branch.At(i)
         if electron.IsolationVar < IsoCutElectron and electron.PT > 30 and abs(electron.Eta) <= 2.5:
             goodLeptons.append(electron)
-     
+    
+    goodFatJets.sort(key=lambda fj: fj.PT, reverse=True)
+    goodLeptons.sort(key=lambda lep: lep.PT, reverse=True)
 
     return {
         "goodFatJets": goodFatJets,
