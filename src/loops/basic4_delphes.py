@@ -20,6 +20,7 @@ def loop_tree(
     temp_dir_path = None,
     nb_lep_max = 3,
     nb_fj_max = 2,
+    prune_empty_branches = True,
 ):
 
     # Read the input file
@@ -45,6 +46,7 @@ def loop_tree(
     # book the trees and create the branch buffers
     trees, buffers = {}, {}
     ac_keys = ["1L", "2L", "3L"]
+    filled_branches = {ac_key: set() for ac_key in ac_keys}
     for ac_key in ac_keys:
         tree_name = f"{treeName}_{ac_key}"
         tree = ROOT.TTree(tree_name, tree_name)
@@ -139,21 +141,43 @@ def loop_tree(
         b["gen_weight"][0] = w_gen
         b["weight"][0] = eventWeight
 
+        # Record which branches got real (non-NaN) values
+        for name, arr in b.items():
+            if not np.isnan(arr[0]):
+                filled_branches[ac_key].add(name)
+
+        # Fill the data into the tree
         trees[ac_key].Fill()
 
     if temp_dir_path is not None:
         paths = {}
         for ac_key, tree in trees.items():
+            # Disable unfilled branches
+            if prune_empty_branches:
+                for branch in tree.GetListOfBranches():
+                    name = branch.GetName()
+                    if name not in filled_branches[ac_key]:
+                        tree.SetBranchStatus(name, 0)
+
+            # Write into file
             os.makedirs(temp_dir_path, exist_ok=True)
             path = os.path.join(temp_dir_path, f"{treeName}_{ac_key}.root")
             f_out = ROOT.TFile.Open(path, "RECREATE")
             tree.SetDirectory(f_out)
             tree.Write()
-            # tree.Delete()
+            tree.Delete()
             f_out.Close()
             paths[ac_key] = path
         return paths
+
     else:
+        # Disable unfilled branches
+        if prune_empty_branches:
+            for ac_key, tree in trees.items():
+                for branch in tree.GetListOfBranches():
+                    name = branch.GetName()
+                    if name not in filled_branches[ac_key]:
+                        tree.SetBranchStatus(name, 0)
         return trees
 
 if __name__ == "__main__":
@@ -167,6 +191,7 @@ if __name__ == "__main__":
     parser.add_argument("--event-weight", type=float, default=1.0, help="Weight to apply to each event (default: 1.0).")
     parser.add_argument("--nb-lep-max", type=int, default=3, help="Maximum number of leptons to store (default: 3).")
     parser.add_argument("--nb-fj-max", type=int, default=2, help="Maximum number of fat jets to store (default: 2).")
+    parser.add_argument("--prune-empty-branches", action="store_true", help="Disable branches that have no filled values (default: True).")
     parser.add_argument("--start-entry", type=int, default=0, help="Entry to start processing from (default: 0).")
     parser.add_argument("--end-entry", type=int, default=None, help="Entry to stop processing at (default: None, meaning process all entries).")
     parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
