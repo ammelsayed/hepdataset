@@ -1,4 +1,5 @@
 import os
+import ROOT
 import time
 import subprocess
 from multiprocessing import get_context
@@ -38,19 +39,6 @@ def hadd_files(target_path, source_paths):
         return False
     return True
 
-def build_chain(inputRootFile):
-    chain = ROOT.TChain("Delphes")
-    if isinstance(inputRootFile, list):
-        for file in inputRootFile:
-            chain.Add(file)
-    elif isinstance(inputRootFile, str):
-        chain.Add(inputRootFile)
-    else:
-        raise TypeError(f"inputRootFile must be str or list, got {type(inputRootFile).__name__}")
-    return chain
-
-def count_entries(inputRootFile):
-    return build_chain(inputRootFile).GetEntries()
 
 def split_range(total, n):
     n = max(1, min(n, total))

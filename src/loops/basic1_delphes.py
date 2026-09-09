@@ -1,20 +1,13 @@
+#!/usr/bin/env python3
 import os
-import math
-import numpy as np
 import ROOT
-from parallelization import build_chain
-DELPHES_PATH = os.environ.get("DELPHES_PATH", "/home/elsayed/Delphes-3.5.1")
-ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
-ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
-ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/external")
-ROOT.gSystem.Load("libDelphes")
-ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
-ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
-ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
-ROOT.gROOT.SetBatch(True)
-ROOT.gROOT.SetStyle("ATLAS")
-print("Using ROOT version:", ROOT.__version__)
-print("Using Delphes libraries found at:", DELPHES_PATH)
+import math
+import argparse
+import numpy as np
+from tqdm import tqdm
+from delphes import load_delphes, build_chain
+from kinematics import DeltaR, DeltaPhi, DeltaEta
+from object_selection import select_objects
 
 def loop_tree(
     inputRootFile,
@@ -28,6 +21,7 @@ def loop_tree(
 
     # Read the input file
     Chain = build_chain(inputRootFile)
+    TreeReader = ROOT.ExRootTreeReader(Chain)
 
     # Branches to read
     FatJet_branch   = TreeReader.UseBranch("FatJet")
@@ -51,10 +45,10 @@ def loop_tree(
         "weight",
     ]
 
-    b = {}   # numpy branch arrays
+    b = {} 
     for name in branch_names:
         b[name] = np.zeros(1, dtype=np.float64)
-        tree.Branch(name, b[name], f"{name}/D")  # /D for Double (64-bit float)
+        tree.Branch(name, b[name], f"{name}/D")
 
     # Event loop
     numberOfEntries = TreeReader.GetEntries()
@@ -72,31 +66,9 @@ def loop_tree(
         b["weight"][0] = 0.0
 
         # Object selection
-        # Collect good fatjets (pT > 300 GeV, |eta| < 2.5, in mass window)
-        goodFatJets = []
-        mWindow = 20
-        for i in range(FatJet_branch.GetEntries()):
-            fatjet = FatJet_branch.At(i)
-            MassOk = mW - mWindow <= fatjet.SoftDroppedP4[0].M() <= mH + mWindow
-            if MassOk and fatjet.PT > 300 and abs(fatjet.Eta) <= 2.5:
-                goodFatJets.append(fatjet)
-        if len(goodFatJets) == 0:
-            continue
-
-        # Collect good leptons
-        goodLeptons = []
-        IsoCutMuon     = 0.1
-        IsoCutElectron = 0.2
-        for i in range(Muon_branch.GetEntries()):
-            muon = Muon_branch.At(i)
-            if muon.IsolationVar < IsoCutMuon and muon.PT > 25 and abs(muon.Eta) <= 2.5:
-                goodLeptons.append(muon)
-        for i in range(Electron_branch.GetEntries()):
-            electron = Electron_branch.At(i)
-            if electron.IsolationVar < IsoCutElectron and electron.PT > 30 and abs(electron.Eta) <= 2.5:
-                goodLeptons.append(electron)
-        if len(goodLeptons) == 0:
-            continue
+        selected_objects = select_objects(FatJet_branch, Electron_branch, Muon_branch)
+        goodFatJets = selected_objects["goodFatJets"]
+        goodLeptons = selected_objects["goodLeptons"]
 
         # Event selection (analysis channels configuration)
         # Exactly one lepton and at least one fatjet
@@ -134,11 +106,45 @@ def loop_tree(
 
         tree.Fill()
 
-    # Write and close
-    nEntries = tree.GetEntries()
-    outFile.cd()
-    tree.Write()
-    outFile.Close()
-    print(f"Written {nEntries} entries to {outputFile}")
+    if temp_dir_path is not None:
+        os.makedirs(temp_dir_path, exist_ok=True)
+        path = os.path.join(temp_dir_path, f"{treeName}.root")
+        f_out = ROOT.TFile.Open(path, "RECREATE")
+        tree.SetDirectory(f_out)
+        tree.Write()
+        f_out.Close()
+        return path
+    else:
+        return tree
 
-    return out
+if __name__ == "__main__":
+    
+    load_delphes()  
+    
+    parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
+    parser.add_argument("input_root_file",  type=str, help="Path to the input Delphes ROOT file.")
+    parser.add_argument("--tree-name", type=str, default="Delphes", help="Name of the output TTree (default: Delphes).")
+    parser.add_argument("--output-dir", type=str, default=".", help="Directory where the output ROOT file will be written (default: current directory).")
+    parser.add_argument("--event-weight", type=float, default=1.0, help="Weight to apply to each event (default: 1.0).")
+    parser.add_argument("--start-entry", type=int, default=0, help="Entry to start processing from (default: 0).")
+    parser.add_argument("--end-entry", type=int, default=None, help="Entry to stop processing at (default: None, meaning process all entries).")
+    parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
+
+
+    args = parser.parse_args()
+
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    # Run the loop
+    out_path = loop_tree(
+        inputRootFile=args.input_root_file,
+        treeName=args.tree_name,
+        eventWeight=args.event_weight,
+        start_entry=args.start_entry,
+        end_entry=args.end_entry,
+        show_progress=args.show_progress,
+        temp_dir_path=args.output_dir,
+    )
+
+    print(f"Output written to: {out_path}")

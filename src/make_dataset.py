@@ -10,7 +10,6 @@ from samples_reader import SamplesReader
 
 def loop_samples(processes, signal_regions, signal_regions_keys):
 
-   
     # output root files paths (final destination)
     paths = {}
     for channelName, regionNamesList in signal_regions.items():
