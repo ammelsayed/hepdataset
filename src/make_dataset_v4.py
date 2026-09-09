@@ -5,17 +5,12 @@ import time
 import ROOT
 from tqdm import tqdm
 
-script_nb_version = 3
-print(f"Making datasets with script version : {script_nb_version}")
-
-def main(samples_file_dir, config_file_dir, analysis_channels_definition):
-    pass
+from samples_reader import SamplesReader
 
 
-def loop_samples(samples_file_dir, config_file_dir, analysis_channels_definition):
+def loop_samples(processes, signal_regions, signal_regions_keys):
 
-    print("\n")
-    
+   
     # output root files paths (final destination)
     paths = {}
     for channelName, regionNamesList in signal_regions.items():
@@ -75,14 +70,16 @@ def loop_samples(samples_file_dir, config_file_dir, analysis_channels_definition
         print(f"Cleaned up {tempReaderDir}")
 
 
-def make_datasets():
+def make_dataset():
+
+    samples = SamplesReader("../tests/samples.yml").read()
 
     signal_regions, signal_regions_keys = get_signal_regions(isLoose = LooseSR)
     print("Signal regions:")
     for key, values in signal_regions.items():
         print(f"{key:<5} : {values}")
 
-    read(get_processes(), signal_regions, signal_regions_keys)
+    loop_samples(samples, signal_regions, signal_regions_keys)
 
 
 if __name__ == '__main__':
