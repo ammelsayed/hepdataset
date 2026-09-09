@@ -1,2 +1,2 @@
-./src/__pycache__
-./src/loops/__pycache__
+src/loops/__pycache__/
+src/__pycache__/
