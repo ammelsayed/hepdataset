@@ -107,94 +107,6 @@ __all__ = [
     "format_time",
 ]
 
-./src/make_dataset_v4.py
-
-#!/usr/bin/env python3
-import os
-import sys
-import time
-import ROOT
-from tqdm import tqdm
-
-from samples_reader import SamplesReader
-
-
-def loop_samples(processes, signal_regions, signal_regions_keys):
-
-   
-    # output root files paths (final destination)
-    paths = {}
-    for channelName, regionNamesList in signal_regions.items():
-        for regionName in regionNamesList:
-            key = f"{channelName}_{regionName}"
-            paths[key] = os.path.join(baseDir, channelName, regionName, outputRootFileName)
-
-    # Ensure TempReaderOutput exists
-    os.makedirs(tempReaderDir, exist_ok=True)
-
-    # Collect per-sample merged files for each SR, then hadd into final output
-    # sample_files[sr_key] = list of per-sample ROOT file paths in TempReaderOutput
-    sample_files = {sr_key: [] for sr_key in signal_regions_keys}
-    
-    for proc, metadata in processes.items():
-        inputRootFilesList = metadata['dir']
-        TotalCrossSection = metadata['cross_section_[pb]']
-
-        if not inputRootFilesList:
-            print(f"Skipping {proc}: no input files.")
-            continue
-
-        print(f"Processing {proc}: {len(inputRootFilesList)} sample root files.")
-        numEvents = count_entries(inputRootFilesList)
-        if numEvents == 0:
-            print(f"Skipping {proc}: zero events.")
-            continue
-        perEventWeight = TotalCrossSection * 1000 * 400 / numEvents
-        print(f"    > Total number of events : {numEvents}")
-        print(f"    > Per-event weight : {perEventWeight}")
-
-        for idx, inputRootFile in enumerate(inputRootFilesList, start = 1):
-            treeName = f"{proc}_sample{idx}"
-            merged_sample = loop_tree_advanced(inputRootFile, treeName, sampleWeight=perEventWeight, signal_regions_keys=signal_regions_keys)
-            for sr_key, sample_path in merged_sample.items():
-                sample_files[sr_key].append(sample_path)
-                print(f"  {treeName}: merged {sample_path} -> will go into {paths[sr_key]}")
-            print("\n")
-
-    # Final merge: hadd all per-sample files for each SR into the final output
-    print("Final merge into ReaderOutput ..")
-    for sr_key in signal_regions_keys:
-        if not sample_files[sr_key]:
-            continue
-        final_path = paths[sr_key]
-        os.makedirs(os.path.dirname(final_path), exist_ok=True)
-        ok = hadd_files(final_path, sample_files[sr_key])
-        if ok:
-            n_samples = len(sample_files[sr_key])
-            print(f"  Final: {n_samples} sample files -> {final_path}")
-        else:
-            print(f"  WARNING: final hadd failed for {sr_key}")
-
-    # Clean up TempReaderOutput
-    if os.path.isdir(tempReaderDir):
-        shutil.rmtree(tempReaderDir, ignore_errors=True)
-        print(f"Cleaned up {tempReaderDir}")
-
-
-def make_dataset():
-
-    samples = SamplesReader("../tests/samples.yml").read()
-
-    signal_regions, signal_regions_keys = get_signal_regions(isLoose = LooseSR)
-    print("Signal regions:")
-    for key, values in signal_regions.items():
-        print(f"{key:<5} : {values}")
-
-    loop_samples(samples, signal_regions, signal_regions_keys)
-
-
-if __name__ == '__main__':
-    
 ./src/make_dataset_v3.py
 
 #!/usr/bin/env python3
@@ -1741,258 +1653,13 @@ def classify_signal_region_key(goodLeptons, goodFatJets, isLoose = True):
     else:
         return None
 
-./src/loops/delphes_config.py
-
-
-./src/branch_names.py
-
-
-import math
-from itertools import combinations
-from tabulate import tabulate
-
-## Settings 
-## ===============================
-
-
-multiObjects_Nmax = 3
-multiObjects_include_same_represenations = True
-multiObjects_include_trival_kinematics = False
-multiObjects_include_mt2 = True # only calculated for 2-body objects (leptons and fatjets (see main lop))
-multiObjects_combo_objects_set = ("Lepton", "FatJet", "MET")
-
-
-## Objects and kinematics definitions
-## =============================================
-
-basic = ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy"]
-track = ["IsolationVar", "D0", "DZ"]
-taus  = ["Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]
-global_scalars = ["ScalarSumPT_Jets", "ScalarSumPT_FatJets", "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic", "HT", "LT", "ST", "Meff", "Significance_MET"]
-event_shapes  = ["Sphericity", "Aplanarity", "Circularity", "Centrality"]
-
-multiObject_basic_kinematics = basic
-multiObject_2body_kinematics = ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
-multiObject_trival_kinematics = event_shapes + ["ScalarSumPT", "VectorSumPT"]
-
-objects = {
-
-    "Lepton": {
-        "count": 4,
-        "representations": ["Lepton"],  # add "Muon","Electron" when flavor matters
-        "kinematics": basic + track
-    },
-
-    "FatJet": {
-        "count": 2,
-        "representations": ["FatJet", "SoftDroppedFatJet"],
-        "kinematics": basic + taus
-    },
-
-    "Jet": {
-        "count": 4,
-        "representations": ["Jet"],  # add "BJet","TauJet" when tagging matters
-        "kinematics": basic
-    },
-
-    "MET": {
-        "count": 1,
-        "representations": ["MET"],
-        "kinematics": ["MET"] + basic
-    },
-}
-
-## Single-object kinematics
-## ===============================
-
-
-def get_obj_count(obj):
-    return objects[obj]["count"] if obj in objects else []
-
-
-def get_obj_repr(obj):
-    return objects[obj]["representations"] if obj in objects else []
-
-
-def get_obj_kinematics(obj):
-    return objects[obj]["kinematics"] if obj in objects else []
-
-
-def get_obj_instances(obj):
-    if obj not in objects:  return []
-    reprs = get_obj_repr(obj)
-    count = get_obj_count(obj)
-    if count == 1 and reprs == [obj]: return [obj]
-    return [f"{r}{i}" for r in reprs for i in range(count)]
-
-
-def get_obj_branch_names(obj):
-    instances = get_obj_instances(obj)
-    kinematics = get_obj_kinematics(obj)
-    return [f"{k}_{inst}" for k in kinematics for inst in instances]
-
-
-def get_obj_number_branch_names():
-    """
-    Return counts of all physical objects, pre quality selections, pre event selection,
-    and post event selection, regardless of the representations required.
-    """
-    physics_objects = ["Lepton", "Muon", "Electron", "FatJet", "Jet", "BJet", "TauJet"]
-    branch_names = []
-    for sel in ["nPreQS", "nPreES", "nPostES"]: # nPreES is just nPostQS
-        branch_names.extend([f"{sel}_{pObj}" for pObj in physics_objects])
-    return branch_names
-
-
-## N-body kinematics
-## ===============================
-
-
-def get_nbody_combinations(N, different_types_only = True, combo_objects=("Lepton", "MET")):
-    # Build all possible particles as (name, obj_type, slot_index)
-    particles = []
-    for obj in combo_objects:
-        reprs = get_obj_repr(obj)
-        count = get_obj_count(obj)
-        
-        # For MET (or any singleton with no index) we treat slot as a dummy value (e.g., -1)
-        if count == 1 and reprs == [obj]:
-            for r in reprs:
-                particles.append((r, obj, 0))  # slot 0 but uniqueness rule will handle
-        else:
-            for slot in range(count):
-                for r in reprs:
-                    particles.append((f"{r}{slot}", obj, slot))
-    
-    result = []
-    for combo in combinations(particles, N):
-        names, types, slots = zip(*combo)
-        # Rule 1: no two particles from same (object type, slot index)
-        if len(set(zip(types, slots))) != N:
-            continue
-        # Rule 2 (optional): all object types must be different
-        if different_types_only and len(set(types)) != N:
-            continue
-        result.append(names)
-    
-    return result
-
-
-def get_nbody_kinematics(N, return_basic = False, include_trivial = False):
-    kinematics = list(multiObject_basic_kinematics)
-    if N < 2: return []
-
-    if return_basic:
-        return kinematics
-
-    if N == 2:
-        kinematics.extend(multiObject_2body_kinematics)
-
-    if include_trivial:
-        kinematics.extend(multiObject_trival_kinematics)   
-
-    if N == 2 and multiObjects_include_mt2:     
-        kinematics.append("MT2")   
-
-    return kinematics
-
-
-def get_nbody_branch_names(N, include_trivial = False, different_types_only = True, combo_objects=("Lepton", "MET")):
-    """
-    Return a list of branch names for N‑body combinations.
-    Example: for N=2, combo=('Lepton0','Lepton1'), kinematic='M' -> 'M_Lepton0_Lepton1'
-    """
-    combos = get_nbody_combinations(N, different_types_only, combo_objects)
-    kinematics = get_nbody_kinematics(N, return_basic = False, include_trivial = include_trivial)
-    branch_names = []
-    for combo in combos:
-        combo_str = "_".join(combo)   
-        for kin in kinematics:
-            branch_names.append(f"{kin}_{combo_str}")
-    return branch_names
-
-
-
-## Main Methods
-## ===============================
-
-def get_int_branch_names():
-    return get_obj_number_branch_names()
-
-def get_float_branch_names():
-    branch_names = []
-
-    # Single object branches
-    for obj in objects:
-        branch_names.extend(get_obj_branch_names(obj))
-
-    # N-body branches
-    for N in range(2, multiObjects_Nmax + 1, 1):
-        branch_names.extend(get_nbody_branch_names(
-            N, 
-            include_trivial = multiObjects_include_trival_kinematics, 
-            different_types_only = multiObjects_include_same_represenations == False, 
-            combo_objects= multiObjects_combo_objects_set
-        ))
-
-    # Others
-    branch_names.extend(global_scalars)
-    branch_names.extend(event_shapes)
-    branch_names.append("gen_weight") # generator-level weight
-    branch_names.append("weight") # analysis weight (to include NLO norm, Lumi ..)
-
-    return branch_names
-
-
-
-def print_branch_names(branches, nCols=4):
-    nRows = math.ceil(len(branches) / nCols)
-
-    # Build an empty grid
-    grid = [[''] * nCols for _ in range(nRows)]
-
-    # Fill column by column, top to bottom
-    idx = 1
-    for col in range(nCols):
-        for row in range(nRows):
-            if idx > len(branches):
-                break
-            grid[row][col] = f"{idx}: {branches[idx-1]}"
-            idx += 1
-
-    # Print as a pretty grid
-    print(tabulate(grid, headers = [f"C{c+1}" for c in range(nCols)], tablefmt="default"))
-
-
-def print_summary():
-    int_branch_names = get_int_branch_names()
-    float_branch_names = get_float_branch_names()
-    print(f"Defined {len(int_branch_names)} integer branches for physics.")    
-    print(f"Defined {len(float_branch_names)} float branches for physics.")
-    print(f"Below we show the defined branch_names:\n")
-    print_branch_names(int_branch_names + float_branch_names, nCols=3)
-
-
-    Ntot_branches = len(int_branch_names) + len(float_branch_names)
-    msg = f"\nGoing to fill {Ntot_branches} data branches."
-    if Ntot_branches > 100:
-        msg += " This might take a while ! (Around 15 mins per 1M events)"
-        print(msg)
-        print(" > Note that whether these branch will be filled with data or not entirely depends on your samples.")
-        print(" > In many cases, large amount of branches will contain NaN everywhere.")
-        print(" > Cleansing of large amounts of NaN entries in tabular data could lead to loss of valuable data if not done carefully.")
-
-
-if __name__ == '__main__':
-
-    print_summary()
-./src/py_loops/__init__.py
+./src/loops/__init__.py
 
 from .adaptive import loop_tree
 
 __all__ = ["loop_tree"]
 
-./src/py_loops/adaptive.py
+./src/loops/adaptive.py
 
 import os
 import numpy as np
@@ -2520,28 +2187,472 @@ def loop_tree(
 
     return trees
 
-./src/py_loops/object_selection.py
+./src/loops/object_selection.py
+
+import ROOT
+
+def select_objects(FatJet_branch, Electron_branch, Muon_branch):
+    """Select objects based on kinematic criteria.
+
+    Parameters
+    ----------
+    FatJet_branch : ROOT.TBranch
+        Branch containing fat jet objects.
+    Electron_branch : ROOT.TBranch
+        Branch containing electron objects.
+    Muon_branch : ROOT.TBranch
+        Branch containing muon objects.
+
+    Returns
+    -------
+    dict
+        Dictionary containing selected objects:
+        {
+            "goodFatJets": list of selected fat jets,
+            "goodElectrons": list of selected electrons,
+            "goodMuons": list of selected muons
+        }
+    """
+    goodFatJets = []
+    goodLeptons = []
+    goodElectrons = []
+    goodMuons = []
+
+    # Collect good fatjets (pT > 300 GeV, |eta| < 2.5, in mass window)
+    mW, mH = 80.4, 125.0
+    mWindow = 20
+    for i in range(FatJet_branch.GetEntries()):
+        fatjet = FatJet_branch.At(i)
+        MassOk = mW - mWindow <= fatjet.SoftDroppedP4[0].M() <= mH + mWindow
+        if MassOk and fatjet.PT > 300 and abs(fatjet.Eta) <= 2.5:
+            goodFatJets.append(fatjet)
+
+    # Collect good leptons
+    IsoCutMuon     = 0.1
+    IsoCutElectron = 0.2
+    for i in range(Muon_branch.GetEntries()):
+        muon = Muon_branch.At(i)
+        if muon.IsolationVar < IsoCutMuon and muon.PT > 25 and abs(muon.Eta) <= 2.5:
+            goodLeptons.append(muon)
+    for i in range(Electron_branch.GetEntries()):
+        electron = Electron_branch.At(i)
+        if electron.IsolationVar < IsoCutElectron and electron.PT > 30 and abs(electron.Eta) <= 2.5:
+            goodLeptons.append(electron)
+    
+    goodFatJets.sort(key=lambda fj: fj.PT, reverse=True)
+    goodLeptons.sort(key=lambda lep: lep.PT, reverse=True)
+
+    return {
+        "goodFatJets": goodFatJets,
+        "goodLeptons": goodLeptons,
+        "goodElectrons": goodElectrons,
+        "goodMuons": goodMuons
+    }
+./src/loops/basic2_delphes.py
+
+#!/usr/bin/env python3
+import os
+import ROOT
+import math
+import argparse
+import numpy as np
+from tqdm import tqdm
+from delphes import load_delphes, build_chain
+from kinematics import DeltaR, DeltaPhi, DeltaEta
+from object_selection import select_objects
+from itertools import combinations
+
+def loop_tree(
+    inputRootFile,
+    treeName,
+    eventWeight = 1.0,
+    start_entry = 0,
+    end_entry = None,
+    show_progress = True,
+    temp_dir_path = None,
+    nb_lep_max = 3,
+    nb_fj_max = 2,
+):
+
+    # Read the input file
+    Chain = build_chain(inputRootFile)
+    TreeReader = ROOT.ExRootTreeReader(Chain)
+
+    # Branches to read
+    Electron_branch  = TreeReader.UseBranch("Electron")
+    Muon_branch      = TreeReader.UseBranch("Muon")
+    FatJet_branch    = TreeReader.UseBranch("FatJet")
+    Jet_branch       = TreeReader.UseBranch("Jet")
+    MissingET_branch = TreeReader.UseBranch("MissingET")
+    ScalarHT_branch  = TreeReader.UseBranch("ScalarHT")
+    Weight_branch    = TreeReader.UseBranch("Weight")
+
+    # Setup branches to write
+    branch_names  = [f"{k}_Lepton{i}" for k in ["PT", "Eta", "Phi"] for i in range(nb_lep_max)]
+    branch_names += [f"{k}_FatJet{i}" for k in ["PT", "Eta", "Phi", "Mass"] for i in range(nb_fj_max)]
+    branch_names += [f"{k}_{'_'.join(comb)}" for k in ["DeltaR", "DeltaPhi", "DeltaEta", "M"] for comb in combinations([f"Lepton{i}" for i in range(nb_lep_max)] + [f"FatJet{i}" for i in range(nb_fj_max)], 2)]
+    branch_names += ["MET", "HT", "LT", "ST", "Meff"]
+    branch_names += ["weight", "gen_weight"]
+
+    # book the tree and create the branch buffers
+    b = {} 
+    tree = ROOT.TTree(treeName, treeName)
+    tree.SetDirectory(0)
+    for name in branch_names:
+        b[name] = np.zeros(1, dtype=np.float64)
+        tree.Branch(name, b[name], f"{name}/D")
+
+    # Event loop
+    numberOfEntries = TreeReader.GetEntries()
+    if end_entry is None or end_entry > numberOfEntries:
+        end_entry = numberOfEntries
+        
+    rng = range(start_entry, end_entry)
+    for entry in (tqdm(rng) if show_progress else rng):
+        
+        TreeReader.ReadEntry(entry)
+
+        # Reset branches to np.nan (weight defaults to 0.0 for skipped events)
+        for name in b:
+            b[name][0] = np.nan
+        b["weight"][0] = 0.0
+
+        # Object selection
+        selected_objects = select_objects(FatJet_branch, Electron_branch, Muon_branch)
+        goodFatJets = selected_objects["goodFatJets"]
+        goodLeptons = selected_objects["goodLeptons"]
+
+        # A dictonary to hold the selected objects' four-momenta for easier access
+        P4s = {}
+
+        # Fill lepton data
+        if len(goodLeptons) > 0:
+            for idx, lep in enumerate(goodLeptons[:nb_lep_max]):
+                P4s[f"Lepton{idx}"] = lep.P4()
+                b[f"PT_Lepton{idx}"][0]  = lep.PT
+                b[f"Eta_Lepton{idx}"][0] = lep.Eta
+                b[f"Phi_Lepton{idx}"][0] = lep.Phi
+                
+        
+        # Fill fatjet data
+        if len(goodFatJets) > 0:
+            for idx, fj in enumerate(goodFatJets[:nb_fj_max]):
+                P4s[f"FatJet{idx}"] = fj.P4()
+                b[f"PT_FatJet{idx}"][0]   = fj.PT
+                b[f"Eta_FatJet{idx}"][0]  = fj.Eta
+                b[f"Phi_FatJet{idx}"][0]  = fj.Phi
+                b[f"Mass_FatJet{idx}"][0] = fj.SoftDroppedP4[0].M()
+        
+        # Fill pairwise kinematic variables
+        for obj1, obj2 in combinations([f"Lepton{i}" for i in range(nb_lep_max)] + [f"FatJet{i}" for i in range(nb_fj_max)], 2):
+            if obj1 in P4s and obj2 in P4s:
+                sufx = f"{obj1}_{obj2}"
+                p4_1, p4_2 = P4s[obj1], P4s[obj2]
+                b[f"DeltaR_{sufx}"][0] = p4_1.DeltaR(p4_2)
+                b[f"DeltaPhi_{sufx}"][0] = p4_1.DeltaPhi(p4_2)
+                b[f"DeltaEta_{sufx}"][0] = p4_1.Eta() - p4_2.Eta()
+                b[f"M_{sufx}"][0]        = (p4_1 + p4_2).M()
+        
+        # Fill global event variables
+        met = MissingET_branch.At(0).MET
+        ht  = ScalarHT_branch.At(0).HT
+        lt  = sum(lep.PT for lep in goodLeptons)
+        st  =  ht + lt
+        meff = st + met
+        b["MET"][0]  = met
+        b["HT"][0]   = ht
+        b["LT"][0]   = lt
+        b["ST"][0]   = st
+        b["Meff"][0] = meff
+
+        # Fill event weights
+        w_gen = Weight_branch.At(0).Weight
+        b["gen_weight"][0] = w_gen
+        b["weight"][0] = eventWeight
+
+        tree.Fill()
+
+    if temp_dir_path is not None:
+        os.makedirs(temp_dir_path, exist_ok=True)
+        path = os.path.join(temp_dir_path, f"{treeName}.root")
+        f_out = ROOT.TFile.Open(path, "RECREATE")
+        tree.SetDirectory(f_out)
+        tree.Write()
+        f_out.Close()
+        return path
+    else:
+        return tree
+
+if __name__ == "__main__":
+    
+    load_delphes()  
+    
+    parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
+    parser.add_argument("input_root_file",  type=str, help="Path to the input Delphes ROOT file.")
+    parser.add_argument("--tree-name", type=str, default="Delphes", help="Name of the output TTree (default: Delphes).")
+    parser.add_argument("--output-dir", type=str, default=".", help="Directory where the output ROOT file will be written (default: current directory).")
+    parser.add_argument("--event-weight", type=float, default=1.0, help="Weight to apply to each event (default: 1.0).")
+    parser.add_argument("--start-entry", type=int, default=0, help="Entry to start processing from (default: 0).")
+    parser.add_argument("--end-entry", type=int, default=None, help="Entry to stop processing at (default: None, meaning process all entries).")
+    parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
 
 
-./src/py_loops/basic1_delphes.py
+    args = parser.parse_args()
+
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    # Run the loop
+    out_path = loop_tree(
+        inputRootFile=args.input_root_file,
+        treeName=args.tree_name,
+        eventWeight=args.event_weight,
+        start_entry=args.start_entry,
+        end_entry=args.end_entry,
+        show_progress=args.show_progress,
+        temp_dir_path=args.output_dir,
+    )
+
+    print(f"Output written to: {out_path}")
+./src/loops/delphes.py
 
 import os
-import math
-import numpy as np
 import ROOT
-from parallelization import build_chain
-DELPHES_PATH = os.environ.get("DELPHES_PATH", "/home/elsayed/Delphes-3.5.1")
-ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
-ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
-ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/external")
-ROOT.gSystem.Load("libDelphes")
-ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
-ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
-ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
-ROOT.gROOT.SetBatch(True)
-ROOT.gROOT.SetStyle("ATLAS")
-print("Using ROOT version:", ROOT.__version__)
-print("Using Delphes libraries found at:", DELPHES_PATH)
+
+def load_delphes():
+    DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_7_2/Delphes")
+    ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
+    ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
+    ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/external")
+    ROOT.gSystem.Load("libDelphes")
+    ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
+    ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
+    ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
+    ROOT.gROOT.SetBatch(True)
+    print("Using ROOT version:", ROOT.__version__)
+    print("Using Delphes libraries found at:", DELPHES_PATH)
+    return None
+
+def build_chain(inputRootFile):
+    chain = ROOT.TChain("Delphes")
+    if isinstance(inputRootFile, list):
+        for file in inputRootFile:
+            chain.Add(file)
+    elif isinstance(inputRootFile, str):
+        chain.Add(inputRootFile)
+    else:
+        raise TypeError(f"inputRootFile must be str or list, got {type(inputRootFile).__name__}")
+    return chain
+
+def count_entries(inputRootFile):
+    return build_chain(inputRootFile).GetEntries()
+./src/loops/basic3_delphes.py
+
+#!/usr/bin/env python3
+import os
+import ROOT
+import math
+import argparse
+import numpy as np
+from tqdm import tqdm
+from delphes import load_delphes, build_chain
+from kinematics import DeltaR, DeltaPhi, DeltaEta
+from object_selection import select_objects
+from itertools import combinations
+
+def loop_tree(
+    inputRootFile,
+    treeName,
+    eventWeight = 1.0,
+    start_entry = 0,
+    end_entry = None,
+    show_progress = True,
+    temp_dir_path = None,
+    nb_lep_max = 3,
+    nb_fj_max = 2,
+):
+
+    # Read the input file
+    Chain = build_chain(inputRootFile)
+    TreeReader = ROOT.ExRootTreeReader(Chain)
+
+    # Branches to read
+    Electron_branch  = TreeReader.UseBranch("Electron")
+    Muon_branch      = TreeReader.UseBranch("Muon")
+    FatJet_branch    = TreeReader.UseBranch("FatJet")
+    Jet_branch       = TreeReader.UseBranch("Jet")
+    MissingET_branch = TreeReader.UseBranch("MissingET")
+    ScalarHT_branch  = TreeReader.UseBranch("ScalarHT")
+    Weight_branch    = TreeReader.UseBranch("Weight")
+
+    # Setup branches to write
+    branch_names  = [f"{k}_Lepton{i}" for k in ["PT", "Eta", "Phi"] for i in range(nb_lep_max)]
+    branch_names += [f"{k}_FatJet{i}" for k in ["PT", "Eta", "Phi", "Mass"] for i in range(nb_fj_max)]
+    branch_names += [f"{k}_{'_'.join(comb)}" for k in ["DeltaR", "DeltaPhi", "DeltaEta", "M"] for comb in combinations([f"Lepton{i}" for i in range(nb_lep_max)] + [f"FatJet{i}" for i in range(nb_fj_max)], 2)]
+    branch_names += ["MET", "HT", "LT", "ST", "Meff"]
+    branch_names += ["weight", "gen_weight"]
+
+    # book the trees and create the branch buffers
+    trees, buffers = {}, {}
+    ac_keys = ["1L", "2L", "3L"]
+    for ac_key in ac_keys:
+        tree_name = f"{treeName}_{ac_key}"
+        tree = ROOT.TTree(tree_name, tree_name)
+        tree.SetDirectory(0)
+
+        # Create a fresh buffer dictionary for this tree
+        b = {}
+        for name in branch_names:
+            b[name] = np.zeros(1, dtype=np.float64)
+            tree.Branch(name, b[name], f"{name}/D")
+        buffers[ac_key] = b      
+
+        trees[ac_key] = tree
+
+    # Event loop
+    numberOfEntries = TreeReader.GetEntries()
+    if end_entry is None or end_entry > numberOfEntries:
+        end_entry = numberOfEntries
+
+    rng = range(start_entry, end_entry)
+    for entry in (tqdm(rng) if show_progress else rng):
+        
+        TreeReader.ReadEntry(entry)
+
+        # Object selection
+        selected_objects = select_objects(FatJet_branch, Electron_branch, Muon_branch)
+        goodFatJets = selected_objects["goodFatJets"]
+        goodLeptons = selected_objects["goodLeptons"]
+
+        # Identify the analysis channel key
+        nb_lep, nb_fj = len(goodLeptons), len(goodFatJets)
+        if nb_lep == 1 and nb_fj >= 1: ac_key = "1L"
+        elif nb_lep == 2 and nb_fj >= 1: ac_key = "2L"
+        elif nb_lep == 3 and nb_fj >= 1: ac_key = "3L"
+        else: ac_key = None
+
+        # Skip events that don't match any analysis channel
+        if ac_key is None or ac_key not in trees.keys():
+            continue  
+        
+        # Reset all branches of this tree to NaN
+        b = buffers[ac_key]
+        for name in b:
+            b[name][0] = np.nan
+        b["weight"][0] = 0.0
+
+        # A dictonary to hold the selected objects' four-momenta for easier access
+        P4s = {}
+
+        # Fill lepton data
+        if len(goodLeptons) > 0:
+            for idx, lep in enumerate(goodLeptons[:nb_lep_max], start = 0):
+                P4s[f"Lepton{idx}"] = lep.P4()
+                b[f"PT_Lepton{idx}"][0]  = lep.PT
+                b[f"Eta_Lepton{idx}"][0] = lep.Eta
+                b[f"Phi_Lepton{idx}"][0] = lep.Phi
+                
+        
+        # Fill fatjet data
+        if len(goodFatJets) > 0:
+            for idx, fj in enumerate(goodFatJets[:nb_fj_max], start = 0):
+                P4s[f"FatJet{idx}"] = fj.P4()
+                b[f"PT_FatJet{idx}"][0]   = fj.PT
+                b[f"Eta_FatJet{idx}"][0]  = fj.Eta
+                b[f"Phi_FatJet{idx}"][0]  = fj.Phi
+                b[f"Mass_FatJet{idx}"][0] = fj.SoftDroppedP4[0].M()
+        
+        # Fill pairwise kinematic variables
+        for obj1, obj2 in combinations([f"Lepton{i}" for i in range(nb_lep_max)] + [f"FatJet{i}" for i in range(nb_fj_max)], 2):
+            if obj1 in P4s and obj2 in P4s:
+                sufx = f"{obj1}_{obj2}"
+                p4_1, p4_2 = P4s[obj1], P4s[obj2]
+                b[f"DeltaR_{sufx}"][0] = p4_1.DeltaR(p4_2)
+                b[f"DeltaPhi_{sufx}"][0] = p4_1.DeltaPhi(p4_2)
+                b[f"DeltaEta_{sufx}"][0] = p4_1.Eta() - p4_2.Eta()
+                b[f"M_{sufx}"][0]        = (p4_1 + p4_2).M()
+        
+        # Fill global event variables
+        met = MissingET_branch.At(0).MET
+        ht  = ScalarHT_branch.At(0).HT
+        lt  = sum(lep.PT for lep in goodLeptons)
+        st  =  ht + lt
+        meff = st + met
+        b["MET"][0]  = met
+        b["HT"][0]   = ht
+        b["LT"][0]   = lt
+        b["ST"][0]   = st
+        b["Meff"][0] = meff
+
+        # Fill event weights
+        w_gen = Weight_branch.At(0).Weight
+        b["gen_weight"][0] = w_gen
+        b["weight"][0] = eventWeight
+
+        trees[ac_key].Fill()
+
+    if temp_dir_path is not None:
+        paths = {}
+        for ac_key, tree in trees.items():
+            os.makedirs(temp_dir_path, exist_ok=True)
+            path = os.path.join(temp_dir_path, f"{treeName}_{ac_key}.root")
+            f_out = ROOT.TFile.Open(path, "RECREATE")
+            tree.SetDirectory(f_out)
+            tree.Write()
+            # tree.Delete()
+            f_out.Close()
+            paths[ac_key] = path
+        return paths
+    else:
+        return trees
+
+if __name__ == "__main__":
+    
+    load_delphes()  
+    
+    parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
+    parser.add_argument("input_root_file",  type=str, help="Path to the input Delphes ROOT file.")
+    parser.add_argument("--tree-name", type=str, default="Delphes", help="Name of the output TTree (default: Delphes).")
+    parser.add_argument("--output-dir", type=str, default=".", help="Directory where the output ROOT file will be written (default: current directory).")
+    parser.add_argument("--event-weight", type=float, default=1.0, help="Weight to apply to each event (default: 1.0).")
+    parser.add_argument("--nb-lep-max", type=int, default=3, help="Maximum number of leptons to store (default: 3).")
+    parser.add_argument("--nb-fj-max", type=int, default=2, help="Maximum number of fat jets to store (default: 2).")
+    parser.add_argument("--start-entry", type=int, default=0, help="Entry to start processing from (default: 0).")
+    parser.add_argument("--end-entry", type=int, default=None, help="Entry to stop processing at (default: None, meaning process all entries).")
+    parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
+
+
+    args = parser.parse_args()
+
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    # Run the loop
+    out_path = loop_tree(
+        inputRootFile=args.input_root_file,
+        treeName=args.tree_name,
+        eventWeight=args.event_weight,
+        start_entry=args.start_entry,
+        end_entry=args.end_entry,
+        show_progress=args.show_progress,
+        temp_dir_path=args.output_dir,
+        nb_lep_max=args.nb_lep_max,
+        nb_fj_max=args.nb_fj_max,
+    )
+
+    print(f"Output written to: {out_path}")
+./src/loops/basic1_delphes.py
+
+#!/usr/bin/env python3
+import os
+import ROOT
+import math
+import argparse
+import numpy as np
+from tqdm import tqdm
+from delphes import load_delphes, build_chain
+from kinematics import DeltaR, DeltaPhi, DeltaEta
+from object_selection import select_objects
 
 def loop_tree(
     inputRootFile,
@@ -2555,6 +2666,7 @@ def loop_tree(
 
     # Read the input file
     Chain = build_chain(inputRootFile)
+    TreeReader = ROOT.ExRootTreeReader(Chain)
 
     # Branches to read
     FatJet_branch   = TreeReader.UseBranch("FatJet")
@@ -2578,10 +2690,10 @@ def loop_tree(
         "weight",
     ]
 
-    b = {}   # numpy branch arrays
+    b = {} 
     for name in branch_names:
         b[name] = np.zeros(1, dtype=np.float64)
-        tree.Branch(name, b[name], f"{name}/D")  # /D for Double (64-bit float)
+        tree.Branch(name, b[name], f"{name}/D")
 
     # Event loop
     numberOfEntries = TreeReader.GetEntries()
@@ -2599,31 +2711,9 @@ def loop_tree(
         b["weight"][0] = 0.0
 
         # Object selection
-        # Collect good fatjets (pT > 300 GeV, |eta| < 2.5, in mass window)
-        goodFatJets = []
-        mWindow = 20
-        for i in range(FatJet_branch.GetEntries()):
-            fatjet = FatJet_branch.At(i)
-            MassOk = mW - mWindow <= fatjet.SoftDroppedP4[0].M() <= mH + mWindow
-            if MassOk and fatjet.PT > 300 and abs(fatjet.Eta) <= 2.5:
-                goodFatJets.append(fatjet)
-        if len(goodFatJets) == 0:
-            continue
-
-        # Collect good leptons
-        goodLeptons = []
-        IsoCutMuon     = 0.1
-        IsoCutElectron = 0.2
-        for i in range(Muon_branch.GetEntries()):
-            muon = Muon_branch.At(i)
-            if muon.IsolationVar < IsoCutMuon and muon.PT > 25 and abs(muon.Eta) <= 2.5:
-                goodLeptons.append(muon)
-        for i in range(Electron_branch.GetEntries()):
-            electron = Electron_branch.At(i)
-            if electron.IsolationVar < IsoCutElectron and electron.PT > 30 and abs(electron.Eta) <= 2.5:
-                goodLeptons.append(electron)
-        if len(goodLeptons) == 0:
-            continue
+        selected_objects = select_objects(FatJet_branch, Electron_branch, Muon_branch)
+        goodFatJets = selected_objects["goodFatJets"]
+        goodLeptons = selected_objects["goodLeptons"]
 
         # Event selection (analysis channels configuration)
         # Exactly one lepton and at least one fatjet
@@ -2661,15 +2751,49 @@ def loop_tree(
 
         tree.Fill()
 
-    # Write and close
-    nEntries = tree.GetEntries()
-    outFile.cd()
-    tree.Write()
-    outFile.Close()
-    print(f"Written {nEntries} entries to {outputFile}")
+    if temp_dir_path is not None:
+        os.makedirs(temp_dir_path, exist_ok=True)
+        path = os.path.join(temp_dir_path, f"{treeName}.root")
+        f_out = ROOT.TFile.Open(path, "RECREATE")
+        tree.SetDirectory(f_out)
+        tree.Write()
+        f_out.Close()
+        return path
+    else:
+        return tree
 
-    return out
-./src/py_loops/kinematics.py
+if __name__ == "__main__":
+    
+    load_delphes()  
+    
+    parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
+    parser.add_argument("input_root_file",  type=str, help="Path to the input Delphes ROOT file.")
+    parser.add_argument("--tree-name", type=str, default="Delphes", help="Name of the output TTree (default: Delphes).")
+    parser.add_argument("--output-dir", type=str, default=".", help="Directory where the output ROOT file will be written (default: current directory).")
+    parser.add_argument("--event-weight", type=float, default=1.0, help="Weight to apply to each event (default: 1.0).")
+    parser.add_argument("--start-entry", type=int, default=0, help="Entry to start processing from (default: 0).")
+    parser.add_argument("--end-entry", type=int, default=None, help="Entry to stop processing at (default: None, meaning process all entries).")
+    parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
+
+
+    args = parser.parse_args()
+
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    # Run the loop
+    out_path = loop_tree(
+        inputRootFile=args.input_root_file,
+        treeName=args.tree_name,
+        eventWeight=args.event_weight,
+        start_entry=args.start_entry,
+        end_entry=args.end_entry,
+        show_progress=args.show_progress,
+        temp_dir_path=args.output_dir,
+    )
+
+    print(f"Output written to: {out_path}")
+./src/loops/kinematics.py
 
 import math
 import numpy as np
@@ -2788,9 +2912,10 @@ def Centrality(px: np.ndarray, py: np.ndarray, pz: np.ndarray, E : Optional[np.n
     pt    = np.sqrt(px**2 + py**2)
     denom = (E.sum() if E is not None else np.sqrt(px**2 + py**2 + pz**2).sum())
     return float(pt.sum() / denom) if denom > 0.0 else SENTINEL
-./src/py_loops/parallelization.py
+./src/loops/parallelization.py
 
 import os
+import ROOT
 import time
 import subprocess
 from multiprocessing import get_context
@@ -2830,19 +2955,6 @@ def hadd_files(target_path, source_paths):
         return False
     return True
 
-def build_chain(inputRootFile):
-    chain = ROOT.TChain("Delphes")
-    if isinstance(inputRootFile, list):
-        for file in inputRootFile:
-            chain.Add(file)
-    elif isinstance(inputRootFile, str):
-        chain.Add(inputRootFile)
-    else:
-        raise TypeError(f"inputRootFile must be str or list, got {type(inputRootFile).__name__}")
-    return chain
-
-def count_entries(inputRootFile):
-    return build_chain(inputRootFile).GetEntries()
 
 def split_range(total, n):
     n = max(1, min(n, total))
@@ -3044,6 +3156,335 @@ if __name__ == "__main__":
 
     args_list = [(i,) for i in range(100)]
     results = parallel_runs(run_script, args_list, max_workers=None, info="Testing jobs")
+./src/make_dataset.py
+
+#!/usr/bin/env python3
+import os
+import sys
+import time
+import ROOT
+from tqdm import tqdm
+
+from samples_reader import SamplesReader
+
+
+def loop_samples(processes, signal_regions, signal_regions_keys):
+
+    # output root files paths (final destination)
+    paths = {}
+    for channelName, regionNamesList in signal_regions.items():
+        for regionName in regionNamesList:
+            key = f"{channelName}_{regionName}"
+            paths[key] = os.path.join(baseDir, channelName, regionName, outputRootFileName)
+
+    # Ensure TempReaderOutput exists
+    os.makedirs(tempReaderDir, exist_ok=True)
+
+    # Collect per-sample merged files for each SR, then hadd into final output
+    # sample_files[sr_key] = list of per-sample ROOT file paths in TempReaderOutput
+    sample_files = {sr_key: [] for sr_key in signal_regions_keys}
+    
+    for proc, metadata in processes.items():
+        inputRootFilesList = metadata['dir']
+        TotalCrossSection = metadata['cross_section_[pb]']
+
+        if not inputRootFilesList:
+            print(f"Skipping {proc}: no input files.")
+            continue
+
+        print(f"Processing {proc}: {len(inputRootFilesList)} sample root files.")
+        numEvents = count_entries(inputRootFilesList)
+        if numEvents == 0:
+            print(f"Skipping {proc}: zero events.")
+            continue
+        perEventWeight = TotalCrossSection * 1000 * 400 / numEvents
+        print(f"    > Total number of events : {numEvents}")
+        print(f"    > Per-event weight : {perEventWeight}")
+
+        for idx, inputRootFile in enumerate(inputRootFilesList, start = 1):
+            treeName = f"{proc}_sample{idx}"
+            merged_sample = loop_tree_advanced(inputRootFile, treeName, sampleWeight=perEventWeight, signal_regions_keys=signal_regions_keys)
+            for sr_key, sample_path in merged_sample.items():
+                sample_files[sr_key].append(sample_path)
+                print(f"  {treeName}: merged {sample_path} -> will go into {paths[sr_key]}")
+            print("\n")
+
+    # Final merge: hadd all per-sample files for each SR into the final output
+    print("Final merge into ReaderOutput ..")
+    for sr_key in signal_regions_keys:
+        if not sample_files[sr_key]:
+            continue
+        final_path = paths[sr_key]
+        os.makedirs(os.path.dirname(final_path), exist_ok=True)
+        ok = hadd_files(final_path, sample_files[sr_key])
+        if ok:
+            n_samples = len(sample_files[sr_key])
+            print(f"  Final: {n_samples} sample files -> {final_path}")
+        else:
+            print(f"  WARNING: final hadd failed for {sr_key}")
+
+    # Clean up TempReaderOutput
+    if os.path.isdir(tempReaderDir):
+        shutil.rmtree(tempReaderDir, ignore_errors=True)
+        print(f"Cleaned up {tempReaderDir}")
+
+
+def make_dataset():
+
+    samples = SamplesReader("../tests/samples.yml").read()
+
+    signal_regions, signal_regions_keys = get_signal_regions(isLoose = LooseSR)
+    print("Signal regions:")
+    for key, values in signal_regions.items():
+        print(f"{key:<5} : {values}")
+
+    loop_samples(samples, signal_regions, signal_regions_keys)
+
+
+if __name__ == '__main__':
+    
+./src/branch_names.py
+
+
+import math
+from itertools import combinations
+from tabulate import tabulate
+
+## Settings 
+## ===============================
+
+
+multiObjects_Nmax = 3
+multiObjects_include_same_represenations = True
+multiObjects_include_trival_kinematics = False
+multiObjects_include_mt2 = True # only calculated for 2-body objects (leptons and fatjets (see main lop))
+multiObjects_combo_objects_set = ("Lepton", "FatJet", "MET")
+
+
+## Objects and kinematics definitions
+## =============================================
+
+basic = ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy"]
+track = ["IsolationVar", "D0", "DZ"]
+taus  = ["Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]
+global_scalars = ["ScalarSumPT_Jets", "ScalarSumPT_FatJets", "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic", "HT", "LT", "ST", "Meff", "Significance_MET"]
+event_shapes  = ["Sphericity", "Aplanarity", "Circularity", "Centrality"]
+
+multiObject_basic_kinematics = basic
+multiObject_2body_kinematics = ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+multiObject_trival_kinematics = event_shapes + ["ScalarSumPT", "VectorSumPT"]
+
+objects = {
+
+    "Lepton": {
+        "count": 4,
+        "representations": ["Lepton"],  # add "Muon","Electron" when flavor matters
+        "kinematics": basic + track
+    },
+
+    "FatJet": {
+        "count": 2,
+        "representations": ["FatJet", "SoftDroppedFatJet"],
+        "kinematics": basic + taus
+    },
+
+    "Jet": {
+        "count": 4,
+        "representations": ["Jet"],  # add "BJet","TauJet" when tagging matters
+        "kinematics": basic
+    },
+
+    "MET": {
+        "count": 1,
+        "representations": ["MET"],
+        "kinematics": ["MET"] + basic
+    },
+}
+
+## Single-object kinematics
+## ===============================
+
+
+def get_obj_count(obj):
+    return objects[obj]["count"] if obj in objects else []
+
+
+def get_obj_repr(obj):
+    return objects[obj]["representations"] if obj in objects else []
+
+
+def get_obj_kinematics(obj):
+    return objects[obj]["kinematics"] if obj in objects else []
+
+
+def get_obj_instances(obj):
+    if obj not in objects:  return []
+    reprs = get_obj_repr(obj)
+    count = get_obj_count(obj)
+    if count == 1 and reprs == [obj]: return [obj]
+    return [f"{r}{i}" for r in reprs for i in range(count)]
+
+
+def get_obj_branch_names(obj):
+    instances = get_obj_instances(obj)
+    kinematics = get_obj_kinematics(obj)
+    return [f"{k}_{inst}" for k in kinematics for inst in instances]
+
+
+def get_obj_number_branch_names():
+    """
+    Return counts of all physical objects, pre quality selections, pre event selection,
+    and post event selection, regardless of the representations required.
+    """
+    physics_objects = ["Lepton", "Muon", "Electron", "FatJet", "Jet", "BJet", "TauJet"]
+    branch_names = []
+    for sel in ["nPreQS", "nPreES", "nPostES"]: # nPreES is just nPostQS
+        branch_names.extend([f"{sel}_{pObj}" for pObj in physics_objects])
+    return branch_names
+
+
+## N-body kinematics
+## ===============================
+
+
+def get_nbody_combinations(N, different_types_only = True, combo_objects=("Lepton", "MET")):
+    # Build all possible particles as (name, obj_type, slot_index)
+    particles = []
+    for obj in combo_objects:
+        reprs = get_obj_repr(obj)
+        count = get_obj_count(obj)
+        
+        # For MET (or any singleton with no index) we treat slot as a dummy value (e.g., -1)
+        if count == 1 and reprs == [obj]:
+            for r in reprs:
+                particles.append((r, obj, 0))  # slot 0 but uniqueness rule will handle
+        else:
+            for slot in range(count):
+                for r in reprs:
+                    particles.append((f"{r}{slot}", obj, slot))
+    
+    result = []
+    for combo in combinations(particles, N):
+        names, types, slots = zip(*combo)
+        # Rule 1: no two particles from same (object type, slot index)
+        if len(set(zip(types, slots))) != N:
+            continue
+        # Rule 2 (optional): all object types must be different
+        if different_types_only and len(set(types)) != N:
+            continue
+        result.append(names)
+    
+    return result
+
+
+def get_nbody_kinematics(N, return_basic = False, include_trivial = False):
+    kinematics = list(multiObject_basic_kinematics)
+    if N < 2: return []
+
+    if return_basic:
+        return kinematics
+
+    if N == 2:
+        kinematics.extend(multiObject_2body_kinematics)
+
+    if include_trivial:
+        kinematics.extend(multiObject_trival_kinematics)   
+
+    if N == 2 and multiObjects_include_mt2:     
+        kinematics.append("MT2")   
+
+    return kinematics
+
+
+def get_nbody_branch_names(N, include_trivial = False, different_types_only = True, combo_objects=("Lepton", "MET")):
+    """
+    Return a list of branch names for N‑body combinations.
+    Example: for N=2, combo=('Lepton0','Lepton1'), kinematic='M' -> 'M_Lepton0_Lepton1'
+    """
+    combos = get_nbody_combinations(N, different_types_only, combo_objects)
+    kinematics = get_nbody_kinematics(N, return_basic = False, include_trivial = include_trivial)
+    branch_names = []
+    for combo in combos:
+        combo_str = "_".join(combo)   
+        for kin in kinematics:
+            branch_names.append(f"{kin}_{combo_str}")
+    return branch_names
+
+
+
+## Main Methods
+## ===============================
+
+def get_int_branch_names():
+    return get_obj_number_branch_names()
+
+def get_float_branch_names():
+    branch_names = []
+
+    # Single object branches
+    for obj in objects:
+        branch_names.extend(get_obj_branch_names(obj))
+
+    # N-body branches
+    for N in range(2, multiObjects_Nmax + 1, 1):
+        branch_names.extend(get_nbody_branch_names(
+            N, 
+            include_trivial = multiObjects_include_trival_kinematics, 
+            different_types_only = multiObjects_include_same_represenations == False, 
+            combo_objects= multiObjects_combo_objects_set
+        ))
+
+    # Others
+    branch_names.extend(global_scalars)
+    branch_names.extend(event_shapes)
+    branch_names.append("gen_weight") # generator-level weight
+    branch_names.append("weight") # analysis weight (to include NLO norm, Lumi ..)
+
+    return branch_names
+
+
+
+def print_branch_names(branches, nCols=4):
+    nRows = math.ceil(len(branches) / nCols)
+
+    # Build an empty grid
+    grid = [[''] * nCols for _ in range(nRows)]
+
+    # Fill column by column, top to bottom
+    idx = 1
+    for col in range(nCols):
+        for row in range(nRows):
+            if idx > len(branches):
+                break
+            grid[row][col] = f"{idx}: {branches[idx-1]}"
+            idx += 1
+
+    # Print as a pretty grid
+    print(tabulate(grid, headers = [f"C{c+1}" for c in range(nCols)], tablefmt="default"))
+
+
+def print_summary():
+    int_branch_names = get_int_branch_names()
+    float_branch_names = get_float_branch_names()
+    print(f"Defined {len(int_branch_names)} integer branches for physics.")    
+    print(f"Defined {len(float_branch_names)} float branches for physics.")
+    print(f"Below we show the defined branch_names:\n")
+    print_branch_names(int_branch_names + float_branch_names, nCols=3)
+
+
+    Ntot_branches = len(int_branch_names) + len(float_branch_names)
+    msg = f"\nGoing to fill {Ntot_branches} data branches."
+    if Ntot_branches > 100:
+        msg += " This might take a while ! (Around 15 mins per 1M events)"
+        print(msg)
+        print(" > Note that whether these branch will be filled with data or not entirely depends on your samples.")
+        print(" > In many cases, large amount of branches will contain NaN everywhere.")
+        print(" > Cleansing of large amounts of NaN entries in tabular data could lead to loss of valuable data if not done carefully.")
+
+
+if __name__ == '__main__':
+
+    print_summary()
 ./src/utilis.py
 
 def NormalizeHist(hist):

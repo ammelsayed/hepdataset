@@ -22,16 +22,16 @@ Settings:
     Lepton:
       count: 4
       representations: ["Lepton"]               # add "Muon","Electron" when flavor matters
-      kinematics: !reference [Settings, basic] + !reference [Settings, track]
+      kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "IsolationVar", "IsolationVarRhoCorr", "Theta", "D0", "DZ", "ErrorD0", "ErrorDZ"]
     FatJet:
       count: 2
       representations: ["FatJet", "SoftDroppedFatJet"]
-      kinematics: !reference [Settings, basic] + !reference [Settings, taus]
+      kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "Theta", "D0", "DZ", "ErrorD0", "ErrorDZ", "Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]
     Jet:
       count: 4
       representations: ["Jet"]                  # add "BJet","TauJet" when tagging matters
-      kinematics: !reference [Settings, basic]
+      kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "Theta", "D0", "DZ", "ErrorD0", "ErrorDZ"]
     MET:
       count: 1
       representations: ["MET"]
-      kinematics: ["MET"] + !reference [Settings, basic]
+      kinematics: ["MET", Px, Py, Pz, Eta, Phi]
