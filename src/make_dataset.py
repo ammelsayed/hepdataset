@@ -1,4 +1,25 @@
-"""Public dataset-building API and command-line entry point."""
+#!/usr/bin/env python3
+"""
+make_dataset_v3.py
+
+Build ML-ready tabular datasets from Delphes ROOT files.
+
+Memory-efficient variant of make_dataset_v2.py: in the parallel path each chunk
+worker spills its per-SR trees to individual temp .root files (one per signal
+region) and returns the file paths.  Chunks are then merged via hadd, and the
+per-sample files are finally hadd'd into the output ReaderOutput ROOT files.
+This avoids holding large TTrees in memory or writing detached trees into
+long-lived TFiles (which caused corruption in earlier attempts).
+
+Responsibilities:
+    - Read background ROOT paths from bkg_directories.yml
+    - Select objects according to SR definitions, read the required kinematics
+    - Flatten event-level information into a tabular format (ROOT Tree Bracnhs)
+    - Write output datasets in Parquet or CSV format using Pandas.
+
+Author : A.M.M. Elsayed (University of Science and Technology of China)
+Email  : ammelsayed@mail.ustc.edu.cn / ahmedphysica@outlook.com
+"""
 
 import argparse
 import importlib
