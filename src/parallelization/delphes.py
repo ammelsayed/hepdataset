@@ -88,10 +88,6 @@ def hadd_chunks(chunk_results, signal_regions_keys, treeName):
           f"[{format_time(time.perf_counter() - start)}]")
     return merged
 
-## =============================
-## Actual use of parraleization
-## =============================
-
 
 def loop_tree_advanced(inputRootFile, treeName, sampleWeight, signal_regions_keys, run_parallel=True, n_chunks=None, max_workers=None, max_entries=None):
     if not run_parallel:
