@@ -32,16 +32,6 @@ def hadd_files(target_path, source_paths):
     return True
 
 
-def split_range(total, n):
-    n = max(1, min(n, total))
-    base, rem = divmod(total, n)
-    out, start = [], 0
-    for i in range(n):
-        size = base + (1 if i < rem else 0)
-        out.append((start, start + size))
-        start += size
-    return out
-
 def hadd_chunks(chunk_results, signal_regions_keys, treeName):
     """Merge per-chunk temp files for each SR using hadd.
 
@@ -88,32 +78,35 @@ def hadd_chunks(chunk_results, signal_regions_keys, treeName):
           f"[{format_time(time.perf_counter() - start)}]")
     return merged
 
+def split_range(total, n):
+    n = max(1, min(n, total))
+    base, rem = divmod(total, n)
+    out, start = [], 0
+    for i in range(n):
+        size = base + (1 if i < rem else 0)
+        out.append((start, start + size))
+        start += size
+    return out
 
-def loop_tree_advanced(inputRootFile, treeName, sampleWeight, signal_regions_keys, run_parallel=True, n_chunks=None, max_workers=None, max_entries=None):
-    if not run_parallel:
-        # Non-parallel path: loop_tree returns {sr_key: TTree} in memory.
-        # Write each tree to TempReaderOutput so the rest of the pipeline
-        # (which expects file paths) works uniformly.
-        trees = loop_tree(inputRootFile, treeName, sampleWeight, signal_regions_keys, max_entries=max_entries)
-        written = {}
-        for sr_key, tree in trees.items():
-            if tree.GetEntries() == 0:
-                continue
-            out_path = os.path.join(tempReaderDir, sr_key, f"{treeName}.root")
-            os.makedirs(os.path.dirname(out_path), exist_ok=True)
-            f_out = ROOT.TFile.Open(out_path, "RECREATE")
-            tree.SetDirectory(f_out)
-            tree.Write()
-            f_out.Close()
-            written[sr_key] = out_path
-        return written
+def loop_tree_parallel(
+    inputRootFile,
+    treeName,
+    eventWeight = 1.0,
+    start_entry = 0,
+    end_entry = None,
+    temp_dir_path = None,
+    show_progress = True,
+    debug_loop = False,
+    n_chunks=None, 
+    max_workers=None
+):
 
     total = count_entries(inputRootFile)
     n_chunks = n_chunks or (max_workers or os.cpu_count())
 
     # Create a temp directory for this sample's chunk outputs.
     # Each chunk gets its own subdirectory to avoid write collisions.
-    sample_temp_dir = tempfile.mkdtemp(prefix=f"make_dataset_chunks_{treeName}_", dir=tmpDir)
+    sample_temp_dir = tempfile.mkdtemp(prefix=f"{treeName}_chunk", dir=tmpDir)
 
     try:
         chunk_dirs = []

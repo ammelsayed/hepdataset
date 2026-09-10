@@ -22,8 +22,9 @@ def loop_tree(
     eventWeight = 1.0,
     start_entry = 0,
     end_entry = None,
-    show_progress = True,
     temp_dir_path = None,
+    show_progress = True,
+    debug_loop = False,
 ):
 
     # Read the input file

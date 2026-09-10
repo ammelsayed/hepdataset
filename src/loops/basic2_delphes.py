@@ -23,10 +23,9 @@ def loop_tree(
     eventWeight = 1.0,
     start_entry = 0,
     end_entry = None,
-    show_progress = True,
     temp_dir_path = None,
-    nb_lep_max = 3,
-    nb_fj_max = 2,
+    show_progress = True,
+    debug_loop = False,
 ):
 
     # Read the input file
@@ -43,6 +42,8 @@ def loop_tree(
     Weight_branch    = TreeReader.UseBranch("Weight")
 
     # Setup branches to write
+    nb_lep_max = 3
+    nb_fj_max = 2
     branch_names  = [f"{k}_Lepton{i}" for k in ["PT", "Eta", "Phi"] for i in range(nb_lep_max)]
     branch_names += [f"{k}_FatJet{i}" for k in ["PT", "Eta", "Phi", "Mass"] for i in range(nb_fj_max)]
     branch_names += [f"{k}_{'_'.join(comb)}" for k in ["DeltaR", "DeltaPhi", "DeltaEta", "M"] for comb in combinations([f"Lepton{i}" for i in range(nb_lep_max)] + [f"FatJet{i}" for i in range(nb_fj_max)], 2)]
