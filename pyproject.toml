@@ -9,7 +9,8 @@ description = "Software for making ML-ready datasets from Delphes ROOT files for
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "A.M.M. Elsayed", email = "ammelsayed@mail.ustc.edu.cn" }
+    { name = "A.M.M. Elsayed", email = "ammelsayed@mail.ustc.edu.cn" },
+    { name = "Yusheng Wu", email = "wuyusheng@ustc.edu.cn" }
 ]
 maintainers = [
     { name = "A.M.M. Elsayed", email = "ahmedphysica@outlook.com" }
@@ -45,6 +46,7 @@ dependencies = [
     "tqdm",
     "numba",
     "mt2",
+    "uproot",
 ]
 
 [project.urls]
@@ -65,17 +67,17 @@ dev = [
 ]
 
 [project.scripts]
-hepdataset-make = "hepdataset.make_dataset_v3:make_datasets"
+hepdataset = "hepdataset.make_dataset:main"
+hepdataset-make = "hepdataset.make_dataset:main"
 
-[tool.setuptools.packages.find]
-include = ["hepdataset*"]
-exclude = [
-    "*.tests*",
-    "*.test*",
-    "paper*",
-    ".github*",
+[tool.setuptools]
+packages = [
+    "hepdataset",
+    "hepdataset.loops",
+    "hepdataset.parallelization",
+    "hepdataset.utils",
 ]
-
+package-dir = {"hepdataset" = "src", "hepdataset.loops" = "src/loops", "hepdataset.parallelization" = "src/parallelization", "hepdataset.utils" = "src/utils"}
 [tool.setuptools.package-data]
 hepdataset = [
     "cpp_loop/**/*",

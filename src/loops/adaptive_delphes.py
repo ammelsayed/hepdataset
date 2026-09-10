@@ -29,6 +29,7 @@ def loop_tree(
     temp_dir_path = None,
     show_progress = True,
     debug_loop = False,
+    branches_config_path = None,
 ):
 
     # Read the input file
@@ -45,7 +46,14 @@ def loop_tree(
     Weight_branch    = TreeReader.UseBranch("Weight")
 
     # get the branch names
-    BR = BranchesHandler("/data/ammelsayed/hepdataset/tests/branches_config_example1.yml")
+    if branches_config_path is None:
+        branches_config_path = os.path.join(
+            os.path.dirname(__file__), "..", "..", "tests", "branches_config_example1.yml"
+        )
+    BR = BranchesHandler(branches_config_path)
+    if not BR.is_valid():
+        BR.print_validation()
+        raise ValueError(f"Invalid branches configuration: {branches_config_path}")
     float_branch_names = BR.get_float_branch_names()
     int_branch_names = BR.get_int_branch_names()
 
