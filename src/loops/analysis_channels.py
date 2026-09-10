@@ -1,6 +1,18 @@
-## =============================
-## Define signal regions
-## =============================
+
+def get_analysis_channel_keys():
+    return ["0L", "1L", "2OS", "2SS", "3L"]
+
+def classify_analysis_channel(goodLeptons, goodFatJets):
+    nb_lep, nb_fj = len(goodLeptons), len(goodFatJets)
+    if nb_lep == 0 and nb_fj >= 2: return "0L"
+    elif nb_lep == 1 and nb_fj >= 1: return "1L"
+    elif nb_lep == 2 and nb_fj >= 1:
+        lep1_charge = goodLeptons[0].Charge
+        lep2_charge = goodLeptons[1].Charge
+        if lep1_charge * lep2_charge < 0: return "2OS"  # Opposite Sign
+        else: return "2SS"  # Same Sign
+    elif nb_lep == 3 and nb_fj >= 1: return "3L"
+    else: return None
 
 def get_signal_regions(isLoose = True):
     if isLoose:

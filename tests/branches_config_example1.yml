@@ -26,11 +26,11 @@ objects:
   FatJet:
     count: 2
     representations: ["FatJet", "SoftDroppedFatJet"]
-    kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "Theta", "D0", "DZ", "ErrorD0", "ErrorDZ", "Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]
+    kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]
   Jet:
     count: 4
     representations: ["Jet"]                  # add "BJet","TauJet" when tagging matters
-    kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "Theta", "D0", "DZ", "ErrorD0", "ErrorDZ"]
+    kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy"]
   MET:
     count: 1
     representations: ["MET"]

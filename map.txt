@@ -1695,9 +1695,21 @@ if __name__ == "__main__":
     print(f"Output written to: {out_path}")
 ./src/loops/analysis_channels.py
 
-## =============================
-## Define signal regions
-## =============================
+
+def get_analysis_channel_keys():
+    return ["0L", "1L", "2OS", "2SS", "3L"]
+
+def classify_analysis_channel(goodLeptons, goodFatJets):
+    nb_lep, nb_fj = len(goodLeptons), len(goodFatJets)
+    if nb_lep == 0 and nb_fj >= 2: return "0L"
+    elif nb_lep == 1 and nb_fj >= 1: return "1L"
+    elif nb_lep == 2 and nb_fj >= 1:
+        lep1_charge = goodLeptons[0].Charge
+        lep2_charge = goodLeptons[1].Charge
+        if lep1_charge * lep2_charge < 0: return "2OS"  # Opposite Sign
+        else: return "2SS"  # Same Sign
+    elif nb_lep == 3 and nb_fj >= 1: return "3L"
+    else: return None
 
 def get_signal_regions(isLoose = True):
     if isLoose:
@@ -1789,28 +1801,55 @@ def classify_signal_region_key(goodLeptons, goodFatJets, isLoose = True):
     else:
         return None
 
-./src/loops/branchs_reader.py
+./src/loops/delphes.py
+
+import os
+import ROOT
+
+def load_delphes():
+    DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_7_2/Delphes")
+    ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
+    ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
+    ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/external")
+    ROOT.gSystem.Load("libDelphes")
+    ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
+    ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
+    ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
+    ROOT.gROOT.SetBatch(True)
+    print("Using ROOT version:", ROOT.__version__)
+    print("Using Delphes libraries found at:", DELPHES_PATH)
+    return None
+
+def build_chain(inputRootFile):
+    chain = ROOT.TChain("Delphes")
+    if isinstance(inputRootFile, list):
+        for file in inputRootFile:
+            chain.Add(file)
+    elif isinstance(inputRootFile, str):
+        chain.Add(inputRootFile)
+    else:
+        raise TypeError(f"inputRootFile must be str or list, got {type(inputRootFile).__name__}")
+    return chain
+
+def count_entries(inputRootFile):
+    return build_chain(inputRootFile).GetEntries()
+./src/loops/branches_reader.py
 
 import math
 import sys
 import argparse
 from itertools import combinations
 from tabulate import tabulate
-
-try:
-    from yaml import safe_load 
-except ImportError:
-    print("Error: PyYAML is required. Install with: pip install pyyaml")
-    sys.exit(1)
+from yaml import safe_load 
 
 
-class BranchsHandler:
+class BranchesHandler:
     """
     Handles physics object branch name generation and validation
     based on a YAML configuration file.
 
     Usage:
-        reader = BranchsHandler("branch_config.yml")
+        reader = BranchesHandler("branch_config.yml")
         reader.print_summary()
         reader.print_config()       # detailed inspection
         reader.is_valid()           # returns True/False
@@ -2102,7 +2141,7 @@ class BranchsHandler:
             if len(set(zip(types, slots))) != N:
                 continue
             # Rule 2 (optional): all object types must be different
-            if self.multiObjects_include_same_representations == False and len(set(types)) != N:
+            if self.multiObjects_include_same_represenations == False and len(set(types)) != N:
                 continue
             result.append(names)
 
@@ -2251,15 +2290,8 @@ class BranchsHandler:
         print("\n--- N-body Combination Summary ---\n")
         combo_data = []
         for N in range(2, self.multiObjects_Nmax + 1):
-            combos = self.get_nbody_combinations(
-                N,
-                different_types_only=not self.multiObjects_include_same_represenations,
-                combo_objects=self.multiObjects_combo_objects_set,
-            )
-            all_kins = self.get_nbody_kinematics(
-                N, return_basic=False,
-                include_trivial=self.multiObjects_include_trival_kinematics,
-            )
+            combos = self.get_nbody_combinations(N)
+            all_kins = self.get_nbody_kinematics(N)
             n_branches = len(combos) * len(all_kins)
             combo_data.append([N, len(combos), len(all_kins), n_branches])
         print(tabulate(combo_data,
@@ -2276,12 +2308,7 @@ class BranchsHandler:
             ["  - Single-object", sum(len(self.get_obj_branch_names(obj)) for obj in self.objects)],
         ]
         for N in range(2, self.multiObjects_Nmax + 1):
-            nbody = self.get_nbody_branch_names(
-                N,
-                include_trivial=self.multiObjects_include_trival_kinematics,
-                different_types_only=self.multiObjects_include_same_represenations == False,
-                combo_objects=self.multiObjects_combo_objects_set,
-            )
+            nbody = self.get_nbody_branch_names(N)
             summary_data.append([f"  - {N}-body", len(nbody)])
         summary_data.extend([
             ["  - Global scalars", len(self.global_scalars)],
@@ -2313,11 +2340,8 @@ class BranchsHandler:
             print("   to loss of valuable data if not done carefully.")
 
 
-# ==============================
-# CLI Entry Point
-# ==============================
+def main():
 
-if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Read, check, and validate branch configuration from a YAML file."
     )
@@ -2334,7 +2358,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    reader = BranchsHandler(args.config)
+    reader = BranchesHandler(args.config)
 
     # Always print validation results
     reader.print_validation()
@@ -2350,38 +2374,10 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         print("\n✓ Configuration validated successfully.")
-./src/loops/delphes.py
 
-import os
-import ROOT
 
-def load_delphes():
-    DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_7_2/Delphes")
-    ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
-    ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
-    ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/external")
-    ROOT.gSystem.Load("libDelphes")
-    ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
-    ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
-    ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
-    ROOT.gROOT.SetBatch(True)
-    print("Using ROOT version:", ROOT.__version__)
-    print("Using Delphes libraries found at:", DELPHES_PATH)
-    return None
-
-def build_chain(inputRootFile):
-    chain = ROOT.TChain("Delphes")
-    if isinstance(inputRootFile, list):
-        for file in inputRootFile:
-            chain.Add(file)
-    elif isinstance(inputRootFile, str):
-        chain.Add(inputRootFile)
-    else:
-        raise TypeError(f"inputRootFile must be str or list, got {type(inputRootFile).__name__}")
-    return chain
-
-def count_entries(inputRootFile):
-    return build_chain(inputRootFile).GetEntries()
+if __name__ == "__main__":
+    main()
 ./src/loops/basic3_delphes.py
 
 #!/usr/bin/env python3
@@ -2765,9 +2761,8 @@ from delphes import load_delphes, build_chain
 from kinematics import EventShapes, Centrality, MtW
 from mt2 import mt2
 from object_selection import select_objects
-from itertools import combinations
-from branchs_reader import BranchsHandler
-from analysis_channels import get_analysis_channel_keys
+from branches_reader import BranchesHandler
+from analysis_channels import get_analysis_channel_keys, classify_analysis_channel
 
 def loop_tree(
     inputRootFile,
@@ -2796,12 +2791,9 @@ def loop_tree(
     Weight_branch    = TreeReader.UseBranch("Weight")
 
     # get the branch names
-    BR = BranchsHandler("/data/ammelsayed/hepdataset/tests/branch_config_example1.yml")
+    BR = BranchesHandler("/data/ammelsayed/hepdataset/tests/branch_config_example1.yml")
     float_branch_names = BR.get_float_branch_names()
     int_branch_names = BR.get_int_branch_names()
-    nb_lep_max = BR.get_obj_count("Lepton")
-    nb_jet_max = BR.get_obj_count("Jet")
-    nb_fj_max  = BR.get_obj_count("FatJet")
 
     # get the analysis channels keys and definitions
     ac_keys = get_analysis_channel_keys()
@@ -2846,11 +2838,7 @@ def loop_tree(
         goodTauJets = selected_objects["goodTauJets"]
 
         # Identify the analysis channel key
-        nb_lep, nb_fj = len(goodLeptons), len(goodFatJets)
-        if nb_lep == 1 and nb_fj >= 1: ac_key = "1L"
-        elif nb_lep == 2 and nb_fj >= 1: ac_key = "2L"
-        elif nb_lep == 3 and nb_fj >= 1: ac_key = "3L"
-        else: ac_key = None
+        ac_key = classify_analysis_channel(goodLeptons, goodFatJets)
 
         # Skip events that don't match any analysis channel
         if ac_key is None or ac_key not in trees.keys():

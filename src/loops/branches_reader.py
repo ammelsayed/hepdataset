@@ -22,6 +22,12 @@ class BranchesHandler:
     _PHYSICS_OBJECTS = ["Lepton", "Muon", "Electron", "FatJet", "Jet", "BJet", "TauJet"]
     _SELECTION_STAGES = ["nPreQS", "nPreES", "nPostES"]
 
+    # Groomed jet representations that do NOT carry n-subjettiness / tau substructure
+    _GROOMED_REPRESENTATIONS = {"SoftDroppedFatJet", "TrimmedFatJet", "PrunedFatJet"}
+
+    # Kinematics that only exist on the main (ungroomed) FatJet
+    _TAU_SUBSTRUCTURE_KINEMATICS = {"Tau1", "Tau2", "Tau3", "Tau21", "Tau32"}
+
     def __init__(self, config_path=None):
         self.config_path = config_path
         self.objects = {}
@@ -197,6 +203,9 @@ class BranchesHandler:
             self._warnings.append(
                 "include_trival_kinematics is True but trival_kinematics list is empty."
             )
+        
+        # Validate kinematics and representations
+        
 
     def _count_combo_particles(self):
         """Count total available particles from combo_set objects."""
@@ -260,9 +269,28 @@ class BranchesHandler:
             return []
 
     def get_obj_branch_names(self, obj):
-        instances = self.get_obj_instances(obj)
+        if obj not in self.objects:
+            return []
+
+        count      = self.get_obj_count(obj)
+        reprs      = self.get_obj_repr(obj)
         kinematics = self.get_obj_kinematics(obj)
-        return [f"{k}_{inst}" for k in kinematics for inst in instances]
+
+        # Singleton with no index (e.g. MET)
+        if count == 1 and reprs == [obj]:
+            return [f"{k}_{obj}" for k in kinematics]
+
+        out = []
+        for rep in reprs:
+            # Should tau substructure be skipped for this representation?
+            skip_tau = rep in self._GROOMED_REPRESENTATIONS
+            for i in range(count):
+                inst = f"{rep}{i}"
+                for k in kinematics:
+                    if skip_tau and k in self._TAU_SUBSTRUCTURE_KINEMATICS:
+                        continue
+                    out.append(f"{k}_{inst}")
+        return out
 
     def get_obj_number_branch_names(self):
         """
@@ -304,7 +332,7 @@ class BranchesHandler:
             if len(set(zip(types, slots))) != N:
                 continue
             # Rule 2 (optional): all object types must be different
-            if self.multiObjects_include_same_representations == False and len(set(types)) != N:
+            if self.multiObjects_include_same_represenations == False and len(set(types)) != N:
                 continue
             result.append(names)
 
@@ -453,15 +481,8 @@ class BranchesHandler:
         print("\n--- N-body Combination Summary ---\n")
         combo_data = []
         for N in range(2, self.multiObjects_Nmax + 1):
-            combos = self.get_nbody_combinations(
-                N,
-                different_types_only=not self.multiObjects_include_same_represenations,
-                combo_objects=self.multiObjects_combo_objects_set,
-            )
-            all_kins = self.get_nbody_kinematics(
-                N, return_basic=False,
-                include_trivial=self.multiObjects_include_trival_kinematics,
-            )
+            combos = self.get_nbody_combinations(N)
+            all_kins = self.get_nbody_kinematics(N)
             n_branches = len(combos) * len(all_kins)
             combo_data.append([N, len(combos), len(all_kins), n_branches])
         print(tabulate(combo_data,
@@ -478,12 +499,7 @@ class BranchesHandler:
             ["  - Single-object", sum(len(self.get_obj_branch_names(obj)) for obj in self.objects)],
         ]
         for N in range(2, self.multiObjects_Nmax + 1):
-            nbody = self.get_nbody_branch_names(
-                N,
-                include_trivial=self.multiObjects_include_trival_kinematics,
-                different_types_only=self.multiObjects_include_same_represenations == False,
-                combo_objects=self.multiObjects_combo_objects_set,
-            )
+            nbody = self.get_nbody_branch_names(N)
             summary_data.append([f"  - {N}-body", len(nbody)])
         summary_data.extend([
             ["  - Global scalars", len(self.global_scalars)],

@@ -17,9 +17,8 @@ from delphes import load_delphes, build_chain
 from kinematics import EventShapes, Centrality, MtW
 from mt2 import mt2
 from object_selection import select_objects
-from itertools import combinations
 from branches_reader import BranchesHandler
-from analysis_channels import get_analysis_channel_keys
+from analysis_channels import get_analysis_channel_keys, classify_analysis_channel
 
 def loop_tree(
     inputRootFile,
@@ -48,12 +47,9 @@ def loop_tree(
     Weight_branch    = TreeReader.UseBranch("Weight")
 
     # get the branch names
-    BR = BranchesHandler("/data/ammelsayed/hepdataset/tests/branch_config_example1.yml")
+    BR = BranchesHandler("/data/ammelsayed/hepdataset/tests/branches_config_example1.yml")
     float_branch_names = BR.get_float_branch_names()
     int_branch_names = BR.get_int_branch_names()
-    nb_lep_max = BR.get_obj_count("Lepton")
-    nb_jet_max = BR.get_obj_count("Jet")
-    nb_fj_max  = BR.get_obj_count("FatJet")
 
     # get the analysis channels keys and definitions
     ac_keys = get_analysis_channel_keys()
@@ -67,12 +63,12 @@ def loop_tree(
 
         # Create a fresh buffer dictionary for this tree
         b = {}
-        for branch_name in float_branch_names:
-            b[branch_name] = np.zeros(1, dtype=np.float64)
-            tree.Branch(branch_name, b[branch_name], f"{branch_name}/D")  # /D for Double (64-bit float)
         for branch_name in int_branch_names:
             b[branch_name] = np.zeros(1, dtype=np.int32)
             tree.Branch(branch_name, b[branch_name], f"{branch_name}/I")  # /I for Integer
+        for branch_name in float_branch_names:
+            b[branch_name] = np.zeros(1, dtype=np.float64)
+            tree.Branch(branch_name, b[branch_name], f"{branch_name}/D")  # /D for Double (64-bit float)
         buffers[ac_key] = b      
 
         trees[ac_key] = tree
@@ -98,21 +94,20 @@ def loop_tree(
         goodTauJets = selected_objects["goodTauJets"]
 
         # Identify the analysis channel key
-        nb_lep, nb_fj = len(goodLeptons), len(goodFatJets)
-        if nb_lep == 1 and nb_fj >= 1: ac_key = "1L"
-        elif nb_lep == 2 and nb_fj >= 1: ac_key = "2L"
-        elif nb_lep == 3 and nb_fj >= 1: ac_key = "3L"
-        else: ac_key = None
+        ac_key = classify_analysis_channel(goodLeptons, goodFatJets)
 
         # Skip events that don't match any analysis channel
         if ac_key is None or ac_key not in trees.keys():
             continue  
         
         # Reset branches to np.nan (weight defaults to 0.0 for skipped events)
-        for branch_name in float_branch_names:
-            b[branch_name][0] = np.nan
+        b = buffers[ac_key]
         for branch_name in int_branch_names:
             b[branch_name][0] = -1
+        for branch_name in float_branch_names:
+            b[branch_name][0] = np.nan
+        b["weight"][0] = 0.0
+        b["gen_weight"][0] = 0.0
 
         # ================================================================
         # Fill the branches
@@ -184,30 +179,16 @@ def loop_tree(
 
                     branch_name = f"{k}_{inst}"
 
-                    # Optional: check if this branch name is in get_float_branch_names() or not, skipped here,
-                    # because if not, then it will not filled in the tree anyways, and will raise a key error.
-
                     try:
-
-                        value = getattr(lepton, k) # example: lep.PT
-                        b[branch_name][0] = value 
-
-                        if debug_loop:
-                            print(f"> Filled branch {branch_name}: value = {value}.")
-
+                        b[branch_name][0] = getattr(lepton, k) # example: lep.PT 
                     except AttributeError:
-
                         try:
-
-                            value = getattr(p4, k)() # example: lep.P4().Px()
-                            b[branch_name][0] = value 
-
-                            if debug_loop:
-                                print(f"> Filled branch {branch_name}: value = {value}.")
-
+                            b[branch_name][0] = getattr(p4, k)() # example: lep.P4().Px() 
                         except AttributeError as e:
-                            print(f"Delphes {lepClassName} object has no attribute {k} or .P4().{k}(). Error: {e}")
-                            raise AttributeError(e)
+                            # leave as NaN (already set at reset time)
+                            if debug_loop:
+                                print(f"> Skipping {branch_name}: not available on {lepClassName} or its TLorentzVector.")
+                            continue
 
         # ----------------------------------------------------------------
         # Fill Large-R (FatJets) kinematics
@@ -219,31 +200,22 @@ def loop_tree(
 
             p4_fj = fatjet.P4()
             P4s[f"FatJet{fj_idx}"] = p4_fj
-            if debug_loop:
-                print(f"FatJet{fj_idx}")
-                print(f"> FatJet: pt = {fatjet.PT}, eta = {fatjet.Eta}, phi = {fatjet.Phi}, m = {fatjet.Mass}.")
 
             # Log softdropped large-R jet four-momenta
             # Required only if softdropped fatjets are configured as a representaion of large-R jets.
             if hasattr(fatjet, 'SoftDroppedP4') and ("SoftDroppedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_sd = fatjet.SoftDroppedP4[0]
                 P4s[f"SoftDroppedFatJet{fj_idx}"] = p4_sd
-                if debug_loop:
-                    print(f"> SoftDroppedFatJet: pt = {p4_sd.Pt()}, eta = {p4_sd.Eta()}, phi = {p4_sd.Phi()}, m = {p4_sd.M()}.")
 
             # Log trimmed large-R jet four-momenta
             if hasattr(fatjet, 'TrimmedP4') and ("TrimmedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_tr = fatjet.TrimmedP4[0]            
                 P4s[f"TrimmedFatJet{fj_idx}"] = p4_tr
-                if debug_loop:
-                    print(f"> TrimmedFatJet: pt = {p4_tr.Pt()}, eta = {p4_tr.Eta()}, phi = {p4_tr.Phi()}, m = {p4_tr.M()}.")
 
             # Log pruned large-R jet four-momenta
             if hasattr(fatjet, 'PrunedP4') and ("PrunedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_pr = fatjet.PrunedP4[0]
                 P4s[f"PrunedFatJet{fj_idx}"] = p4_pr
-                if debug_loop:
-                    print(f"> PrunedFatJet: pt = {p4_pr.Pt()}, eta = {p4_pr.Eta()}, phi = {p4_pr.Phi()}, m = {p4_pr.M()}.")
 
             # Fill kinematics asked for
             for k in BR.get_obj_kinematics("FatJet"):
@@ -253,64 +225,55 @@ def loop_tree(
                     continue
                 
                 # Fill basic kinematics of the fatjet
+                branch_name = f"{k}_FatJet{fj_idx}"
+
                 try:
-                    value = getattr(fatjet, k)
-                    b[f"{k}_FatJet{fj_idx}"][0] = value
-                    if debug_loop:
-                        print(f"> Filled branch {k}_FatJet{fj_idx}: value = {value}.")
+                    b[branch_name][0] = getattr(fatjet, k)  
                 except AttributeError:
                     try:
-                        value = getattr(p4_fj, k)()
-                        b[f"{k}_FatJet{fj_idx}"][0] = value
-                        if debug_loop:
-                            print(f"> Filled branch {k}_FatJet{fj_idx} from P4: value = {value}.")
+                        b[branch_name][0] = getattr(p4_fj, k)()  
                     except AttributeError as e:
-                        print(f"Delphes {classname} object has no attribute {k} or .P4().{k}().")
-                        raise AttributeError(e)
+                        if debug_loop:
+                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
+                        continue
 
                 # Fill same kinematics for the softdropped jet
                 # grooming variants do not have direct methods
                 # so we just use one layer of reading 
                 if hasattr(fatjet, 'SoftDroppedP4') and ("SoftDroppedFatJet" in BR.get_obj_repr("FatJet")):
 
+                    branch_name = f"{k}_SoftDroppedFatJet{fj_idx}"
+
                     try:
-                        value_sd = getattr(p4_sd, k)()
-                        b[f"{k}_SoftDroppedFatJet{fj_idx}"][0] = value_sd
-
-                        if debug_loop:
-                            print(f"> Filled branch {k}_SoftDroppedFatJet{fj_idx} from SoftDroppedP4: value = {value_sd}.")
-
+                        b[branch_name][0] = getattr(p4_sd, k)()  
                     except AttributeError as e:
-                        print(f"Delphes {classname} object has no attribute .SoftDroppedP4[0].{k}().")
-                        raise AttributeError(e)
+                        if debug_loop:
+                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
+                        continue
 
                 # Fill same kinematics for the trimmed jet
                 if hasattr(fatjet, 'TrimmedP4') and ("TrimmedFatJet" in BR.get_obj_repr("FatJet")):
 
+                    branch_name = f"{k}_TrimmedFatJet{fj_idx}"
+
                     try:
-                        value_tr = getattr(p4_tr, k)()
-                        b[f"{k}_TrimmedFatJet{fj_idx}"][0] = value_tr
-
-                        if debug_loop:
-                            print(f"> Filled branch {k}_TrimmedFatJet{fj_idx} from TrimmedP4: value = {value_tr}.")
-
+                        b[branch_name][0] = getattr(p4_tr, k)()  
                     except AttributeError as e:
-                        print(f"Delphes {classname} object has no attribute .TrimmedP4[0].{k}().")
-                        raise AttributeError(e)
+                        if debug_loop:
+                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
+                        continue
 
                 # Fill same kinematics for the pruned jet
                 if hasattr(fatjet, 'PrunedP4') and ("PrunedFatJet" in BR.get_obj_repr("FatJet")):
 
+                    branch_name = f"{k}_PrunedFatJet{fj_idx}"
+
                     try:
-                        value_pr = getattr(p4_pr, k)()
-                        b[f"{k}_PrunedFatJet{fj_idx}"][0] = value_pr
-
-                        if debug_loop:
-                            print(f"> Filled branch {k}_PrunedFatJet{fj_idx} from PrunedP4: value = {value_pr}.")
-
+                        b[branch_name][0] = getattr(p4_pr, k)()  
                     except AttributeError as e:
-                        print(f"Delphes {classname} object has no attribute .PrunedP4[0].{k}().")
-                        raise AttributeError(e)
+                        if debug_loop:
+                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
+                        continue
 
             # Fill n-subjetness substructure variables
             # Those are only filled for FatJet
@@ -324,9 +287,6 @@ def loop_tree(
             t1, t2, t3 = fatjet.Tau[0], fatjet.Tau[1], fatjet.Tau[2]
             b[f"Tau21_FatJet{fj_idx}"][0] = t2 / t1 if t1 > 0 else 1.0
             b[f"Tau32_FatJet{fj_idx}"][0] = t3 / t2 if t2 > 0 else 1.0
-            if debug_loop:
-                print(f"> Filled branch Tau21_FatJet{fj_idx}: value = {b[f'Tau21_FatJet{fj_idx}'][0]}.")
-                print(f"> Filled branch Tau32_FatJet{fj_idx}: value = {b[f'Tau32_FatJet{fj_idx}'][0]}.")
 
         # ----------------------------------------------------------------
         # Fill Small-R Jets kinematics
@@ -343,35 +303,19 @@ def loop_tree(
                 p4 = jet.P4()
                 P4s[inst] = p4
 
-                if debug_loop:
-                    print(inst)
-                    print(f"> Jet: pt = {jet.PT}, eta = {jet.Eta}, phi = {jet.Phi}, m = {p4.M()}.")
-
                 for k in BR.get_obj_kinematics("Jet"):
 
                     branch_name = f"{k}_{inst}"
 
                     try:
-
-                        value = getattr(jet, k) # example: jet.PT
-                        b[branch_name][0] = value 
-
-                        if debug_loop:
-                            print(f"> Filled branch {branch_name}: value = {value}.")
-
+                        b[branch_name][0] = getattr(jet, k)  
                     except AttributeError:
-
                         try:
-
-                            value = getattr(p4, k)() # example: jet.P4().PT()
-                            b[branch_name][0] = value 
-
-                            if debug_loop:
-                                print(f"> Filled branch {branch_name}: value = {value}.")
-
+                            b[branch_name][0] = getattr(p4, k)()  
                         except AttributeError as e:
-                            print(f"Delphes {classname} object has no attribute {k} or .P4().{k}().")
-                            raise AttributeError(e)
+                            if debug_loop:
+                                print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
+                            continue
 
         # ----------------------------------------------------------------
         # Fill scalars and event shapes
@@ -384,15 +328,14 @@ def loop_tree(
         for k in BR.get_obj_kinematics("MET"):
             branch_name = f"{k}_MET"
             try:
-                value = getattr(met, k) 
-                b[branch_name][0] = value 
+                b[branch_name][0] = getattr(met, k)  
             except AttributeError:
                 try:
-                    value = getattr(p4_met, k)() 
-                    b[branch_name][0] = value 
+                    b[branch_name][0] = getattr(p4_met, k)()  
                 except AttributeError as e:
-                    print(f"Delphes {met.ClassName()} object has no attribute {k} or .P4().{k}().")
-                    raise AttributeError(e)
+                    if debug_loop:
+                        print(f"> Skipping {branch_name}: not available on {met.ClassName()} or its TLorentzVector.")
+                    continue
 
         # Fill other global scalars        
         ht = ScalarHT_branch.At(0).HT
@@ -433,9 +376,9 @@ def loop_tree(
         # Fill N-body relations
         # ----------------------------------------------------------------
 
-        if multiObjects_Nmax >= 2:
+        if BR.multiObjects_Nmax >= 2:
 
-            for N in range(2, multiObjects_Nmax + 1, 1):
+            for N in range(2, BR.multiObjects_Nmax + 1, 1):
 
                 for p_names in BR.get_nbody_combinations(N):
 
@@ -451,29 +394,34 @@ def loop_tree(
 
                         # fill basic kinematics first 
                         for k in BR.get_nbody_kinematics(N):
-                            branch_name = f"{k}_{sufx}"
-                            try:
-                                value = getattr(total_p4, k)() 
-                                b[branch_name][0] = value 
-                            except AttributeError as e:
-                                print(f"Cannot fill {k} or .P4().{k}() for {sufx}")
-                                raise AttributeError(e)
+                            if k not in BR.multiObject_2body_kinematics:
+                                branch_name = f"{k}_{sufx}"
+                                try:
+                                    b[branch_name][0] = getattr(total_p4, k)()  
+                                except AttributeError as e:
+                                    if debug_loop:
+                                        print(f"Skipping {k}: not available for {sufx}.")
+                                    continue
 
                         # by default 2body kinematics should be included for any 2-body objects
                         # those are just ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
                         # we fill them manullay
                         if N == 2:
                             p1 = p4_list[0]; p2 = p4_list[1]
-                            b[f"DeltaR_{sufx}"][0] = p1.DeltaR(p2)
-                            b[f"DeltaPhi_{sufx}"][0] = p1.DeltaPhi(p2)
-                            b[f"DeltaEta_{sufx}"][0] = p1.Eta() - p2.Eta()
-                            b[f"MtW_{sufx}"][0] = MtW(p1.Pt(), p1.Phi(), p2.Pt(), p2.Phi())
+                            if "DeltaR" in BR.multiObject_2body_kinematics:
+                                b[f"DeltaR_{sufx}"][0] = p1.DeltaR(p2)
+                            if "DeltaPhi" in BR.multiObject_2body_kinematics:
+                                b[f"DeltaPhi_{sufx}"][0] = p1.DeltaPhi(p2)
+                            if "DeltaEta" in BR.multiObject_2body_kinematics:
+                                b[f"DeltaEta_{sufx}"][0] = p1.Eta() - p2.Eta()
+                            if "MtW" in BR.multiObject_2body_kinematics:
+                                b[f"MtW_{sufx}"][0] = MtW(p1.Pt(), p1.Phi(), p2.Pt(), p2.Phi())
                         
 
-                        ## Here we wish to calculate the stransverse mass
-                        ## We just calclate it for 2 body objects, 
-                        ## and only for lepton and fatjet pars
-                        ## this because calculating mt2 can be slow
+                        # Here we wish to calculate the stransverse mass
+                        # We just calclate it for 2 body objects, 
+                        # and only for lepton and fatjet pars
+                        # this is because calculating mt2 can be slow
                         if BR.multiObjects_include_mt2 and N == 2:
                             supported = BR.get_obj_instances("Lepton") + BR.get_obj_instances("FatJet")
                             p1 = p4_list[0]; p2 = p4_list[1]
@@ -507,11 +455,11 @@ def loop_tree(
         b["weight"][0] = eventWeight
 
         # Fill the trees
-        trees[sr_key].Fill()
-        counts[sr_key] += 1
+        trees[ac_key].Fill()
+        counts[ac_key] += 1
 
     summary = " | ".join(f"{k}={counts[k]}" for k in ac_keys)
-    if progress:
+    if show_progress:
         print(f"Region yields for {treeName}: {summary}")
 
     # If a temp directory is requested, spill each non-empty per-SR tree to its
@@ -546,6 +494,7 @@ def main():
     parser.add_argument("--start-entry", type=int, default=0, help="Entry to start processing from (default: 0).")
     parser.add_argument("--end-entry", type=int, default=None, help="Entry to stop processing at (default: None, meaning process all entries).")
     parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
+    parser.add_argument("--debug", action="store_true", help="Show debug information during processing.")
 
 
     args = parser.parse_args()
@@ -564,6 +513,7 @@ def main():
         temp_dir_path=args.output_dir,
         nb_lep_max=args.nb_lep_max,
         nb_fj_max=args.nb_fj_max,
+        debug_loop=args.debug
     )
 
     print(f"Output written to: {out_path}")
