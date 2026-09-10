@@ -174,8 +174,6 @@ if __name__ == "__main__":
     parser.add_argument("--tree-name", type=str, default="Delphes", help="Name of the output TTree (default: Delphes).")
     parser.add_argument("--output-dir", type=str, default=".", help="Directory where the output ROOT file will be written (default: current directory).")
     parser.add_argument("--event-weight", type=float, default=1.0, help="Weight to apply to each event (default: 1.0).")
-    parser.add_argument("--nb-lep-max", type=int, default=3, help="Maximum number of leptons to store (default: 3).")
-    parser.add_argument("--nb-fj-max", type=int, default=2, help="Maximum number of fat jets to store (default: 2).")
     parser.add_argument("--start-entry", type=int, default=0, help="Entry to start processing from (default: 0).")
     parser.add_argument("--end-entry", type=int, default=None, help="Entry to stop processing at (default: None, meaning process all entries).")
     parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
@@ -195,8 +193,6 @@ if __name__ == "__main__":
         end_entry=args.end_entry,
         show_progress=args.show_progress,
         temp_dir_path=args.output_dir,
-        nb_lep_max=args.nb_lep_max,
-        nb_fj_max=args.nb_fj_max,
     )
 
     print(f"Output written to: {out_path}")
