@@ -22,10 +22,9 @@ def select_objects(FatJet_branch, Electron_branch, Muon_branch):
             "goodMuons": list of selected muons
         }
     """
-    goodFatJets = []
-    goodLeptons = []
-    goodElectrons = []
-    goodMuons = []
+    goodFatJets, goodWFatJets, goodZFatjets, goodHFatjets, goodTopFatjets, goodEWFatJets = [], [], [], [], [], []
+    goodLeptons, goodElectrons, goodMuons = [], [], []
+    goodJets, goodBJets, goodCJets, goodSJets, goodTauJets = [], [], [], [], []
 
     # Collect good fatjets (pT > 300 GeV, |eta| < 2.5, in mass window)
     mW, mH = 80.4, 125.0
@@ -53,7 +52,19 @@ def select_objects(FatJet_branch, Electron_branch, Muon_branch):
 
     return {
         "goodFatJets": goodFatJets,
+        "goodWFatJets": goodWFatJets,
+        "goodZFatjets": goodZFatjets,
+        "goodHFatjets": goodHFatjets,
+        "goodTopFatjets": goodTopFatjets,
+        "goodEWFatJets": goodEWFatJets,
+
         "goodLeptons": goodLeptons,
         "goodElectrons": goodElectrons,
-        "goodMuons": goodMuons
+        "goodMuons": goodMuons,
+        
+        "goodJets": goodJets,
+        "goodBJets": goodBJets,
+        "goodCJets": goodCJets,
+        "goodSJets": goodSJets,
+        "goodTauJets": goodTauJets
     }
