@@ -1,146 +1,83 @@
+#!/usr/bin/env python3
 import os
-import numpy as np
 import ROOT
+import math
+import argparse
+import numpy as np
 from tqdm import tqdm
-from mt2 import mt2
-
-from ..kinematics import EventShapes, Centrality, MtW
-from ..branch_names import (
-    get_float_branch_names,
-    get_int_branch_names,
-    get_obj_count,
-    get_obj_kinematics,
-    get_obj_instances,
-    get_obj_repr,
-    get_nbody_combinations,
-    get_nbody_kinematics,
-)
-
-
-DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_5_15/Delphes")
-ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
-ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
-ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/external")
-ROOT.gSystem.Load("libDelphes")
-ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
-ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
-ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
-ROOT.gROOT.SetBatch(True)
-ROOT.gROOT.SetStyle("ATLAS")
-print("Using ROOT version:", ROOT.__version__)
-print("Using Delphes libraries found at:", DELPHES_PATH)
-script_nb_version = 3
-print(f"Making datasets with script version : {script_nb_version}")
-
-def isGoodMuon(muonIdx, muonPT, muonEta, muonIso):
-    idx_pt_map = {0: 30, 1: 20} #  PT thresholds for leading, subleading, etc. muons
-    IsoCutMuon = 0.1 ## looseCut = 0.3, mediumCut = 0.2, tightCut = 0.1
-    return (muonIso <= IsoCutMuon) and (muonPT >= idx_pt_map.get(muonIdx, 10)) and (abs(muonEta) <= 2.5)
-
-def isGoodElectron(electronIdx, electronPT, electronEta, electronIso):
-    idx_pt_map = {0: 30, 1: 20} #  PT thresholds for leading, subleading, etc. electrons
-    IsoCutElectron = 0.2 ## looseCut = 0.3, mediumCut = 0.2, tightCut = 0.1
-    return (electronIso < IsoCutElectron) and (electronPT >= idx_pt_map.get(electronIdx, 10)) and (abs(electronEta) <= 2.5)
+from delphes import load_delphes, build_chain
+from kinematics import DeltaR, DeltaPhi, DeltaEta
+from object_selection import select_objects
+from itertools import combinations
 
 def loop_tree(
     inputRootFile,
     treeName,
-    sampleWeight,
-    signal_regions_keys,
-    start_entry=0,
-    end_entry=None,
-    progress=True,
-    debug_loop=False,
-    max_entries=None,
-    temp_dir_path=None,
-    # --- helpers (passed in so this module is decoupled from make_dataset_vN.py) ---
-    build_chain=None,
-    isGoodMuon=None,
-    isGoodElectron=None,
-    classify_signal_region_key=None,
-    # --- configuration knobs (mirror the defaults used in make_dataset_v4.py) ---
-    multiObjects_Nmax=3,
-    multiObjects_include_same_represenations=True,
-    multiObjects_include_trival_kinematics=False,
-    multiObjects_include_mt2=True,
-    multiObjects_combo_objects_set=("Lepton", "FatJet", "MET"),
-    isLooseSR=True,
-    lepton_type_fn=None,
+    eventWeight = 1.0,
+    start_entry = 0,
+    end_entry = None,
+    show_progress = True,
+    temp_dir_path = None,
+    nb_lep_max = 3,
+    nb_fj_max = 2,
 ):
-    """Loop over the Delphes tree and fill the required data.
 
-    If temp_dir_path is given (parallel / disk-spill mode), each per-SR tree is
-    written to its own .root file inside temp_dir_path (which mirrors the
-    ReaderOutput directory layout).  The function returns a list of created
-    file paths instead of in-memory TTrees, keeping the parent process lightweight.
-
-    Helper hooks
-    ------------
-    build_chain, isGoodMuon, isGoodElectron, classify_signal_region_key,
-    lepton_type_fn are intentionally taken as parameters so this function can be
-    reused across vN script variants without a circular import.
-    """
-
-    # --- safety: the helpers must come from the caller ---
-    missing = [
-        n
-        for n, v in (
-            ("build_chain", build_chain),
-            ("isGoodMuon", isGoodMuon),
-            ("isGoodElectron", isGoodElectron),
-            ("classify_signal_region_key", classify_signal_region_key),
-        )
-        if v is None
-    ]
-    if missing:
-        raise TypeError(
-            "loop_tree() missing required helper arguments: " + ", ".join(missing)
-        )
-
-    # Setup Delphes
+    # Read the input file
     Chain = build_chain(inputRootFile)
     TreeReader = ROOT.ExRootTreeReader(Chain)
-    FatJet_branch = TreeReader.UseBranch("FatJet")
-    Electron_branch = TreeReader.UseBranch("Electron")
-    Muon_branch = TreeReader.UseBranch("Muon")
-    Jet_branch = TreeReader.UseBranch("Jet")
+
+    # Branches to read
+    Electron_branch  = TreeReader.UseBranch("Electron")
+    Muon_branch      = TreeReader.UseBranch("Muon")
+    FatJet_branch    = TreeReader.UseBranch("FatJet")
+    Jet_branch       = TreeReader.UseBranch("Jet")
     MissingET_branch = TreeReader.UseBranch("MissingET")
-    ScalarHT_branch = TreeReader.UseBranch("ScalarHT")
-    Weight_branch = TreeReader.UseBranch("Weight")
+    ScalarHT_branch  = TreeReader.UseBranch("ScalarHT")
+    Weight_branch    = TreeReader.UseBranch("Weight")
 
-    # Create the branch buffers, books trees and branches
-    b = {}
-    for branch_name in get_float_branch_names():
-        b[branch_name] = np.zeros(1, dtype=np.float64)
-    for branch_name in get_int_branch_names():
-        b[branch_name] = np.zeros(1, dtype=np.int32)
+    # get the branch names
+    branch_names = get_branch_names()
 
-    trees = {}
-    for sr_key in signal_regions_keys:
-        tree = ROOT.TTree(treeName, sr_key)
-        tree.SetDirectory(0)  # keep in-memory until spill
-        for branch_name in get_float_branch_names():
-            tree.Branch(branch_name, b[branch_name], f"{branch_name}/D")
-        for branch_name in get_int_branch_names():
-            tree.Branch(branch_name, b[branch_name], f"{branch_name}/I")
-        trees[sr_key] = tree
+
+    # get the analysis channels keys and definitions
+    ac_keys = get_analysis_channel_keys()
+
+    # book the trees and create the branch buffers
+    trees, buffers = {}, {}
+    ac_keys = ["1L", "2L", "3L"]
+    for ac_key in ac_keys:
+        tree_name = f"{treeName}_{ac_key}"
+        tree = ROOT.TTree(tree_name, tree_name)
+        tree.SetDirectory(0)
+
+        # Create a fresh buffer dictionary for this tree
+        b = {}
+        for name in branch_names:
+            b[name] = np.zeros(1, dtype=np.float64)
+            tree.Branch(name, b[name], f"{name}/D")
+        buffers[ac_key] = b      
+
+        trees[ac_key] = tree
 
     # Event loop
     numberOfEntries = TreeReader.GetEntries()
     if end_entry is None or end_entry > numberOfEntries:
         end_entry = numberOfEntries
 
-    counts = {k: 0 for k in signal_regions_keys}
     rng = range(start_entry, end_entry)
-    for entry in (tqdm(rng) if progress else rng):
+    for entry in (tqdm(rng) if show_progress else rng):
+        
         TreeReader.ReadEntry(entry)
 
-        if max_entries is not None and entry > max_entries:
-            break
 
-        if debug_loop:
-            print("-" * 80)
-            print(f"Processing entry {entry}")
+
+
+
+
+
+
+
+
 
         # Reset branches to np.nan (weight defaults to 0.0 for skipped events)
         for branch_name in get_float_branch_names():
