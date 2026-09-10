@@ -96,10 +96,18 @@ def make_dataset(
     ``{category}_{process}_sampleN`` with ``N`` starting at zero. Final files
     are named ``events.root`` under their analysis channel or region.
     """
-    from .loops.branches_reader import BranchesHandler
-    from .loops.delphes import count_entries, load_delphes
-    from .parallelization.delphes import loop_tree_parallel
-    from .samples_reader import SamplesReader
+    try:
+        from .loops.branches_reader import BranchesHandler
+        from .loops.delphes import count_entries, load_delphes
+        from .parallelization.delphes import loop_tree_parallel
+        from .samples_reader import SamplesReader
+    except ImportError as error:
+        if "no known parent package" not in str(error):
+            raise
+        from loops.branches_reader import BranchesHandler
+        from loops.delphes import count_entries, load_delphes
+        from parallelization.delphes import loop_tree_parallel
+        from samples_reader import SamplesReader
 
     samples = Path(samples).resolve()
     branches_config = Path(branches_config).resolve()
@@ -180,14 +188,13 @@ def make_dataset(
                             path, tree_name, output_dir, known_signal_regions
                         )
                         final_inputs.setdefault(destination, []).append(path)
+        final_outputs = []
+        for destination, paths in final_inputs.items():
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            _hadd(destination, paths)
+            final_outputs.append(destination)
     finally:
         shutil.rmtree(temp_root, ignore_errors=True)
-
-    final_outputs = []
-    for destination, paths in final_inputs.items():
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        _hadd(destination, paths)
-        final_outputs.append(destination)
 
     if not return_pdDataframe:
         return None

@@ -9,163 +9,163 @@ Background:
       - /data/ammelsayed/new_stuff/tw_1L/Events/run_01_01/tag_1_delphes_events.root
       - /data/ammelsayed/new_stuff/tw_1L/Events/run_01_02/tag_1_delphes_events.root
 
-  tW_2L:
-    cross_section: 0.05197           # [pb] tW (2L)
-    files:
-      - /data/ammelsayed/new_stuff/tw_2L/Events/run_01_01/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/tw_2L/Events/run_01_02/tag_1_delphes_events.root
-
-  tt_1L:
-    cross_section: 0.7528           # [pb] tt (1L)
-    files:
-      - /data/ammelsayed/new_stuff/tt_1L/Events/run_02_01/tag_1_delphes_events.root
-
-  tt_2L:
-    cross_section: 0.37395           # [pb] tt (2L)
-    files:
-      - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_01_01/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_01_02/tag_1_delphes_events.root
-
-  ttW_1L:
-    cross_section: 0.00135          # [pb] ttW (1L) = 1.35e-3
-    files:
-      - /data/ammelsayed/new_stuff/ttw_1L/Events/run_02_01/tag_1_delphes_events.root
-
-  ttW_2L:
-    cross_section: 0.001862          # [pb] ttW (2L) = 1.862e-3
-    files:
-      - /data/ammelsayed/new_stuff/ttw_2L/Events/run_01_01/tag_1_delphes_events.root
-
-  ttW_3L:
-    cross_section: 0.001203          # [pb] ttW (3L) = 1.203e-3
-    files:
-      - /data/ammelsayed/new_stuff/ttw_3L/Events/run_01_01/tag_1_delphes_events.root
-
-  # ttZ_1L:
-  #   cross_section: 0.001092         # [pb] ttZ (1L) = 1.092e-3
+  # tW_2L:
+  #   cross_section: 0.05197           # [pb] tW (2L)
   #   files:
-  #     - /data/ammelsayed/new_stuff/ttz_1L/Events/run_02_01/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/tw_2L/Events/run_01_01/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/tw_2L/Events/run_01_02/tag_1_delphes_events.root
 
-  ttZ_2L:
-    cross_section: 0.0009054         # [pb] ttZ (2L) = 9.054e-4
-    files:
-      - /data/ammelsayed/new_stuff/ttz_2L/Events/run_01_01/tag_1_delphes_events.root
-
-  # ttZ_3L:
-  #   cross_section: 0.000506         # [pb] ttZ (3L) = 5.06e-4
+  # tt_1L:
+  #   cross_section: 0.7528           # [pb] tt (1L)
   #   files:
-  #     - /data/ammelsayed/new_stuff/ttz_3L/Events/run_01_01/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/tt_1L/Events/run_02_01/tag_1_delphes_events.root
 
-  ttZ_4L:
-    cross_section: 0.0004152         # [pb] ttZ (4L) = 4.152e-4
-    files:
-      - /data/ammelsayed/new_stuff/ttz_4L/Events/run_01_01/tag_1_delphes_events.root
-
-  # tttt:
-  #   cross_section: 0.006044         # [pb] tttt = 6.044e-3
+  # tt_2L:
+  #   cross_section: 0.37395           # [pb] tt (2L)
   #   files:
-  #     - /data/ammelsayed/new_stuff/tttt/Events/run_01_01/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_01_01/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_01_02/tag_1_delphes_events.root
 
-  # Diboson
-  # --------------------------
+  # ttW_1L:
+  #   cross_section: 0.00135          # [pb] ttW (1L) = 1.35e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/ttw_1L/Events/run_02_01/tag_1_delphes_events.root
 
-  OSWW_1L:
-    cross_section: 0.06337          # [pb] W+W- (1L)
-    files:
-      - /data/ammelsayed/new_stuff/osww_1L/Events/run_01_01/tag_1_delphes_events.root
+  # ttW_2L:
+  #   cross_section: 0.001862          # [pb] ttW (2L) = 1.862e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/ttw_2L/Events/run_01_01/tag_1_delphes_events.root
 
-  OSWW_2L:
-    cross_section: 0.04886           # [pb] W+W- (2L)
-    files:
-      - /data/ammelsayed/new_stuff/osww_2L/Events/run_01_01/tag_1_delphes_events.root
+  # ttW_3L:
+  #   cross_section: 0.001203          # [pb] ttW (3L) = 1.203e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/ttw_3L/Events/run_01_01/tag_1_delphes_events.root
 
-  SSWW_1L:
-    cross_section: 0.006293         # [pb] W+W+jj (1L) = 6.293e-3
-    files:
-      - /data/ammelsayed/new_stuff/osww_2L/Events/run_01_01/tag_1_delphes_events.root
+  # # ttZ_1L:
+  # #   cross_section: 0.001092         # [pb] ttZ (1L) = 1.092e-3
+  # #   files:
+  # #     - /data/ammelsayed/new_stuff/ttz_1L/Events/run_02_01/tag_1_delphes_events.root
 
-  SSWW_2L:
-    cross_section: 0.0              # [pb] W+W+jj (2L) -- not yet generated
-    files:
-      - /data/ammelsayed/new_stuff/osww_2L/Events/run_01_01/tag_1_delphes_events.root
+  # ttZ_2L:
+  #   cross_section: 0.0009054         # [pb] ttZ (2L) = 9.054e-4
+  #   files:
+  #     - /data/ammelsayed/new_stuff/ttz_2L/Events/run_01_01/tag_1_delphes_events.root
 
-  WZ_1L:
-    cross_section: 0.02747           # [pb] WZ (1L)
-    files:
-      - /data/ammelsayed/new_stuff/wz_1L/Events/run_01_01/tag_1_delphes_events.root
+  # # ttZ_3L:
+  # #   cross_section: 0.000506         # [pb] ttZ (3L) = 5.06e-4
+  # #   files:
+  # #     - /data/ammelsayed/new_stuff/ttz_3L/Events/run_01_01/tag_1_delphes_events.root
 
-  WZ_2L:
-    cross_section: 0.006793          # [pb] WZ (2L) = 6.793e-3
-    files:
-      - /data/ammelsayed/new_stuff/wz_2L/Events/run_01_01/tag_1_delphes_events.root
+  # ttZ_4L:
+  #   cross_section: 0.0004152         # [pb] ttZ (4L) = 4.152e-4
+  #   files:
+  #     - /data/ammelsayed/new_stuff/ttz_4L/Events/run_01_01/tag_1_delphes_events.root
 
-  WZ_3L:
-    cross_section: 0.007906          # [pb] WZ (3L) = 7.906e-3
-    files:
-      - /data/ammelsayed/new_stuff/wz_3L/Events/run_01_01/tag_1_delphes_events.root
+  # # tttt:
+  # #   cross_section: 0.006044         # [pb] tttt = 6.044e-3
+  # #   files:
+  # #     - /data/ammelsayed/new_stuff/tttt/Events/run_01_01/tag_1_delphes_events.root
 
-  ZZ_2L:
-    cross_section: 0.00847           # [pb] ZZ (2L) = 8.47e-3
-    files:
-      - /data/ammelsayed/new_stuff/zz_2L/Events/run_01_01/tag_1_delphes_events.root
+  # # Diboson
+  # # --------------------------
 
-  ZZ_4L:
-    cross_section: 0.002676          # [pb] ZZ (4L) = 2.676e-3
-    files:
-      - /data/ammelsayed/new_stuff/zz_4L/Events/run_01_01/tag_1_delphes_events.root
+  # OSWW_1L:
+  #   cross_section: 0.06337          # [pb] W+W- (1L)
+  #   files:
+  #     - /data/ammelsayed/new_stuff/osww_1L/Events/run_01_01/tag_1_delphes_events.root
 
-  # Triboson
-  # --------------------------
+  # OSWW_2L:
+  #   cross_section: 0.04886           # [pb] W+W- (2L)
+  #   files:
+  #     - /data/ammelsayed/new_stuff/osww_2L/Events/run_01_01/tag_1_delphes_events.root
 
-  VVV:
-    cross_section: 0.3089            # [pb] VVV (MadSpin)
-    files:
-      - /data/ammelsayed/new_stuff/vvv/Events/run_01_01_decayed_1/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/vvv/Events/run_01_02_decayed_1/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/vvv/Events/run_01_03_decayed_1/tag_1_delphes_events.root
+  # SSWW_1L:
+  #   cross_section: 0.006293         # [pb] W+W+jj (1L) = 6.293e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/osww_2L/Events/run_01_01/tag_1_delphes_events.root
 
-  # V +jets
-  # --------------------------
+  # SSWW_2L:
+  #   cross_section: 0.0              # [pb] W+W+jj (2L) -- not yet generated
+  #   files:
+  #     - /data/ammelsayed/new_stuff/osww_2L/Events/run_01_01/tag_1_delphes_events.root
 
-  W+012j:
-    cross_section: 24.3238           # [pb] W+jets (0,1,2j)
-    files:
-      - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_01/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_02/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_03/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_04/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_05/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_06/tag_1_delphes_events.root
+  # WZ_1L:
+  #   cross_section: 0.02747           # [pb] WZ (1L)
+  #   files:
+  #     - /data/ammelsayed/new_stuff/wz_1L/Events/run_01_01/tag_1_delphes_events.root
 
-  Z+012j:
-    cross_section: 6.7905            # [pb] Z/gamma*+jets (0,1,2j)
-    files:
-      - /data/ammelsayed/new_stuff/z012j_MLM/Events/run_01_01/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/z012j_MLM/Events/run_01_02/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/z012j_MLM/Events/run_01_03/tag_1_delphes_events.root
+  # WZ_2L:
+  #   cross_section: 0.006793          # [pb] WZ (2L) = 6.793e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/wz_2L/Events/run_01_01/tag_1_delphes_events.root
+
+  # WZ_3L:
+  #   cross_section: 0.007906          # [pb] WZ (3L) = 7.906e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/wz_3L/Events/run_01_01/tag_1_delphes_events.root
+
+  # ZZ_2L:
+  #   cross_section: 0.00847           # [pb] ZZ (2L) = 8.47e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/zz_2L/Events/run_01_01/tag_1_delphes_events.root
+
+  # ZZ_4L:
+  #   cross_section: 0.002676          # [pb] ZZ (4L) = 2.676e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/zz_4L/Events/run_01_01/tag_1_delphes_events.root
+
+  # # Triboson
+  # # --------------------------
+
+  # VVV:
+  #   cross_section: 0.3089            # [pb] VVV (MadSpin)
+  #   files:
+  #     - /data/ammelsayed/new_stuff/vvv/Events/run_01_01_decayed_1/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/vvv/Events/run_01_02_decayed_1/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/vvv/Events/run_01_03_decayed_1/tag_1_delphes_events.root
+
+  # # V +jets
+  # # --------------------------
+
+  # W+012j:
+  #   cross_section: 24.3238           # [pb] W+jets (0,1,2j)
+  #   files:
+  #     - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_01/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_02/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_03/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_04/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_05/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/w012j_MLM/Events/run_02_06/tag_1_delphes_events.root
+  #
+  # Z+012j:
+  #   cross_section: 6.7905            # [pb] Z/gamma*+jets (0,1,2j)
+  #   files:
+  #     - /data/ammelsayed/new_stuff/z012j_MLM/Events/run_01_01/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/z012j_MLM/Events/run_01_02/tag_1_delphes_events.root
+  #     - /data/ammelsayed/new_stuff/z012j_MLM/Events/run_01_03/tag_1_delphes_events.root
 
 Signal:
   M1000:
     cross_section: 0.0023793         # [pb] = 2.379300 fb / 1000
     files:
       - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1000/tag_1_delphes_events.root
-  M1100:
-    cross_section: 0.0013394         # [pb] = 1.339400 fb / 1000
-    files:
-      - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1100/tag_1_delphes_events.root
-  M1200:
-    cross_section: 0.0007711         # [pb] = 0.771100 fb / 1000
-    files:
-      - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1200/tag_1_delphes_events.root
-  M1300:
-    cross_section: 0.00045224        # [pb] = 0.452240 fb / 1000
-    files:
-      - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1300/tag_1_delphes_events.root
-  M1400:
-    cross_section: 0.00026951        # [pb] = 0.269510 fb / 1000
-    files:
-      - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1400/tag_1_delphes_events.root
-  M1500:
-    cross_section: 0.0001628         # [pb] = 0.162800 fb / 1000
-    files:
-      - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1500/tag_1_delphes_events.root
+  # M1100:
+  #   cross_section: 0.0013394         # [pb] = 1.339400 fb / 1000
+  #   files:
+  #     - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1100/tag_1_delphes_events.root
+  # M1200:
+  #   cross_section: 0.0007711         # [pb] = 0.771100 fb / 1000
+  #   files:
+  #     - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1200/tag_1_delphes_events.root
+  # M1300:
+  #   cross_section: 0.00045224        # [pb] = 0.452240 fb / 1000
+  #   files:
+  #     - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1300/tag_1_delphes_events.root
+  # M1400:
+  #   cross_section: 0.00026951        # [pb] = 0.269510 fb / 1000
+  #   files:
+  #     - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1400/tag_1_delphes_events.root
+  # M1500:
+  #   cross_section: 0.0001628         # [pb] = 0.162800 fb / 1000
+  #   files:
+  #     - /data/ammelsayed/Framework/Samples/signal/FDM/Events/sig1500/tag_1_delphes_events.root

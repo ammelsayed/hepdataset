@@ -93,12 +93,12 @@ def hadd_chunks(chunk_results, output_dir, treeName):
         for path in paths:
             if path:
                 path_obj = Path(path)
-                parent_name = path_obj.parent.name
-                relative_name = (
-                    os.path.join(parent_name, path_obj.name)
-                    if not parent_name.startswith("chunk_")
-                    else path_obj.name
-                )
+                filename = path_obj.name
+                if filename.startswith(f"{treeName}_") and filename.endswith(".root"):
+                    channel = filename[len(treeName) + 1:-len(".root")]
+                    relative_name = os.path.join(channel, filename)
+                else:
+                    relative_name = filename
                 grouped_files.setdefault(relative_name, []).append(path)
 
     merged = {}
