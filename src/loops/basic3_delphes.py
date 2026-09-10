@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+
+"""
+Supports reading of one Delphes root file at a time.
+Events are selected based on the number of leptons and fatjets, and written to separate flat trees for each analysis channel.
+Each tree is then written into a different root file.
+More branches are supported compared to basic1_delphes.py, including pairwise kinematic variables and global event variables.
+"""
+
 import os
 import ROOT
 import math

@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+"""
+Supports reading of one Delphes root file at a time, and writing a flat tree with selected events to a new root file.
+Requires an event to contain exactly one lepton and at least one fatjet to be selected.
+Supports limited amount of branches.
+"""
+
 import os
 import ROOT
 import math
