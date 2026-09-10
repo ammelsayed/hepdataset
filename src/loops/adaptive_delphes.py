@@ -18,7 +18,7 @@ from kinematics import EventShapes, Centrality, MtW
 from mt2 import mt2
 from object_selection import select_objects
 from itertools import combinations
-from branchs_reader import BranchsHandler
+from branches_reader import BranchesHandler
 from analysis_channels import get_analysis_channel_keys
 
 def loop_tree(
@@ -48,7 +48,7 @@ def loop_tree(
     Weight_branch    = TreeReader.UseBranch("Weight")
 
     # get the branch names
-    BR = BranchsHandler("/data/ammelsayed/hepdataset/tests/branch_config_example1.yml")
+    BR = BranchesHandler("/data/ammelsayed/hepdataset/tests/branch_config_example1.yml")
     float_branch_names = BR.get_float_branch_names()
     int_branch_names = BR.get_int_branch_names()
     nb_lep_max = BR.get_obj_count("Lepton")

@@ -3,21 +3,16 @@ import sys
 import argparse
 from itertools import combinations
 from tabulate import tabulate
-
-try:
-    from yaml import safe_load 
-except ImportError:
-    print("Error: PyYAML is required. Install with: pip install pyyaml")
-    sys.exit(1)
+from yaml import safe_load 
 
 
-class BranchsHandler:
+class BranchesHandler:
     """
     Handles physics object branch name generation and validation
     based on a YAML configuration file.
 
     Usage:
-        reader = BranchsHandler("branch_config.yml")
+        reader = BranchesHandler("branch_config.yml")
         reader.print_summary()
         reader.print_config()       # detailed inspection
         reader.is_valid()           # returns True/False
@@ -520,11 +515,8 @@ class BranchsHandler:
             print("   to loss of valuable data if not done carefully.")
 
 
-# ==============================
-# CLI Entry Point
-# ==============================
+def main():
 
-if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Read, check, and validate branch configuration from a YAML file."
     )
@@ -541,7 +533,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    reader = BranchsHandler(args.config)
+    reader = BranchesHandler(args.config)
 
     # Always print validation results
     reader.print_validation()
@@ -557,3 +549,7 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         print("\n✓ Configuration validated successfully.")
+
+
+if __name__ == "__main__":
+    main()
