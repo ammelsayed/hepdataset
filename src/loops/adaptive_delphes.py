@@ -509,7 +509,9 @@ def loop_tree(
     if show_progress:
         total_events = ac_counts["initial"]
         df = pd.DataFrame(ac_counts.items(), columns=[" Analysis Channel/Region", "Events"])
-        if (eventWeight != None) and (luminosity != None): df[f"Yield ({int(luminosity)} fb^-1)"] = df["Events"] * eventWeight
+        if (eventWeight != None) and (luminosity != None): 
+            df[f"Yield ({int(luminosity)} fb^-1)"] = df["Events"] * eventWeight
+            df[f"Cross Section (fb)"] = df[f"Yield ({int(luminosity)} fb^-1)"] / luminosity
         df["Fraction"] = df["Events"] / total_events
         df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
         print(f"\n*** Analysis channels yields for {treeName} ***")
