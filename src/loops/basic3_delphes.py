@@ -19,6 +19,7 @@ from object_selection import select_objects
 from object_selection import PrintObjectSelectionSummary
 from object_selection import BookObjectSelectionHistograms, DrawObjectSelectionHistograms
 from itertools import combinations
+from tabulate import tabulate
 
 def loop_tree(
     inputRootFile,
@@ -164,16 +165,16 @@ def loop_tree(
         b["weight"][0] = eventWeight
 
         trees[ac_key].Fill()
+        counts[ac_key] += 1
 
-    # Print analysis channels selection numbers
-    summary = " | ".join(f"{k}={counts[k]}" for k in ac_keys)
-    if show_progress:
-        print(f"Region yields for {treeName}: {summary}")
-    
-    # Print object selection cutflow
     if show_progress:
         PrintObjectSelectionSummary(objSel_cutflow)
 
+    # Print analysis channels yeilds
+    if show_progress:
+        print(f"\n*** Analysis channels yields for {treeName} ***")
+        print(tabulate([[k, counts[k]] for k in ac_keys], headers=["Channel", "Events"], tablefmt="simple", colalign=("left", "left")))
+        
     if temp_dir_path is not None:
         paths = {}
         for ac_key, tree in trees.items():
