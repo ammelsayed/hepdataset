@@ -18,6 +18,7 @@ from kinematics import DeltaR, DeltaPhi, DeltaEta
 from object_selection import select_objects
 from object_selection import PrintObjectSelectionSummary
 from object_selection import BookObjectSelectionHistograms, DrawObjectSelectionHistograms
+from analysis_channels import get_analysis_channel_keys, classify_analysis_channel
 from itertools import combinations
 from tabulate import tabulate
 
@@ -54,9 +55,11 @@ def loop_tree(
     branch_names += ["MET", "HT", "LT", "ST", "Meff"]
     branch_names += ["weight", "gen_weight"]
 
+    # get the analysis channels keys and definitions
+    ac_keys = get_analysis_channel_keys()
+
     # book the trees and create the branch buffers
     trees, buffers = {}, {}
-    ac_keys = ["1L", "2L", "3L"]
     for ac_key in ac_keys:
         tree_name = f"{treeName}_{ac_key}"
         tree = ROOT.TTree(tree_name, tree_name)
@@ -73,7 +76,7 @@ def loop_tree(
 
     # Prepare count dict to count number of events going to each analysis channel:
     # Also prepare some dictonaries to loging object selection cutflow
-    counts = {k: 0 for k in ac_keys}
+    ac_counts = dict.fromkeys(["initial", *ac_keys, "dropped"], 0)
 
     objSel_h = BookObjectSelectionHistograms()
     objSel_cutflow = {
@@ -100,16 +103,15 @@ def loop_tree(
         goodTauJets = selected_objects["goodTauJets"]
 
         # Identify the analysis channel key
-        nb_lep, nb_fj = len(goodLeptons), len(goodFatJets)
-        if nb_lep == 1 and nb_fj >= 1: ac_key = "1L"
-        elif nb_lep == 2 and nb_fj >= 1: ac_key = "2L"
-        elif nb_lep == 3 and nb_fj >= 1: ac_key = "3L"
-        else: ac_key = None
+        ac_key = classify_analysis_channel(goodLeptons, goodFatJets)
 
         # Skip events that don't match any analysis channel
+        ac_counts["initial"] += 1
         if ac_key is None or ac_key not in trees.keys():
+            ac_counts["dropped"] += 1
             continue  
-        
+        ac_counts[ac_key] += 1
+
         # Reset all branches of this tree to NaN
         b = buffers[ac_key]
         for name in b:
@@ -165,15 +167,16 @@ def loop_tree(
         b["weight"][0] = eventWeight
 
         trees[ac_key].Fill()
-        counts[ac_key] += 1
 
     if show_progress:
         PrintObjectSelectionSummary(objSel_cutflow)
 
     # Print analysis channels yeilds
     if show_progress:
+        keys = ["initial", *ac_keys, "dropped"]
+        initial = ac_counts["initial"]
         print(f"\n*** Analysis channels yields for {treeName} ***")
-        print(tabulate([[k, counts[k]] for k in ac_keys], headers=["Channel", "Events"], tablefmt="simple", colalign=("left", "left")))
+        print(tabulate([[k, ac_counts[k], f"{(ac_counts[k]/initial)*100.0:.2f}%"] for k in keys], headers=["Channel", "Events", "Fraction"], tablefmt="simple", colalign=("left",) * 3))
         
     if temp_dir_path is not None:
         paths = {}

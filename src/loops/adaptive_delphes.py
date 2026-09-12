@@ -84,7 +84,7 @@ def loop_tree(
     
     # Prepare count dict to count number of events going to each analysis channel:
     # Also prepare some dictonaries to loging object selection cutflow
-    counts = {k: 0 for k in ac_keys}
+    ac_counts = dict.fromkeys(["initial", *ac_keys, "dropped"], 0)
 
     objSel_h = BookObjectSelectionHistograms()
     objSel_cutflow = {
@@ -114,8 +114,11 @@ def loop_tree(
         ac_key = classify_analysis_channel(goodLeptons, goodFatJets)
 
         # Skip events that don't match any analysis channel
+        ac_counts["initial"] += 1
         if ac_key is None or ac_key not in trees.keys():
+            ac_counts["dropped"] += 1
             continue  
+        ac_counts[ac_key] += 1
         
         # Reset branches to np.nan (weight defaults to 0.0 for skipped events)
         b = buffers[ac_key]
@@ -481,8 +484,10 @@ def loop_tree(
 
     # Print analysis channels yeilds
     if show_progress:
+        keys = ["initial", *ac_keys, "dropped"]
+        initial = ac_counts["initial"]
         print(f"\n*** Analysis channels yields for {treeName} ***")
-        print(tabulate([[k, counts[k]] for k in ac_keys], headers=["Channel", "Events"], tablefmt="simple", colalign=("left", "left")))
+        print(tabulate([[k, ac_counts[k], f"{(ac_counts[k]/initial)*100.0:.2f}%"] for k in keys], headers=["Channel", "Events", "Fraction"], tablefmt="simple", colalign=("left",) * 3))
 
     if temp_dir_path is not None:
         paths = {}
