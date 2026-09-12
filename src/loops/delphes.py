@@ -11,7 +11,6 @@ def load_delphes():
     ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
     ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
     ROOT.gROOT.SetBatch(True)
-    print("\n")
     print("Using ROOT version:", ROOT.__version__)
     print("Using Delphes libraries found at:", DELPHES_PATH)
     print("\n")
