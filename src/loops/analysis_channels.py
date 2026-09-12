@@ -1,105 +1,108 @@
+# analysis_channels.py
 
-def get_analysis_channel_keys():
-    return ["0L", "1L", "2OS", "2SS", "3L"]
+def lepton_flavour(lep, splitByFlavour=False):
+    """
+    Return 'lep' if we don't split by flavour, else 'e' / 'mu'.
+    """
+    return ("e" if lep.ClassName() == "Electron" else "mu") if splitByFlavour else "lep"
 
-def classify_analysis_channel(goodLeptons, goodFatJets):
-    nb_lep, nb_fj = len(goodLeptons), len(goodFatJets)
-    if nb_lep == 0 and nb_fj >= 2: return "0L"
-    elif nb_lep == 1 and nb_fj >= 1: return "1L"
-    elif nb_lep == 2 and nb_fj >= 1:
-        lep1_charge = goodLeptons[0].Charge
-        lep2_charge = goodLeptons[1].Charge
-        if lep1_charge * lep2_charge < 0: return "2OS"  # Opposite Sign
-        else: return "2SS"  # Same Sign
-    elif nb_lep == 3 and nb_fj >= 1: return "3L"
-    else: return None
 
-def get_signal_regions(isLoose = True):
-    if isLoose:
-        signal_regions = {
-            "0L"  : ["JJ"],
-            "1L"  : ["lepJ", "lepJJ"],
-            "2OS" : ["leplepJ"],
-            "2SS" : ["leplepJ"],
-            "3L"  : ["lepleplep"],
-            # "4L"  : ["leplepleplep"]
+def get_analysis_channel_keys(splitByFlavour=False):
+    if splitByFlavour:
+        ac_dict = {
+            "0L" : ["JJ"],
+            "1L" : ["eJ", "muJ", "eJJ", "muJJ"],
+            "2OS": ["eeJ", "emuJ", "mumuJ"],
+            "2SS": ["eeJ", "emuJ", "mumuJ"],
+            "3L" : ["eee", "eemu", "emumu", "mumumu"],
+            # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
         }
     else:
-        signal_regions = {
-            "0L"  : ["JJ"],
-            "1L"  : ["eJ", "muJ", "eJJ", "muJJ"],
-            "2OS" : ["eeJ", "emuJ", "mumuJ"],
-            "2SS" : ["eeJ", "emuJ", "mumuJ"],
-            "3L"  : ["eee", "eemu", "emumu", "mumumu"],
-            # "4L"  : ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"]
+        ac_dict = {
+            "0L" : ["JJ"],
+            "1L" : ["lepJ", "lepJJ"],
+            "2OS": ["leplepJ"],
+            "2SS": ["leplepJ"],
+            "3L" : ["lepleplep"],
+            # "4L": ["leplepleplep"],
         }
 
-    signal_regions_keys = [
-        f"{channel}_{region}"  
-        for channel, regions in signal_regions.items()
-        for region in regions
-    ]
+    ac_keys = [f"{ac}_{r}" for ac, acr in ac_dict.items() for r in acr]
+    return ac_keys, ac_dict
 
-    return signal_regions, signal_regions_keys
 
-def lepton_type(idx, leptons, isLoose = True):
-    if isLoose:
-        return "lep"
-    else:
-        return "e" if leptons[idx].ClassName().startswith("Electron") else "mu"
+def classify_analysis_channel(goodLeptons, goodFatJets, splitByFlavour=False):
+    n_lep = len(goodLeptons)
+    n_fj  = len(goodFatJets)
 
-def classify_signal_region_key(goodLeptons, goodFatJets, isLoose = True):
-    n_leps = len(goodLeptons)
-    n_fatjets = len(goodFatJets)
+    # 0 leptons
+    if n_lep == 0:
+        return "0L_JJ" if n_fj >= 2 else None
 
-    ## Add this to test code
-    if testCode:
-        return "test_test1"
-
-    # 0 leptons channel
-    if n_leps == 0:
-        if n_fatjets >= 2: return "0L_JJ"
-        else: return None
-    
-    # 1 lepton channel
-    if n_leps == 1:
-        lep_type = lepton_type(0, goodLeptons, isLoose)
-        if n_fatjets == 1: return f"1L_{lep_type}J"
-        elif n_fatjets >= 2: return f"1L_{lep_type}JJ"
+    # 1 lepton
+    if n_lep == 1:
+        f = lepton_flavour(goodLeptons[0], splitByFlavour)
+        if n_fj == 1: return f"1L_{f}J"
+        elif n_fj >= 2: return f"1L_{f}JJ"
         else: return None
 
-    # 2 leptons channel
-    elif n_leps == 2:
-        lep1_type = lepton_type(0, goodLeptons, isLoose)
-        lep2_type = lepton_type(1, goodLeptons, isLoose)
-        lep1_charge = goodLeptons[0].Charge
-        lep2_charge = goodLeptons[1].Charge
-        total_charge = lep1_charge + lep2_charge
-        lep_types = sorted([lep1_type, lep2_type])
-        if total_charge == 0: # opposite sign
-            if n_fatjets >= 1: return f"2OS_{lep_types[0]}{lep_types[1]}J"
+    # 2 leptons
+    if n_lep == 2:
+        lep1, lep2 = goodLeptons[0], goodLeptons[1]
+        q_tot_abs  = abs(lep1.Charge + lep2.Charge)
+        fs = "".join(sorted(lepton_flavour(l, splitByFlavour) for l in (lep1, lep2)))
+
+        # opposite sign lepton pair (no requirment on the flavour)
+        if q_tot_abs == 0: 
+            if n_fj >= 1: return f"2OSL_{fs}J"
             else: return None
-        else: # same sign
-            if n_fatjets >= 1: return f"2SS_{lep_types[0]}{lep_types[1]}J"
+
+        # same sign lepton pair (no requirment on the flavour)
+        if q_tot_abs == 2: 
+            if n_fj >= 1: return f"2SSL_{fs}J"
             else: return None
-    
-    # 3 leptons channel
-    elif n_leps >= 3:
-        lep1_type = lepton_type(0, goodLeptons, isLoose)
-        lep2_type = lepton_type(1, goodLeptons, isLoose)
-        lep3_type = lepton_type(2, goodLeptons, isLoose)
-        lep_types = sorted([lep1_type, lep2_type, lep3_type])
-        if n_fatjets >= 0: return f"3L_{lep_types[0]}{lep_types[1]}{lep_types[2]}"
-        else:return None
-    
-    # elif n_leps == 4:
-    #     lep1_type = lepton_type(0, goodLeptons, isLoose)
-    #     lep2_type = lepton_type(1, goodLeptons, isLoose)
-    #     lep3_type = lepton_type(2, goodLeptons, isLoose)
-    #     lep4_type = lepton_type(3, goodLeptons, isLoose)
-    #     lep_types = sorted([lep1_type, lep2_type, lep3_type, lep4_type])
-    #     if n_fatjets >= 0: return f"4L_{lep_types[0]}{lep_types[1]}{lep_types[2]}{lep_types[3]}"
-    #     else:return None
-    
-    else:
-        return None
+
+    # 3 leptons
+    if n_lep >= 3:
+        fs = "".join(sorted(lepton_flavour(l, splitByFlavour) for l in goodLeptons[:3]))
+        if n_fj >= 0: return f"3L_{fs}"
+        else: return None
+
+    # 4 leptons channel
+    # if n_lep == 4:
+    #     fs = "".join(sorted(lepton_flavour(l, splitByFlavour) for l in goodLeptons[:4]))
+    #     if f n_fatjets >= 0: return f"4L_{fs}"
+    #     else: return None
+
+    return None
+
+
+if __name__ == "__main__":
+
+    import argparse
+    from itertools import combinations_with_replacement as cwr
+
+    class Lepton:
+        def __init__(self, flavour, charge):
+            self._flavour = flavour
+            self.Charge   = charge
+        def ClassName(self):
+            return self._flavour
+
+    def _check(n_lep_max = 3, n_fj_max = 2):
+        L = [Lepton(f, q) for f in ("Electron", "Muon") for q in (1, -1)]
+        J = [object()]  # a "jet" — only len() matters
+
+        samples = [(lp, nj * [J]) for nlp in range(n_lep_max + 1) for lp in cwr(L, nlp) for nj in range(n_fj_max + 1)]
+
+        for split in (False, True):
+            print(f"--- splitByFlavour={split} ---")
+            for leps, jets in samples:
+                tag = f"{[l.ClassName()[0].lower() + ('+' if l.Charge > 0 else '-') for l in leps]}, {len(jets)}j"
+                print(f" {tag:25s} -> {classify_analysis_channel(leps, jets, split)}")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true", help="Run channel-classification self-tests")
+    args = parser.parse_args()
+    if args.check:
+        _check()
