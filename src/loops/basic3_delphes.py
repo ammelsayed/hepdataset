@@ -70,12 +70,9 @@ def loop_tree(
 
         # Create a fresh buffer dictionary for this tree
         b = {}
-        for branch_name in int_branch_names:
-            b[branch_name] = np.zeros(1, dtype=np.int32)
-            tree.Branch(branch_name, b[branch_name], f"{branch_name}/I")  # /I for Integer
-        for branch_name in float_branch_names:
-            b[branch_name] = np.zeros(1, dtype=np.float64)
-            tree.Branch(branch_name, b[branch_name], f"{branch_name}/D")  # /D for Double (64-bit float)
+        for name in branch_names:
+            b[name] = np.zeros(1, dtype=np.float64)
+            tree.Branch(name, b[name], f"{name}/D")
         buffers[ac_key] = b      
 
         trees[ac_key] = tree
