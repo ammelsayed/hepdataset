@@ -14,6 +14,15 @@ def DeltaPhi(obj1, obj2):
 def DeltaEta(obj1, obj2):
     return obj1.Eta - obj2.Eta
 
+def Tau21(fj):
+    tau1, tau2 = fj.Tau[0], fj.Tau[1]
+    return tau2 / tau1 if tau1 > 0 else 1.0
+
+def Tau32(fj):
+    tau2, tau3 = fj.Tau[1], fj.Tau[2]
+    return tau3 / tau2 if tau2 > 0 else 1.0
+
+
 @njit(cache=True, fastmath=True)
 def dR(eta1, phi1, eta2, phi2):
     return (dPhi(phi1, phi2) ** 2 + (eta1 - eta2) ** 2) ** 0.5

@@ -16,6 +16,8 @@ from tqdm import tqdm
 from delphes import load_delphes, build_chain
 from kinematics import DeltaR, DeltaPhi, DeltaEta
 from object_selection import select_objects
+from object_selection import PrintObjectSelectionSummary
+from object_selection import BookObjectSelectionHistograms, DrawObjectSelectionHistograms
 from itertools import combinations
 
 def loop_tree(
@@ -68,6 +70,16 @@ def loop_tree(
 
         trees[ac_key] = tree
 
+    # Prepare count dict to count number of events going to each analysis channel:
+    # Also prepare some dictonaries to loging object selection cutflow
+    counts = {k: 0 for k in ac_keys}
+
+    objSel_h = BookObjectSelectionHistograms()
+    objSel_cutflow = {
+        "lepton" : {"initial" : 0},
+        "fatjet" : {"initial" : 0}
+    }
+
     # Event loop
     numberOfEntries = TreeReader.GetEntries()
     if end_entry is None or end_entry > numberOfEntries:
@@ -79,9 +91,12 @@ def loop_tree(
         TreeReader.ReadEntry(entry)
 
         # Object selection
-        selected_objects = select_objects(FatJet_branch, Electron_branch, Muon_branch)
+        selected_objects = select_objects(Muon_branch, Electron_branch, FatJet_branch, Jet_branch, objSel_cutflow, objSel_h, event_weight = eventWeight)
         goodFatJets = selected_objects["goodFatJets"]
         goodLeptons = selected_objects["goodLeptons"]
+        goodJets = selected_objects["goodJets"]
+        goodBJets = selected_objects["goodBJets"]
+        goodTauJets = selected_objects["goodTauJets"]
 
         # Identify the analysis channel key
         nb_lep, nb_fj = len(goodLeptons), len(goodFatJets)
@@ -150,6 +165,15 @@ def loop_tree(
 
         trees[ac_key].Fill()
 
+    # Print analysis channels selection numbers
+    summary = " | ".join(f"{k}={counts[k]}" for k in ac_keys)
+    if show_progress:
+        print(f"Region yields for {treeName}: {summary}")
+    
+    # Print object selection cutflow
+    if show_progress:
+        PrintObjectSelectionSummary(objSel_cutflow)
+
     if temp_dir_path is not None:
         paths = {}
         for ac_key, tree in trees.items():
@@ -161,7 +185,14 @@ def loop_tree(
             # tree.Delete()
             f_out.Close()
             paths[ac_key] = path
+        
+        # Draw the object selection histograms
+        out_path = os.path.join(temp_dir_path, "ObjectSelection", treeName)
+        os.makedirs(out_path, exist_ok=True)
+        DrawObjectSelectionHistograms(objSel_h, output_dir = out_path)
+        
         return paths
+
     else:
         return trees
 

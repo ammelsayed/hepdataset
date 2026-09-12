@@ -58,11 +58,19 @@ def loop_tree(
         b[name] = np.zeros(1, dtype=np.float64)
         tree.Branch(name, b[name], f"{name}/D")
 
+    # Prepare count dict to count number of events going to each analysis channel:
+    # Also prepare some dictonaries to loging object selection cutflow
+    counts = {k: 0 for k in ac_keys}
+    objSel_cutflow = {
+        "lepton" : {"initial" : 0},
+        "fatjet" : {"initial" : 0}
+    }
+
     # Event loop
     numberOfEntries = TreeReader.GetEntries()
     if end_entry is None or end_entry > numberOfEntries:
         end_entry = numberOfEntries
-        
+
     rng = range(start_entry, end_entry)
     for entry in (tqdm(rng) if show_progress else rng):
         
@@ -74,9 +82,12 @@ def loop_tree(
         b["weight"][0] = 0.0
 
         # Object selection
-        selected_objects = select_objects(FatJet_branch, Electron_branch, Muon_branch)
+        selected_objects = select_objects(Muon_branch, Electron_branch, FatJet_branch, Jet_branch, objSel_cutflow)
         goodFatJets = selected_objects["goodFatJets"]
         goodLeptons = selected_objects["goodLeptons"]
+        goodJets = selected_objects["goodJets"]
+        goodBJets = selected_objects["goodBJets"]
+        goodTauJets = selected_objects["goodTauJets"]
 
         # A dictonary to hold the selected objects' four-momenta for easier access
         P4s = {}
