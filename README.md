@@ -70,16 +70,6 @@ We welcome contributions from the community! Whether you're fixing bugs, adding 
 5. **Push to your branch** - Push your changes to your fork
 6. **Submit a pull request** - Open a PR with a clear description of your changes
 
-### Development Setup
-
-To set up a development environment:
-
-```bash
-git clone https://github.com/ammelsayed/hepdataset.git
-cd hepdataset
-pip install -e ".[dev]"
-```
-
 ### Guidelines
 
 - Please follow the existing code style and conventions
@@ -88,10 +78,6 @@ pip install -e ".[dev]"
 - Ensure all tests pass before submitting a PR
 
 We look forward to your contributions!
-
-## License
-
-[Add your license information here]
 
 ## Contact
 
