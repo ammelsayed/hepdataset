@@ -25,15 +25,16 @@ from tabulate import tabulate
 
 def loop_tree(
     inputRootFile,
-    treeName,
+    treeName = "Delphes",
     eventWeight = None,
     cross_section = None,
     luminosity = None,
     start_entry = 0,
     end_entry = None,
-    temp_dir_path = None,
     show_progress = True,
     debug_loop = False,
+    output_dir = None,
+    output_file_name = "events.root",
 ):
 
     # Read the input file
@@ -64,15 +65,17 @@ def loop_tree(
     # book the trees and create the branch buffers
     trees, buffers = {}, {}
     for ac_key in ac_keys:
-        tree_name = f"{treeName}_{ac_key}"
-        tree = ROOT.TTree(tree_name, tree_name)
+        tree = ROOT.TTree(treeName, treeName)
         tree.SetDirectory(0)
 
         # Create a fresh buffer dictionary for this tree
         b = {}
-        for name in branch_names:
-            b[name] = np.zeros(1, dtype=np.float64)
-            tree.Branch(name, b[name], f"{name}/D")
+        for branch_name in int_branch_names:
+            b[branch_name] = np.zeros(1, dtype=np.int32)
+            tree.Branch(branch_name, b[branch_name], f"{branch_name}/I")  # /I for Integer
+        for branch_name in float_branch_names:
+            b[branch_name] = np.zeros(1, dtype=np.float64)
+            tree.Branch(branch_name, b[branch_name], f"{branch_name}/D")  # /D for Double (64-bit float)
         buffers[ac_key] = b      
 
         trees[ac_key] = tree
@@ -208,22 +211,27 @@ def loop_tree(
         print(f"\n*** Analysis channels yields for {treeName} ***")
         print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * 4))
         
-    if temp_dir_path is not None:
+    # if output_dir is given, then write the trees into root files.
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
         paths = {}
-        for ac_key, tree in trees.items():
-            os.makedirs(temp_dir_path, exist_ok=True)
-            path = os.path.join(temp_dir_path, f"{treeName}_{ac_key}.root")
-            f_out = ROOT.TFile.Open(path, "RECREATE")
-            tree.SetDirectory(f_out)
-            tree.Write()
-            # tree.Delete()
-            f_out.Close()
-            paths[ac_key] = path
+        for ac, ac_rgs in ac_dict.items():
+            for ac_r in ac_rgs:
+                ac_key = f"{ac}_{ac_r}"
+                path = os.path.join(output_dir, ac, ac_r, output_file_name)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                f_out = ROOT.TFile.Open(path, "RECREATE")
+                trees[ac_key].SetDirectory(f_out)
+                trees[ac_key].Write()
+                # trees[ac_key].Delete()
+                f_out.Close()
+                paths[ac_key] = path
         
         # Draw the object selection histograms
-        out_path = os.path.join(temp_dir_path, "ObjectSelection", treeName)
-        os.makedirs(out_path, exist_ok=True)
-        DrawObjectSelectionHistograms(objSel_h, output_dir = out_path)
+        if show_progress:
+            out_path = os.path.join(output_dir, "ObjectSelection", treeName)
+            os.makedirs(out_path, exist_ok=True)
+            DrawObjectSelectionHistograms(objSel_h, output_dir = out_path)
         
         return paths
 
@@ -231,39 +239,55 @@ def loop_tree(
         return trees
 
 if __name__ == "__main__":
-    
+
     from pprint import pprint
+    from parallelization.parallel_loop import add_parallel_arguments, run_in_parallel
     load_delphes()  
     
     parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
     parser.add_argument("input_root_file",  type=str, help="Path to the input Delphes ROOT file.")
     parser.add_argument("--tree-name", type=str, default="Delphes", metavar="", help="Name of the output TTree (default: Delphes).")
-    parser.add_argument("--output-dir", type=str, default=".", metavar="", help="Directory where the output ROOT file will be written (default: current directory).")
     parser.add_argument("--event-weight", type=float, default=None, metavar="", help="Weight to apply to each event. If omitted, calculate it from cross section and luminosity.")
     parser.add_argument("--cross-section", type=float, default=None, metavar="", help="Cross section for the process in fb. Used with --luminosity when --event-weight is omitted.")
     parser.add_argument("--luminosity", type=float, default=None, metavar="", help="Target integrated luminosity in fb^-1. Used with --cross_section when --event-weight is omitted.")
     parser.add_argument("--start-entry", type=int, default=0, metavar="", help="Entry to start processing from (default: 0).")
     parser.add_argument("--end-entry", type=int, default=None, metavar="", help="Entry to stop processing at (default: None, meaning process all entries).")
     parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
-
+    parser.add_argument("--output-file-name", default="events.root", metavar="", help="Name of the output ROOT file.")
+    parser.add_argument("--debug", action="store_true", help="Show debug information during processing.")
+    parser.add_argument("--output-dir", type=str, default=".", metavar="", help="Directory where the output ROOT file will be written (default: current directory).")
+    add_parallel_arguments(parser)
 
     args = parser.parse_args()
 
     # Ensure output directory exists
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # Run the loop
-    out_path = loop_tree(
-        inputRootFile=args.input_root_file,
-        treeName=args.tree_name,
-        eventWeight=args.event_weight,
-        cross_section=args.cross_section,
-        luminosity=args.luminosity,
-        start_entry=args.start_entry,
-        end_entry=args.end_entry,
-        show_progress=args.show_progress,
-        temp_dir_path=args.output_dir,
-    )
+    loop_kwargs = {
+        "inputRootFile" : args.input_root_file,
+        "treeName" : args.tree_name,
+        "eventWeight" : args.event_weight,
+        "cross_section" : args.cross_section,
+        "luminosity" : args.luminosity,
+        "start_entry" : args.start_entry,
+        "end_entry" : args.end_entry,
+        "show_progress" : args.show_progress,
+        "debug_loop" : args.debug,
+        "output_dir" : args.output_dir,
+        "output_file_name" : args.output_file_name,
+    }
+
+    if args.parallel:
+        out_path = run_in_parallel(
+            loop_tree_method=loop_tree,
+            max_workers=args.max_workers,
+            n_chunk=args.n_chunks,
+            merge_method=args.merge_method,
+            temp_dir=args.temp_dir,
+            **loop_kwargs
+        )
+    else:
+        out_path = loop_tree(**loop_kwargs)
 
     print(f"\nOutput written to:")
     pprint(out_path)

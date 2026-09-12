@@ -13,7 +13,7 @@ def format_time(seconds):
     h, m = divmod(m, 60)
     return f"{int(h)}h {int(m)}m"
 
-def parallel_runs(func, args_list, max_workers = None, info = "INFO", mpContext = None, show_job_progress=False):
+def parallel_runs(func, args_list, max_workers = None, info = "", mpContext = None, show_job_progress=False):
     
     total = len(args_list)
     pending = list(enumerate(args_list))
@@ -41,7 +41,7 @@ def parallel_runs(func, args_list, max_workers = None, info = "INFO", mpContext 
         # Launch the first batch
         while len(futures) < max_workers and pending:
             idx, args = pending.pop(0)
-            futures[executor.submit(func, *args)] = idx
+            futures[executor.submit(func, **args) if isinstance(args, dict) else executor.submit(func, *args)] = idx
 
         # Print initial status (time = 0.0s)
         current_time = time.strftime("%Hh%Mm%Ss") 
@@ -60,7 +60,7 @@ def parallel_runs(func, args_list, max_workers = None, info = "INFO", mpContext 
                 completed += 1
                 if pending:
                     new_idx, new_args = pending.pop(0)
-                    futures[executor.submit(func, *new_args)] = new_idx
+                    futures[executor.submit(func, **new_args) if isinstance(new_args, dict) else executor.submit(func, *new_args)] = new_idx
 
             # Only print if the formatted time has changed (group by time slot)
             elapsed = time.perf_counter() - start
