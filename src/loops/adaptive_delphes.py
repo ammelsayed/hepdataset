@@ -539,6 +539,7 @@ def loop_tree(
 
 if __name__ == "__main__":
 
+    from pprint import pprint
     load_delphes()  
     
     parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
@@ -573,5 +574,6 @@ if __name__ == "__main__":
         debug_loop=args.debug
     )
 
-    print(f"\nOutput written to: {out_path}")
+    print(f"\nOutput written to:")
+    pprint(out_path)
     
