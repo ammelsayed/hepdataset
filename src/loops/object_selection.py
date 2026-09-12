@@ -162,11 +162,14 @@ def DrawObjectSelectionHistograms(hs, output_dir = ".", format="png", cH = 800, 
 
     return None
 
-def PrintObjectSelectionSummary(objSel_cutflow, merge=False):
+def PrintObjectSelectionSummary(objSel_cutflow, lum = None, event_weight = None, merge=False):
 
     for obj, obj_cf in objSel_cutflow.items():
         total_events = obj_cf["initial"]
         cf = pd.DataFrame(obj_cf.items(), columns=["Stage", "Count"])
+
+        if (event_weight != None) and (lum != None):
+            cf[f"Yield ({int(lum)} fb^-1)"] = cf["Count"] * event_weight
 
         eff = [0.0] + [
             obj_cf[stage] / obj_cf[prev_stage] if obj_cf[prev_stage] > 0 else 0.0

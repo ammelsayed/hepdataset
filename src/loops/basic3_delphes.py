@@ -12,6 +12,7 @@ import ROOT
 import math
 import argparse
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from delphes import load_delphes, build_chain
 from kinematics import DeltaR, DeltaPhi, DeltaEta
@@ -102,7 +103,7 @@ def loop_tree(
         if cross_section is not None and luminosity is not None:
             if numberOfEntries == 0:
                 raise ValueError("Cannot calculate an event weight for an empty ROOT file")
-            eventWeight = cross_section * luminosity / numberOfEntries
+            eventWeight = cross_section * luminosity / numberOfProcessedEntries
         else:
             eventWeight = 1.0
 
@@ -191,15 +192,19 @@ def loop_tree(
 
         trees[ac_key].Fill()
 
+    # Print object selection cutflow
     if show_progress:
-        PrintObjectSelectionSummary(objSel_cutflow)
+        PrintObjectSelectionSummary(objSel_cutflow, lum = luminosity, event_weight = eventWeight)
 
     # Print analysis channels yeilds
     if show_progress:
-        keys = ["initial", *ac_keys, "dropped"]
-        initial = ac_counts["initial"]
+        total_events = ac_counts["initial"]
+        df = pd.DataFrame(ac_counts.items(), columns=[" Analysis Channel/Region", "Events"])
+        if (eventWeight != None) and (luminosity != None): df[f"Yield ({int(luminosity)} fb^-1)"] = df["Events"] * eventWeight
+        df["Fraction"] = df["Events"] / total_events
+        df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
         print(f"\n*** Analysis channels yields for {treeName} ***")
-        print(tabulate([[k, ac_counts[k], f"{(ac_counts[k]/initial)*100.0:.2f}%"] for k in keys], headers=["Channel", "Events", "Fraction"], tablefmt="simple", colalign=("left",) * 3))
+        print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * 4))
         
     if temp_dir_path is not None:
         paths = {}
@@ -257,4 +262,4 @@ if __name__ == "__main__":
         temp_dir_path=args.output_dir,
     )
 
-    print(f"Output written to: {out_path}")
+    print(f"\nOutput written to: {out_path}")
