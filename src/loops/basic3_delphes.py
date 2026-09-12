@@ -56,7 +56,7 @@ def loop_tree(
     branch_names += ["weight", "gen_weight"]
 
     # get the analysis channels keys and definitions
-    ac_keys = get_analysis_channel_keys()
+    ac_keys, ac_dict = get_analysis_channel_keys(splitByFlavour=False)
 
     # book the trees and create the branch buffers
     trees, buffers = {}, {}
@@ -103,7 +103,7 @@ def loop_tree(
         goodTauJets = selected_objects["goodTauJets"]
 
         # Identify the analysis channel key
-        ac_key = classify_analysis_channel(goodLeptons, goodFatJets)
+        ac_key = classify_analysis_channel(goodLeptons, goodFatJets, splitByFlavour=False)
 
         # Skip events that don't match any analysis channel
         ac_counts["initial"] += 1

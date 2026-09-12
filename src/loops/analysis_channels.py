@@ -12,8 +12,8 @@ def get_analysis_channel_keys(splitByFlavour=False):
         ac_dict = {
             "0L" : ["JJ"],
             "1L" : ["eJ", "muJ", "eJJ", "muJJ"],
-            "2OS": ["eeJ", "emuJ", "mumuJ"],
-            "2SS": ["eeJ", "emuJ", "mumuJ"],
+            "2OSL": ["eeJ", "emuJ", "mumuJ"],
+            "2SSL": ["eeJ", "emuJ", "mumuJ"],
             "3L" : ["eee", "eemu", "emumu", "mumumu"],
             # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
         }
@@ -21,8 +21,8 @@ def get_analysis_channel_keys(splitByFlavour=False):
         ac_dict = {
             "0L" : ["JJ"],
             "1L" : ["lepJ", "lepJJ"],
-            "2OS": ["leplepJ"],
-            "2SS": ["leplepJ"],
+            "2OSL": ["leplepJ"],
+            "2SSL": ["leplepJ"],
             "3L" : ["lepleplep"],
             # "4L": ["leplepleplep"],
         }
