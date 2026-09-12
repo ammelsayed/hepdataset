@@ -26,7 +26,9 @@ from tabulate import tabulate
 def loop_tree(
     inputRootFile,
     treeName,
-    eventWeight = 1.0,
+    eventWeight = None,
+    cross_section = None,
+    luminosity = None,
     start_entry = 0,
     end_entry = None,
     temp_dir_path = None,
@@ -94,8 +96,29 @@ def loop_tree(
 
     # Event loop
     numberOfEntries = TreeReader.GetEntries()
+    if start_entry < 0 or start_entry > numberOfEntries:
+        raise ValueError(f"start_entry must be between 0 and {numberOfEntries}")
     if end_entry is None or end_entry > numberOfEntries:
         end_entry = numberOfEntries
+    if end_entry < start_entry:
+        raise ValueError("end_entry must be greater than or equal to start_entry")
+
+    numberOfProcessedEntries = end_entry - start_entry
+    if eventWeight is None:
+        if (cross_section is None) != (luminosity is None):
+            raise ValueError("cross section and luminosity must be provided together")
+        if cross_section is not None and luminosity is not None:
+            if numberOfEntries == 0:
+                raise ValueError("Cannot calculate an event weight for an empty ROOT file")
+            eventWeight = cross_section * luminosity / numberOfEntries
+        else:
+            eventWeight = 1.0
+
+    if show_progress:
+        print(f"Reading ROOT file: {inputRootFile}")
+        print(f"Total events in file: {numberOfEntries}")
+        print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
+        print(f"Event weight: {eventWeight}")
 
     rng = range(start_entry, end_entry)
     for entry in (tqdm(rng) if show_progress else rng):
@@ -518,11 +541,13 @@ def main():
     
     parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
     parser.add_argument("input_root_file",  type=str, help="Path to the input Delphes ROOT file.")
-    parser.add_argument("--tree-name", type=str, default="Delphes", help="Name of the output TTree (default: Delphes).")
-    parser.add_argument("--output-dir", type=str, default=".", help="Directory where the output ROOT file will be written (default: current directory).")
-    parser.add_argument("--event-weight", type=float, default=1.0, help="Weight to apply to each event (default: 1.0).")
-    parser.add_argument("--start-entry", type=int, default=0, help="Entry to start processing from (default: 0).")
-    parser.add_argument("--end-entry", type=int, default=None, help="Entry to stop processing at (default: None, meaning process all entries).")
+    parser.add_argument("--tree-name", type=str, default="Delphes", metavar="", help="Name of the output TTree (default: Delphes).")
+    parser.add_argument("--output-dir", type=str, default=".", metavar="", help="Directory where the output ROOT file will be written (default: current directory).")
+    parser.add_argument("--event-weight", type=float, default=None, metavar="", help="Weight to apply to each event. If omitted, calculate it from cross section and luminosity.")
+    parser.add_argument("--cross-section", type=float, default=None, metavar="", help="Cross section for the process in fb. Used with --luminosity when --event-weight is omitted.")
+    parser.add_argument("--luminosity", type=float, default=None, metavar="", help="Target integrated luminosity in fb^-1. Used with --cross_section when --event-weight is omitted.")
+    parser.add_argument("--start-entry", type=int, default=0, metavar="", help="Entry to start processing from (default: 0).")
+    parser.add_argument("--end-entry", type=int, default=None, metavar="", help="Entry to stop processing at (default: None, meaning process all entries).")
     parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
     parser.add_argument("--debug", action="store_true", help="Show debug information during processing.")
 
@@ -537,6 +562,8 @@ def main():
         inputRootFile=args.input_root_file,
         treeName=args.tree_name,
         eventWeight=args.event_weight,
+        cross_section=args.cross_section,
+        luminosity=args.luminosity,
         start_entry=args.start_entry,
         end_entry=args.end_entry,
         show_progress=args.show_progress,
