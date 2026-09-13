@@ -47,10 +47,11 @@ Background:
     files:
       - /data/ammelsayed/new_stuff/ttw_3L/Events/run_01_01/tag_1_delphes_events.root
 
-  ttZ_1L:
-    cross_section: 0.001092         # [pb] ttZ (1L) = 1.092e-3
-    files:
-      - /data/ammelsayed/new_stuff/ttz_1L/Events/run_01_01/tag_1_delphes_events.root
+  # need to fix the error TBasket::ReadBasketBuffers:0: RuntimeWarning: basket: has fNevBuf=0 but fEntryOffset=0, pos=102973577537, len=505, fNbytes=0, fObjlen=0, trying to repair
+  # ttZ_1L:
+  #   cross_section: 0.001092         # [pb] ttZ (1L) = 1.092e-3
+  #   files:
+  #     - /data/ammelsayed/new_stuff/ttz_1L/Events/run_01_01/tag_1_delphes_events.root
 
   ttZ_2L:
     cross_section: 0.0009054         # [pb] ttZ (2L) = 9.054e-4
