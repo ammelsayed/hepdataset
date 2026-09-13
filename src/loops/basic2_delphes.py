@@ -217,7 +217,7 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true", help="Show debug information during processing.")
     parser.add_argument("--output-dir", type=str, default=".", metavar="", help="Directory where the output ROOT file will be written (default: current directory).")
     parser.add_argument("--output-file-name", default="events.root", metavar="", help="Name of the output ROOT file.")
-    parser.add_argument("--allow-overwrite", action="store_true", metavar="", help="Allow overwriting the output directory if it already exists.")
+    parser.add_argument("--allow-overwrite", action="store_true", help="Allow overwriting the output directory if it already exists.")
     
     add_parallel_arguments(parser)
 
