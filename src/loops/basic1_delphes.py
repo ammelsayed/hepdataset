@@ -178,6 +178,7 @@ def loop_tree(
 if __name__ == "__main__":
 
     from pprint import pprint
+    from parallelization.parallel_loop import add_parallel_arguments, run_in_parallel
     load_delphes()  
     
     parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
@@ -189,9 +190,11 @@ if __name__ == "__main__":
     parser.add_argument("--start-entry", type=int, default=0, metavar="", help="Entry to start processing from (default: 0).")
     parser.add_argument("--end-entry", type=int, default=None, metavar="", help="Entry to stop processing at (default: None, meaning process all entries).")
     parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
-    parser.add_argument("--output-file-name", default="events.root", metavar="", help="Name of the output ROOT file.")
     parser.add_argument("--debug", action="store_true", help="Show debug information during processing.")
     parser.add_argument("--output-dir", type=str, default=".", metavar="", help="Directory where the output ROOT file will be written (default: current directory).")
+    parser.add_argument("--output-file-name", default="events.root", metavar="", help="Name of the output ROOT file.")
+    parser.add_argument("--allow-overwrite", action="store_true", metavar="", help="Allow overwriting the output directory if it already exists.")
+    
     add_parallel_arguments(parser)
 
     args = parser.parse_args()
@@ -211,6 +214,7 @@ if __name__ == "__main__":
         "debug_loop" : args.debug,
         "output_dir" : args.output_dir,
         "output_file_name" : args.output_file_name,
+        "allow_overwrite" : args.allow_overwrite,
     }
 
     if args.parallel:
