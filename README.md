@@ -170,12 +170,11 @@ multi-objects:
 
 The feature space can contain many single object, pairwise, higher order, and global observables. Depending on the configuration, the available feature categories include transverse momentum, pseudorapidity, azimuthal angle, mass, energy, Cartesian momentum components, tracking and reconstruction parameters, angular separations, transverse mass, `MT2`, scalar and vector sums, MET quantities, hadronic and leptonic activity, effective mass, and event shapes. The configuration system can generate up to approximately 12,000 candidate branches, although large configurations increase processing time and many branches may be undefined for a particular event sample.
 
-Validate and inspect a branch configuration before processing:
+Validate a branch configuration before processing:
 
 ```bash
 python src/loops/branches_reader.py \
-    tests/branches_config_example1.yml \
-    --inspect
+    tests/branches_config_example1.yml
 ```
 
 The example branch card is available at [`tests/branches_config_example1.yml`](tests/branches_config_example1.yml). Its object and feature definitions should be adapted to the actual branches available in the Delphes files and to the physics analysis.
@@ -206,15 +205,13 @@ output/
   1L/
     lepJ/
       events.root
-      background_ttbar_sample0.root
-      signal_mass_1000_sample0.root
 ```
 
-The merged file is convenient for downstream training or yield studies, while the individual files preserve the sample-level outputs until the merge has completed successfully.
+When `--merge` is enabled, the successfully merged `events.root` file is retained and the individual sample files that were used as merge inputs are removed. Without `--merge`, the individual sample files remain available under the channel and region directories.
 
 ## Parallel processing
 
-The default dataset workflow uses the parallel loop machinery to divide each input file into independent entry ranges. Each worker reads its assigned range and writes isolated temporary ROOT files. The parent process merges the temporary results and then moves the channel outputs to the requested destination. This avoids concurrent writes to a shared ROOT file and allows the number of workers and chunks to be adjusted for the available CPU and storage resources.
+The default dataset workflow uses the parallel loop machinery to divide each input file into independent entry ranges. Each worker reads its assigned range and returns in-memory ROOT trees to the parent process. The parent process merges those worker results in memory and writes the merged channel outputs to the requested destination. This default strategy avoids concurrent writes to a shared ROOT file and allows the number of workers and chunks to be adjusted for the available CPU and memory resources. The lower level parallelization utilities also provide a file based merge mode for workflows that need to spill chunk outputs to disk.
 
 For a small test sample, use one worker or a small number of chunks. For large samples, increase `--max-workers` and `--n-chunks` according to the available resources. More workers do not always produce better performance because ROOT input output and temporary file merging can become the limiting factors.
 
