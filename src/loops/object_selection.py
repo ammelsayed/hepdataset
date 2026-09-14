@@ -29,8 +29,37 @@ def BookObjectSelectionHistograms():
 
     for val in h_dict.values():
         val.Sumw2()
-
+        val.SetDirectory(0)
+            
     return h_dict
+
+def serialize_object_selection_histograms(h_dict):
+    """Return {name: (contents, sumw2)} as plain lists, safe to pickle."""
+    out = {}
+    for name, h in h_dict.items():
+        nbins = h.GetNbinsX()
+        contents = [h.GetBinContent(i) for i in range(1, nbins + 1)]
+        sumw2    = [h.GetBinError(i) ** 2 for i in range(1, nbins + 1)]
+        out[name] = (contents, sumw2)
+    return out
+
+
+def merge_object_selection_histograms(serialized_list):
+    """Sum a list of {name: (contents, sumw2)} dicts into a fresh histogram dict."""
+    merged = BookObjectSelectionHistograms()
+    for name, h in merged.items():
+        nbins = h.GetNbinsX()
+        contents = [0.0] * nbins
+        sumw2    = [0.0] * nbins
+        for serialized in serialized_list:
+            c_arr, w_arr = serialized[name]
+            for i in range(nbins):
+                contents[i] += c_arr[i]
+                sumw2[i]    += w_arr[i]
+        for i in range(nbins):
+            h.SetBinContent(i + 1, contents[i])
+            h.SetBinError  (i + 1, sumw2[i] ** 0.5)
+    return merged
 
 def DrawObjectSelectionHistograms(hs, output_dir = ".", format="png", cH = 800, cW = 700):
     ROOT.gROOT.SetBatch(True)
@@ -192,6 +221,19 @@ def PrintObjectSelectionSummary(objSel_cutflow, lum = None, event_weight = None,
         ))
 
     return None
+
+def PrintAnalysisChannelYields(ac_counts, treeName, event_weight = None, lum = None):
+    total_events = ac_counts["initial"]
+    if total_events == 0:
+        return
+    df = pd.DataFrame(ac_counts.items(), columns=[" Analysis Channel/Region", "Events"])
+    if (event_weight is not None) and (lum is not None):
+        df[f"Yield ({int(lum)} fb^-1)"] = df["Events"] * event_weight
+        df[f"Cross Section (fb)"] = df[f"Yield ({int(lum)} fb^-1)"] / lum
+    df["Fraction"] = df["Events"] / total_events
+    df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
+    print(f"\n*** Analysis channels yields for {treeName} ***")
+    print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * 4))
 
 def select_objects(Muon_branch, Electron_branch, FatJet_branch, Jet_branch, objSel_cutflow = {}, objSel_h = None, event_weight = 1.0):
 

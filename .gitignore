@@ -4,3 +4,5 @@ src/__pycache__/
 src/parallelization/__pycache__/
 hepdataset.egg-info/
 src/loops/parallelization/__pycache__/
+/src/cpp_loops/classes/
+/src/cpp_loops/external/
