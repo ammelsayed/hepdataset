@@ -8,7 +8,6 @@ class SamplesReader:
 
     def __init__(self, yml_path):
         self.yml_path = yml_path
-        self.check_root = False 
 
     def get_nb_events(self, file_path):
         """
@@ -22,16 +21,20 @@ class SamplesReader:
 
     # check root health only on first time running this script
     def clean_root_files(self, dir_list):
-
-        valid = []
-        rejected = []
+        valid,  rejected = [], []
         for path in dir_list:
+
+            # Must exist on disk and be a regular file
             if not os.path.isfile(path):
                 rejected.append(path)
                 continue
-            if not self.check_root:
-                valid.append(path)
+
+           # Must carry the .root extension
+            if not path.endswith(".root"):
+                rejected.append(path)
                 continue
+
+            # Must be openable by uproot and expose a Delphes tree
             try:
                 with uproot.open(path) as f:
                     if "Delphes" not in f:
@@ -41,8 +44,8 @@ class SamplesReader:
             except Exception:
                 rejected.append(path)
 
-        # Only report bad files when we were actually asked to check health
-        if self.check_root and rejected:
+        # Report the bad files
+        if rejected:
             print(f"Found {len(rejected)} unvalid files.")
             for path in rejected:
                 print(f" > {path}")
@@ -51,37 +54,27 @@ class SamplesReader:
         return list(set(valid))
 
     def inspect(self):
-        """
-        Deep inspection: runs ROOT health checks and reads a few events per file.
-        """
-        self.check_root = True
         data = self.read()
-
-        # Read a few entries from each file to trigger basket reading
         for category, processes in data.items():
             for proc_name, proc_info in processes.items():
                 for file_path in proc_info.get('files', []):
-                    self.inspect_file(file_path)
-
+                    # Open the file and read 10 evenly spaced entries to check for basket corruption
+                    try:
+                        with uproot.open(file_path) as f:
+                            if "Delphes" not in f:
+                                print(f"Error: no Delphes tree in {file_path}")
+                                return
+                            tree = f["Delphes"]
+                            n = tree.num_entries
+                            if n == 0:
+                                print(f"Warning: empty tree in {file_path}")
+                                return
+                            step = max(1, n // 10)
+                            for entry in range(0, n, step):
+                                tree.arrays(entry_start=entry, entry_stop=entry + 1, library="np")
+                    except Exception as e:
+                        print(f"Error reading {file_path}: {e}")
         return data
-
-    def inspect_file(self, file_path):
-        # Open the file and read 10 evenly spaced entries to check for basket corruption
-        try:
-            with uproot.open(file_path) as f:
-                if "Delphes" not in f:
-                    print(f"Error: no Delphes tree in {file_path}")
-                    return
-                tree = f["Delphes"]
-                n = tree.num_entries
-                if n == 0:
-                    print(f"Warning: empty tree in {file_path}")
-                    return
-                step = max(1, n // 10)
-                for entry in range(0, n, step):
-                    tree.arrays(entry_start=entry, entry_stop=entry + 1, library="np")
-        except Exception as e:
-            print(f"Error reading {file_path}: {e}")
 
     def read(self):
 
