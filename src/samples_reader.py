@@ -68,28 +68,28 @@ class SamplesReader:
         # remove duplicates and return the valid list
         return list(set(valid))
 
-    # def inspect(self):
-    #     data = self.read()
-    #     for category, processes in data.items():
-    #         for proc_name, proc_info in processes.items():
-    #             for file_path in proc_info.get('files', []):
-    #                 # Open the file and read 10 evenly spaced entries to check for basket corruption
-    #                 try:
-    #                     with uproot.open(file_path) as f:
-    #                         if "Delphes" not in f:
-    #                             print(f"Error: no Delphes tree in {file_path}")
-    #                             return
-    #                         tree = f["Delphes"]
-    #                         n = tree.num_entries
-    #                         if n == 0:
-    #                             print(f"Warning: empty tree in {file_path}")
-    #                             return
-    #                         step = max(1, n // 10)
-    #                         for entry in range(0, n, step):
-    #                             tree.arrays(entry_start=entry, entry_stop=entry + 1, library="np")
-    #                 except Exception as e:
-    #                     print(f"Error reading {file_path}: {e}")
-    #     return data
+    def inspect(self):
+        data = self.read()
+        for category, processes in data.items():
+            for proc_name, proc_info in processes.items():
+                for file_path in proc_info.get('files', []):
+                    # Open the file and read 10 evenly spaced entries to check for basket corruption
+                    try:
+                        with uproot.open(file_path) as f:
+                            if "Delphes" not in f:
+                                print(f"Error: no Delphes tree in {file_path}")
+                                return
+                            tree = f["Delphes"]
+                            n = tree.num_entries
+                            if n == 0:
+                                print(f"Warning: empty tree in {file_path}")
+                                return
+                            step = max(1, n // 10)
+                            for entry in range(0, n, step):
+                                tree.arrays(entry_start=entry, entry_stop=entry + 1, library="np")
+                    except Exception as e:
+                        print(f"Error reading {file_path}: {e}")
+        return data
 
     def read(self):
 
