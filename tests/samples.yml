@@ -112,7 +112,7 @@ Background:
     files:
       - /data/ammelsayed/new_stuff/osww_1L/Events/run_01_01/tag_1_delphes_events.root
       - /data/ammelsayed/new_stuff/osww_1L/Events/run_02_01/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/osww_1L/Events/run_01_02/tag_1_delphes_events.root
+      - /data/ammelsayed/new_stuff/osww_1L/Events/run_02_02/tag_1_delphes_events.root
 
   OSWW_2L:
     cross_section: 0.04886           # [pb] W+W- (2L)
@@ -122,7 +122,7 @@ Background:
     files:
       - /data/ammelsayed/new_stuff/osww_2L/Events/run_01_01/tag_1_delphes_events.root
       - /data/ammelsayed/new_stuff/osww_2L/Events/run_02_01/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/osww_2L/Events/run_01_02/tag_1_delphes_events.root
+      - /data/ammelsayed/new_stuff/osww_2L/Events/run_02_02/tag_1_delphes_events.root
 
   SSWW_1L:
     cross_section: 0.006293         # [pb] W+W+jj (1L) = 6.293e-3

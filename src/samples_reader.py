@@ -3,21 +3,34 @@ import uproot
 from yaml import safe_load
 
 
-
 class SamplesReader:
 
     def __init__(self, yml_path):
         self.yml_path = yml_path
 
+    # def get_nb_events(self, file_path):
+    #     """
+    #     Returns the number of events in a ROOT file.
+    #     """
+    #     try:
+    #         with uproot.open(file_path) as f:
+    #             return f["Delphes"].num_entries
+    #     except Exception:
+    #         return 0
+
     def get_nb_events(self, file_path):
-        """
-        Returns the number of events in a ROOT file.
-        """
+        # ROOT's TTree::GetEntries() is C++ and reads only the header;
+        # orders of magnitude faster than uproot for this specific call
+        import ROOT
+        f = ROOT.TFile.Open(file_path)
         try:
-            with uproot.open(file_path) as f:
-                return f["Delphes"].num_entries
-        except Exception:
-            return 0
+            if not f or f.IsZombie():
+                return 0
+            t = f.Get("Delphes")
+            return t.GetEntries() if t else 0
+        finally:
+            if f and not f.IsZombie():
+                f.Close()
 
     # check root health only on first time running this script
     def clean_root_files(self, dir_list):
@@ -34,47 +47,49 @@ class SamplesReader:
                 rejected.append(path)
                 continue
 
-            # Must be openable by uproot and expose a Delphes tree
-            try:
-                with uproot.open(path) as f:
-                    if "Delphes" not in f:
-                        rejected.append(path)
-                        continue
-                valid.append(path)
-            except Exception:
-                rejected.append(path)
+            # # Must be openable by uproot and expose a Delphes tree
+            # try:
+            #     with uproot.open(path) as f:
+            #         if "Delphes" not in f:
+            #             rejected.append(path)
+            #             continue
+            #     valid.append(path)
+            # except Exception:
+            #     rejected.append(path)
+        
+            valid.append(path)
 
         # Report the bad files
         if rejected:
-            print(f"Found {len(rejected)} unvalid files.")
+            print(f"Found {len(rejected)} unvalid file(s):")
             for path in rejected:
                 print(f" > {path}")
 
         # remove duplicates and return the valid list
         return list(set(valid))
 
-    def inspect(self):
-        data = self.read()
-        for category, processes in data.items():
-            for proc_name, proc_info in processes.items():
-                for file_path in proc_info.get('files', []):
-                    # Open the file and read 10 evenly spaced entries to check for basket corruption
-                    try:
-                        with uproot.open(file_path) as f:
-                            if "Delphes" not in f:
-                                print(f"Error: no Delphes tree in {file_path}")
-                                return
-                            tree = f["Delphes"]
-                            n = tree.num_entries
-                            if n == 0:
-                                print(f"Warning: empty tree in {file_path}")
-                                return
-                            step = max(1, n // 10)
-                            for entry in range(0, n, step):
-                                tree.arrays(entry_start=entry, entry_stop=entry + 1, library="np")
-                    except Exception as e:
-                        print(f"Error reading {file_path}: {e}")
-        return data
+    # def inspect(self):
+    #     data = self.read()
+    #     for category, processes in data.items():
+    #         for proc_name, proc_info in processes.items():
+    #             for file_path in proc_info.get('files', []):
+    #                 # Open the file and read 10 evenly spaced entries to check for basket corruption
+    #                 try:
+    #                     with uproot.open(file_path) as f:
+    #                         if "Delphes" not in f:
+    #                             print(f"Error: no Delphes tree in {file_path}")
+    #                             return
+    #                         tree = f["Delphes"]
+    #                         n = tree.num_entries
+    #                         if n == 0:
+    #                             print(f"Warning: empty tree in {file_path}")
+    #                             return
+    #                         step = max(1, n // 10)
+    #                         for entry in range(0, n, step):
+    #                             tree.arrays(entry_start=entry, entry_stop=entry + 1, library="np")
+    #                 except Exception as e:
+    #                     print(f"Error reading {file_path}: {e}")
+    #     return data
 
     def read(self):
 
@@ -146,7 +161,7 @@ class SamplesReader:
             for c in  ("N_gen", "sigma"):
                 df[c] = df[c].apply(lambda x: f"${x}$")
 
-            df.columns = ["Process", "$N_{\\mathrm{gen}}$", "$\\sigma_{\\mathrm{LO}}$ [pb]"]
+            df.columns = ["Process", "$N_{\\mathrm{gen}}$", "$\\sigma$ [pb]"]
             print(df.to_latex(index=False, escape=False, column_format="lcc"))
 
         else:
