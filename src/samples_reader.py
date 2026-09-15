@@ -84,44 +84,54 @@ class SamplesReader:
             print(f"Error reading {file_path}: {e}")
 
     def read(self):
-        """
-        Reads a samples.yml file and returns a dictionary structured as:
-        {
-            "Background": {
-                "process_name": {"cross_section": float, "files": [list_of_paths]},
-                ...
-            },
-            "Signal": {
-                "process_name": {"cross_section": float, "files": [list_of_paths]},
-                ...
-            }
-        }
-        """
+
         with open(self.yml_path, 'r') as f:
             data = safe_load(f)
-            
+        
+        to_remove = []
         for category, processes in data.items():
             for proc_name, proc_info in processes.items():
-                if 'files' in proc_info:
-                    proc_info['files'] = self.clean_root_files(proc_info['files'])
+                
+                # Check for the .root files
+                # Drop processes without valid ROOT files
+                if 'files' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'files'. Removing this process.")
+                    to_remove.append((category, proc_name))
+                    continue
 
-                    if not proc_info['files']:
-                        print(f"Warning: '{proc_name}' in '{category}' has no valid ROOT files!")
-                    
-                    proc_info['nb_events'] = sum(self.get_nb_events(f) for f in proc_info['files'])
+                proc_info['files'] = self.clean_root_files(proc_info['files'])
+                if not proc_info['files']:
+                    print(f"Warning: '{proc_name}' in '{category}' has no valid ROOT files! Removing this process.")
+                    to_remove.append((category, proc_name))
+                    continue
+                
+                # Read the number of events
+                proc_info['nb_events'] = sum(self.get_nb_events(f) for f in proc_info['files'])
                    
-                    if 'cross_section' not in proc_info:
-                        print(f"Warning: '{proc_name}' in '{category}' is missing 'cross_section'. Going to set it to 1.0 by default.")
-                        proc_info['cross_section'] = 1.0
+                
+                # Check for the cross section data and the k-factors
+                # usually k-factors are pT dependent of the event
+                # for v5.0.0 we are going to assume they are global
+                if 'cross_section' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'cross_section'. Going to set it to 1.0 by default.")
+                    proc_info['cross_section'] = 1.0
+                
+                if 'cross_section_err_high' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'cross_section_err_high'. Going to set it to 0.0 by default.")
+                    proc_info['cross_section_err_high'] = 0.0
 
-                else:
-                    print(f"Warning: '{proc_name}' in '{category}' is missing 'files'. Going to set it to an empty list by default.")
-                    proc_info['files'] = []
-                    proc_info['nb_events'] = 0
-                    if 'cross_section' not in proc_info:
-                        print(f"Warning: '{proc_name}' in '{category}' is missing 'cross_section'. Going to set it to 1.0 by default.")
-                        proc_info['cross_section'] = 1.0
-                    
+                if 'cross_section_err_low' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'cross_section_err_low'. Going to set it to 0.0 by default.")
+                    proc_info['cross_section_err_low'] = 0.0
+
+                if 'k_factor' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'k_factor'. Going to set it to 1.0 by default.")
+                    proc_info['k_factor'] = 1.0
+        
+        # Remove the skipped processes now that iteration is done
+        for category, proc_name in to_remove:
+            data[category].pop(proc_name, None)
+
         return data
 
     def print_table(self, data, fmt="plain"):
