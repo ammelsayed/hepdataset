@@ -6,15 +6,6 @@ from itertools import combinations, product
 from tabulate import tabulate
 from kinematics import Tau21, Tau32
 
-def MergeObjectSelectors():
-    """
-    For each object selector object,
-    read its cutflow and histograms, then,
-    merge the cutflows
-    merge the histograms
-    this can be a class, with the PrintObjectSelectionSummary and DrawObjectSelectionHistograms methods (a child class of ObjectSelector with only two methods)
-    """
-    pass
 
 class ObjectSelector:
     """Encapsulates the cutflow dict and object-selection histograms."""
@@ -25,6 +16,18 @@ class ObjectSelector:
             "fatjet" : {"initial" : 0}
         }
         self.hist = self.BookObjectSelectionHistograms()
+
+    @classmethod
+    def Merge(cls, selectors):
+        """Return a new ObjectSelector with the cutflows and histograms of `selectors` summed."""
+        merged = cls()
+        for sel in selectors:
+            for obj, stages in sel.cutflow.items():
+                for stage, count in stages.items():
+                    merged.cutflow[obj][stage] = merged.cutflow[obj].get(stage, 0) + count
+            for name, h in sel.hist.items():
+                merged.hist[name].Add(h)
+        return merged
 
     def BookObjectSelectionHistograms(self):
         h_dict = {

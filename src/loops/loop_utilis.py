@@ -153,6 +153,8 @@ def run_loop_cli(loop_tree, description="Process a Delphes ROOT file and write a
         out_path = loop_tree(**loop_kwargs)
 
     print(f"Finished in {format_time(time.perf_counter() - start_time)}.")
+
     print(f"\nOutput written to:")
     pprint(out_path)
+    
     return out_path

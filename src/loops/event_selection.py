@@ -3,6 +3,14 @@ import ROOT
 import pandas as pd
 from tabulate import tabulate
 
+def MergeEventSelectors():
+    """
+    For each event selector object,
+    read its cutflow and histograms, then,
+    merge the cutflows
+    merge the histograms
+    """
+    pass
 
 class EventSelector:
 
@@ -11,7 +19,15 @@ class EventSelector:
         self.ac_keys, self.ac_dict = self.GetChannelKeys()
         self.ac_counts = dict.fromkeys(["initial", *self.ac_keys, "dropped"], 0)
     
-
+    @classmethod
+    def Merge(cls, selectors):
+        """Return a new EventSelector with the ac_counts of `selectors` summed."""
+        merged = cls()
+        for sel in selectors:
+            for k, v in sel.ac_counts.items():
+                merged.ac_counts[k] = merged.ac_counts.get(k, 0) + v
+        return merged
+        
     def LeptonFlavour(self, lep):
         """
         Return 'lep' if we don't split by flavour, else 'e' / 'mu'.

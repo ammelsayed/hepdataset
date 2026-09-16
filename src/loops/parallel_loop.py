@@ -1,65 +1,15 @@
-"""Run Delphes loop methods in parallel and merge their outputs."""
+#parallel_loop.py
 
 import os
+import ROOT
 import time
 import subprocess
-import shutil
-import tempfile
-from pathlib import Path
 from multiprocessing import get_context
 from concurrent.futures import ProcessPoolExecutor, FIRST_COMPLETED, wait
-import ROOT
-
-n_cpu = os.cpu_count()
-
-def merge_summaries(summaries):
-    merged_cutflow = {}
-    for s in summaries:
-        for obj, stages in s["objSel_cutflow"].items():
-            dst = merged_cutflow.setdefault(obj, {})
-            for stage, count in stages.items():
-                dst[stage] = dst.get(stage, 0) + count
-
-    merged_ac = {}
-    for s in summaries:
-        for k, v in s["ac_counts"].items():
-            merged_ac[k] = merged_ac.get(k, 0) + v
-
-    merged_h = merge_object_selection_histograms([s["objSel_h"] for s in summaries])
-
-    return {
-        "objSel_cutflow": merged_cutflow,
-        "ac_counts": merged_ac,
-        "objSel_h": merged_h,
-    }
-
-
-def print_merged_summary(summary, treeName, eventWeight, luminosity):
-    PrintObjectSelectionSummary(
-        summary["objSel_cutflow"], lum = luminosity, event_weight = eventWeight
-    )
-    PrintAnalysisChannelYields(
-        summary["ac_counts"], treeName, event_weight = eventWeight, lum = luminosity
-    )
-
-
-def build_chain(inputRootFile):
-    chain = ROOT.TChain("Delphes")
-    if isinstance(inputRootFile, list):
-        for file in inputRootFile:
-            chain.Add(file)
-    elif isinstance(inputRootFile, str):
-        chain.Add(inputRootFile)
-    else:
-        raise TypeError(f"inputRootFile must be str or list, got {type(inputRootFile).__name__}")
-    return chain
-
-def count_entries(inputRootFile):
-    return build_chain(inputRootFile).GetEntries()
-
-
-def isRootFilePath(path):
-    return isinstance(path, (str, Path)) and str(path).endswith(".root") and Path(path).is_file()
+from delphes_utilis import build_chain, count_entries
+from object_selection import ObjectSelector
+from event_selection import EventSelector
+from loop_utilis import check_loop_args
 
 
 def format_time(seconds):
@@ -202,21 +152,7 @@ def merge_trees(results, treeName):
     return merged_trees
 
 
-
 def hadd_files(target_path, source_paths, max_workers=None):
-    """Merge ROOT files using the hadd command-line tool.
-
-    Parameters
-    ----------
-    target_path : str
-        Output file path (created / overwritten by hadd).
-    source_paths : list[str] or str
-        One or more input ROOT file paths / globs.
-
-    Returns
-    -------
-    bool  – True on success, False on failure.
-    """
     if isinstance(source_paths, str):
         source_paths = [source_paths]
     j = max_workers or n_cpu
@@ -277,7 +213,6 @@ def run_in_parallel(
     **loop_kwargs,
     ):  
 
-
     if merge_method not in (1, 2):
         raise ValueError("merge_method must be 1 or 2")
 
@@ -285,63 +220,36 @@ def run_in_parallel(
     output_dir = loop_kwargs["output_dir"]
     treeName = loop_kwargs["treeName"]
     output_file_name = loop_kwargs["output_file_name"]
-    overwrite = loop_kwargs.get("overwrite", False)
 
     numberOfEntries = count_entries(inputRootFile)
-    start_entry = loop_kwargs.pop("start_entry", 0)
-    end_entry = loop_kwargs.pop("end_entry", None)
+    loop_kwargs = check_loop_args(loop_kwargs, numberOfEntries)
 
-    if start_entry < 0 or start_entry > numberOfEntries:
-        raise ValueError(f"start_entry must be between 0 and {numberOfEntries}")
-    if end_entry is None or end_entry > numberOfEntries:
-        end_entry = numberOfEntries
-    if end_entry < start_entry:
-        raise ValueError("end_entry must be greater than or equal to start_entry")
+    start_entry = loop_kwargs.pop("start_entry")
+    end_entry = loop_kwargs.pop("end_entry")
+    numberOfProcessedEntries = loop_kwargs.pop("numberOfProcessedEntries")
+    loop_kwargs.pop("numberOfEntries", None)
+    luminosity = loop_kwargs.pop("luminosity", None)
+    loop_kwargs.pop("cross_section", None)
+    parent_show_progress = loop_kwargs.get("show_progress", False)
 
-    numberOfProcessedEntries = end_entry - start_entry
     if numberOfProcessedEntries == 0:
         return {}
 
-    luminosity = loop_kwargs.get("luminosity")
-    parent_show_progress = loop_kwargs.get("show_progress", False)
-
-    if loop_kwargs.get("eventWeight") is None:
-        cross_section = loop_kwargs.get("cross_section")
-        luminosity = loop_kwargs.get("luminosity")
-        if (cross_section is None) != (luminosity is None):
-            raise ValueError("cross section and luminosity must be provided together")
-        if cross_section is not None:
-            loop_kwargs["eventWeight"] = (
-                cross_section * luminosity / numberOfProcessedEntries
-            )
-        else:
-            loop_kwargs["eventWeight"] = 1.0
-
-    loop_kwargs.pop("cross_section", None)
-    loop_kwargs.pop("luminosity", None)
-
-    # Check aganist max_workers input
+    # Check against max_workers input
     n_cpu = os.cpu_count()
     max_workers = max_workers or n_cpu
     if (max_workers < 1) or (max_workers > n_cpu):
         raise ValueError(f"max_workers must be between 1 and {n_cpu}")
 
-    # Check againist n_chunks input
+    # Check against n_chunks input
     n_chunks = n_chunks or max_workers
     if (n_chunks < 1) or (n_chunks > numberOfProcessedEntries):
         raise ValueError(f"n_chunks must be between 1 and {numberOfProcessedEntries}")
 
-    print(f"Reading ROOT file: {inputRootFile}")
-    print(f"Total events in file: {numberOfEntries}")
-    print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
-    print(f"Event weight: {loop_kwargs['eventWeight']}")
-
     # Describe the split plan
     chunk_ranges = split_range(numberOfProcessedEntries, n_chunks)
-    chunk_sizes = [e - s for s, e in chunk_ranges]
     print(
         f"Splitting {numberOfProcessedEntries} events into {len(chunk_ranges)} chunks "
-        f"({int(numberOfProcessedEntries / len(chunk_ranges))} per chunk) "
         f"across {max_workers} worker(s)"
     )
     print(f"Merge method: {merge_method} "
@@ -350,18 +258,6 @@ def run_in_parallel(
     # Workers should never print their own progress bars or summaries.
     loop_kwargs["show_progress"] = False
     loop_kwargs["debug_loop"] = False
-
-    # If the destination directory does not exist yet, create it here so that
-    # the parallel workers do not race on os.makedirs inside loop_tree.
-    if output_dir is not None:
-        if os.path.exists(output_dir):
-            if not os.path.isdir(output_dir):
-                raise ValueError(f"output_dir is not a directory: {output_dir}")
-            if not overwrite:
-                raise FileExistsError(f"Output directory already exists, cannot write there: {output_dir}")
-        else:
-            print(f"Creating output directory : {output_dir}")
-            os.makedirs(output_dir)
 
     splits_args = []
     for i, (s, e) in enumerate(chunk_ranges):
@@ -387,72 +283,66 @@ def run_in_parallel(
 
         splits_args.append(split_argrs)
 
-
     # Run process pool executor
     results = parallel_runs(loop_tree_method, splits_args, max_workers=max_workers, info="", mpContext="fork")
     for r in results:
         if isinstance(r, Exception):
             raise r
     
-    # Unwrap (result, summary) tuples returned by the workers.
-    merged_summary = None
-    summaries = []
-    if results and all(isinstance(r, tuple) and len(r) == 2 for r in results):
-        unwrapped = []
-        for r, s in results:
-            unwrapped.append(r)
-            summaries.append(s)
-        results = unwrapped
+    # Merge ObjectSelector and EventSelector from all workers.
+    merged = merge_summaries(results)
+    merged_objSel = ObjectSelector.Merge([r["ObjectSelector"] for r in results])
+    merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results])
 
-    # the results could be a list of ROOT.TTree objects that needs to be merged.
-    # Or could be a list of file paths (one list per chunk)
-    # depending on the value of output_dir, if its None, and the results a dict of ROOT.TTrees, 
-    # then we merge the ROOT.TTrees and return the dict of merghed ROOT.TTrees,
-    # but if its dict of root paths, then we merge the .root files using hadd.
-    # Hence if from the begining the output_dir is None, we do not need to path split_output_dir to the split, workers
-    # because each split worker will output its dict of TTrees, and we just merge them
-    if isinstance(results, list) and all(isinstance(r, dict) for r in results):
-
-        # Print the merged cutflow / channel counts once in the parent.
-        if summaries and not return_summary:
-            merged_summary = merge_summaries(summaries)
-            print_merged_summary(
-                merged_summary,
-                treeName=treeName,
-                eventWeight=loop_kwargs.get("eventWeight"),
-                luminosity=luminosity,
-            )
-            if parent_show_progress and output_dir is not None:
-                out_path = os.path.join(output_dir, "ObjectSelection", treeName)
-                os.makedirs(out_path, exist_ok=True)
-                DrawObjectSelectionHistograms(merged_summary["objSel_h"], output_dir=out_path)
-
-        if all(isinstance(v, ROOT.TTree) for r in results for v in r.values()):
-            merged_trees = merge_trees(results, treeName)
-            if output_dir is None:
-                result = merged_trees
-            else:
-                written = {}
-                for ac_key, tree in merged_trees.items():
-                    ac, _, ac_r = ac_key.rpartition("_")
-                    out_path = os.path.join(output_dir, ac, ac_r, output_file_name)
-                    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-                    f_out = ROOT.TFile.Open(out_path, "RECREATE")
-                    tree.SetDirectory(f_out)
-                    tree.Write()
-                    f_out.Close()
-                    written[ac_key] = out_path
-                result = written
-
-        elif all(isRootFilePath(v) for r in results for v in r.values()):
-            result = hadd_splits(results, treeName, output_dir, output_file_name, max_workers=max_workers)
-
+    # Merge or hadd the trees depending on merge_method.
+    if merge_method == 1:
+        # Workers ran with output_dir=None, so their trees live in memory.
+        merged_trees = merge_trees([r["trees"] for r in results], treeName)
+        if output_dir is None:
+            trees, root_paths = merged_trees, {}
         else:
-            result = None
-
+            root_paths = {}
+            for ac_key, tree in merged_trees.items():
+                ac, _, ac_r = ac_key.rpartition("_")
+                out_path = os.path.join(output_dir, ac, ac_r, output_file_name)
+                os.makedirs(os.path.dirname(out_path), exist_ok=True)
+                f_out = ROOT.TFile.Open(out_path, "RECREATE")
+                tree.SetDirectory(f_out)
+                tree.Write()
+                f_out.Close()
+                root_paths[ac_key] = out_path
+            trees = merged_trees
     else:
-        result = None
+        # merge_method == 2: workers wrote chunk files, merge them with hadd.
+        root_paths = hadd_splits([r["root_paths"] for r in results], treeName, output_dir, output_file_name, max_workers=max_workers)
+        trees = {}
 
-    if return_summary:
-        return result, summaries
-    return result
+    # Write the merged ObjectSelection / EventSelection summaries (once, from the parent).
+    if output_dir is not None:
+        out_objsel = os.path.join(output_dir, "ObjectSelection")
+        os.makedirs(out_objsel, exist_ok=True)
+        f_objsel = ROOT.TFile.Open(os.path.join(out_objsel, f"{treeName}.root"), "RECREATE")
+        merged_objSel.WriteObjectSelectionHistograms(f_objsel)
+        merged_objSel.WriteObjectSelectionSummary(f_objsel)
+        f_objsel.Close()
+
+        out_evtsel = os.path.join(output_dir, "EventSelection")
+        os.makedirs(out_evtsel, exist_ok=True)
+        f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, f"{treeName}.root"), "RECREATE")
+        merged_evtSel.WriteEventSelectionSummary(f_evtsel, treeName)
+        f_evtsel.Close()
+
+    # Print merged summaries in the parent (workers ran with show_progress=False).
+    if parent_show_progress:
+        merged_objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=loop_kwargs.get("eventWeight"))
+        merged_evtSel.PrintEventSelectionSummary(treeName, event_weight=loop_kwargs.get("eventWeight"), lum=luminosity)
+
+        if output_dir is not None:
+            merged_objSel.DrawObjectSelectionHistograms(output_dir=out_objsel)
+
+    return {
+        "trees": trees,
+        "root_paths": root_paths,
+        "ObjectSelector": merged_objSel,
+        "EventSelector": merged_evtSel,
+    }
