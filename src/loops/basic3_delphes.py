@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 import os
 import ROOT
-import math
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
-from delphes import load_delphes, build_chain
+from delphes_utilis import build_chain
 from loop_utilis import check_loop_args
-from kinematics import DeltaR, DeltaPhi, DeltaEta
 from object_selection import ObjectSelector
 from event_selection import EventSelector
 from itertools import combinations
-from tabulate import tabulate
 
 def loop_tree(**loop_args):
     inputRootFile = loop_args["inputRootFile"]
@@ -155,11 +151,11 @@ def loop_tree(**loop_args):
         eventSel.PrintEventSelectionSummary(treeName, event_weight = eventWeight, lum = luminosity)
         
     # if output_dir is given, then write the trees into root files.
+    root_paths = {}
     if output_dir is not None:
         
         # Write the trees into .root files at:
         # <output_dir>/<analysis_channel_name>/<analysis_region_name>/<output_root_file_name>.root
-        paths = {}
         for ac, ac_rgs in ac_dict.items():
             for ac_r in ac_rgs:
                 ac_key = f"{ac}_{ac_r}"
@@ -170,7 +166,7 @@ def loop_tree(**loop_args):
                 trees[ac_key].Write()
                 # trees[ac_key].Delete()
                 f_out.Close()
-                paths[ac_key] = path
+                root_paths[ac_key] = path
         
         # Write object-selection histograms + cutflow into a dedicated root file at:
         # <output_dir>/ObjectSelection/<treeName>.root
@@ -180,6 +176,9 @@ def loop_tree(**loop_args):
         objSel.WriteObjectSelectionHistograms(f_objsel)
         objSel.WriteObjectSelectionSummary(f_objsel)
         f_objsel.Close()
+        # Draw the object selection histograms (PNGs go in the same directory)
+        if show_progress:
+            objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
 
         # Write event-selection cutflow into a dedicated root file at:
         # <output_dir>/EventSelection/<treeName>.root
@@ -188,23 +187,16 @@ def loop_tree(**loop_args):
         f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, f"{treeName}.root"), "RECREATE")
         eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
         f_evtsel.Close()
-
-        # Draw the object selection histograms (PNGs go in the same directory)
-        if show_progress:
-            objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
         
-        result = paths
-    else:
-        result = trees
-
-    if collect_summary:
-        return result, {
-            "ObjectSelector": objSel,
-            "EventSelector": eventSel
-        }
-    return result
+    return {
+        "trees" : trees,
+        "root_paths" : root_paths,
+        "ObjectSelector": objSel,
+        "EventSelector": eventSel
+    }
 
 if __name__ == "__main__":
+
+    from delphes_utilis import load_delphes
     from loop_utilis import run_loop_cli
-    load_delphes()
     run_loop_cli(loop_tree)
