@@ -64,14 +64,13 @@ def make_dataset(
     if loops_dir not in sys.path:
         sys.path.insert(0, loops_dir)
     from samples_reader import SamplesReader
-    from loops.delphes import load_delphes
-    from loops.parallel_loop import run_in_parallel, merge_summaries
-    from loops.object_selection import PrintObjectSelectionSummary, PrintAnalysisChannelYields, DrawObjectSelectionHistograms
+    from loops.delphes_utilis import load_delphes
+    from loops.parallel_loop import run_in_parallel
+    from loops.object_selection import ObjectSelector
 
     loop_tree = _load_loop(loop_file)
     load_delphes()
     output_dir = Path(output_dir).resolve()
-
 
     for category, processes in SamplesReader(str(samples)).read().items():
 
