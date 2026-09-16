@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-
-"""
-Supports reading of one Delphes root file at a time.
-Events are selected based on the number of leptons and fatjets, and written to separate flat trees for each analysis channel.
-Each tree is then written into a different root file.
-More branches are supported compared to basic1_delphes.py, including pairwise kinematic variables and global event variables.
-"""
-
 import os
 import ROOT
 import math
@@ -14,50 +6,31 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from delphes import load_delphes, build_chain
+from loop_utilis import check_loop_args
 from kinematics import DeltaR, DeltaPhi, DeltaEta
-from object_selection import select_objects
-from object_selection import PrintObjectSelectionSummary, PrintAnalysisChannelYields
-from object_selection import BookObjectSelectionHistograms, DrawObjectSelectionHistograms, serialize_object_selection_histograms
-from analysis_channels import get_analysis_channel_keys, classify_analysis_channel
-from loop_utilis import apply_loop_defaults, check_start_end_entries, get_event_weight, prepare_output_dir
+from object_selection import ObjectSelector
+from analysis_channels import get_analysis_channel_keys, classify_analysis_channel, PrintAnalysisChannelYields
 from itertools import combinations
 from tabulate import tabulate
 
 def loop_tree(**loop_args):
-    loop_args = apply_loop_defaults(loop_args)
-
     inputRootFile = loop_args["inputRootFile"]
-    treeName      = loop_args["treeName"]
-    show_progress = loop_args["show_progress"]
-    debug_loop    = loop_args["debug_loop"]
-    output_dir    = loop_args["output_dir"]
-    output_file_name = loop_args["output_file_name"]
-    luminosity = loop_args["luminosity"]
     collect_summary = loop_args.pop("collect_summary", False)
 
     # Read the input file
     Chain = build_chain(inputRootFile)
     TreeReader = ROOT.ExRootTreeReader(Chain)
 
-    # basic checks
-    numberOfEntries = TreeReader.GetEntries()
-    start_entry, end_entry = check_start_end_entries(numberOfEntries, loop_args["start_entry"], loop_args["end_entry"])
-    numberOfProcessedEntries = end_entry - start_entry
-    eventWeight = get_event_weight(
-        loop_args["eventWeight"],
-        loop_args["cross_section"],
-        loop_args["luminosity"],
-        numberOfProcessedEntries,
-        numberOfEntries,
-    )
-    output_dir = prepare_output_dir(output_dir, loop_args["overwrite"])
-    if output_dir is not None and not output_file_name.endswith(".root"):
-        raise ValueError("output_file_name must end with .root!")
-    if show_progress:
-        print(f"Reading ROOT file: {inputRootFile}")
-        print(f"Total events in file: {numberOfEntries}")
-        print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
-        print(f"Event weight: {eventWeight}")
+    # Fill defaults, validate entries, compute weight, prepare output dir, print summary
+    loop_args = check_loop_args(loop_args, TreeReader.GetEntries())
+    start_entry, end_entry = loop_args["start_entry"], loop_args["end_entry"]
+    eventWeight = loop_args["eventWeight"]
+    treeName = loop_args["treeName"]
+    show_progress = loop_args["show_progress"]
+    debug_loop = loop_args["debug_loop"]
+    output_dir = loop_args["output_dir"]
+    output_file_name = loop_args["output_file_name"]
+    luminosity = loop_args["luminosity"]
     
     # Branches to read
     Electron_branch  = TreeReader.UseBranch("Electron")
@@ -98,12 +71,7 @@ def loop_tree(**loop_args):
     # Prepare count dict to count number of events going to each analysis channel:
     # Also prepare some dictonaries to loging object selection cutflow
     ac_counts = dict.fromkeys(["initial", *ac_keys, "dropped"], 0)
-
-    objSel_h = BookObjectSelectionHistograms()
-    objSel_cutflow = {
-        "lepton" : {"initial" : 0},
-        "fatjet" : {"initial" : 0}
-    }
+    objSel = ObjectSelector()
 
     # Event loop
     rng = range(start_entry, end_entry)
@@ -112,7 +80,7 @@ def loop_tree(**loop_args):
         TreeReader.ReadEntry(entry)
 
         # Object selection
-        selected_objects = select_objects(Muon_branch, Electron_branch, FatJet_branch, Jet_branch, objSel_cutflow, objSel_h, event_weight = eventWeight)
+        selected_objects = objSel.Select(Muon_branch, Electron_branch, FatJet_branch, Jet_branch, event_weight = eventWeight)
         goodFatJets = selected_objects["goodFatJets"]
         goodLeptons = selected_objects["goodLeptons"]
         goodJets = selected_objects["goodJets"]
@@ -187,12 +155,14 @@ def loop_tree(**loop_args):
 
     # Print object selection cutflow & analysis channels yeilds
     if show_progress:
-        PrintObjectSelectionSummary(objSel_cutflow, lum = luminosity, event_weight = eventWeight)
+        objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=eventWeight)
         PrintAnalysisChannelYields(ac_counts, treeName, event_weight = eventWeight, lum = luminosity)
         
     # if output_dir is given, then write the trees into root files.
     if output_dir is not None:
-        os.makedirs(output_dir, exist_ok=True)
+        
+        # Write the trees into .root files at:
+        # <output_dir>/<analysis_channel_name>/<analysis_region_name>/<output_root_file_name>.root
         paths = {}
         for ac, ac_rgs in ac_dict.items():
             for ac_r in ac_rgs:
@@ -206,11 +176,18 @@ def loop_tree(**loop_args):
                 f_out.Close()
                 paths[ac_key] = path
         
-        # Draw the object selection histograms
+        # Write object-selection histograms + cutflow into a dedicated root file at:
+        # <output_dir>/ObjectSelection/<treeName>.root
+        out_objsel = os.path.join(output_dir, "ObjectSelection")
+        os.makedirs(out_objsel, exist_ok=True)
+        f_objsel = ROOT.TFile.Open(os.path.join(out_objsel, f"{treeName}.root"), "RECREATE")
+        objSel.WriteObjectSelectionHistograms(f_objsel)
+        objSel.WriteObjectSelectionSummary(f_objsel)
+        f_objsel.Close()
+
+        # Draw the object selection histograms (PNGs go in the same directory)
         if show_progress:
-            out_path = os.path.join(output_dir, "ObjectSelection", treeName)
-            os.makedirs(out_path, exist_ok=True)
-            DrawObjectSelectionHistograms(objSel_h, output_dir = out_path)
+            objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
         
         result = paths
     else:
@@ -218,9 +195,8 @@ def loop_tree(**loop_args):
 
     if collect_summary:
         return result, {
-            "objSel_cutflow": objSel_cutflow,
-            "ac_counts": ac_counts,
-            "objSel_h": serialize_object_selection_histograms(objSel_h),
+            "ObjectSelector": objSel,
+            "ac_counts": ac_counts
         }
     return result
 

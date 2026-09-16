@@ -65,22 +65,27 @@ def apply_loop_defaults(loop_args):
         filled.setdefault(spec["key"], spec["default"])
     return filled
 
+def check_loop_args(loop_args, numberOfEntries):
 
-# ---------------------------------------------------------------------------
-# Helpers the loop_tree bodies can call
-# ---------------------------------------------------------------------------
+    loop_args = apply_loop_defaults(loop_args)
 
-def check_start_end_entries(numberOfEntries, start_entry, end_entry):
+    # Check start and end entries
+    start_entry = loop_args["start_entry"]
+    end_entry = loop_args["end_entry"]
     if start_entry < 0 or start_entry > numberOfEntries:
         raise ValueError(f"start_entry must be between 0 and {numberOfEntries}")
     if end_entry is None or end_entry > numberOfEntries:
         end_entry = numberOfEntries
     if end_entry < start_entry:
         raise ValueError("end_entry must be greater than or equal to start_entry")
-    return start_entry, end_entry
 
+    # Actual number of entries going to processed
+    numberOfProcessedEntries = end_entry - start_entry
 
-def get_event_weight(eventWeight, cross_section, luminosity, numberOfProcessedEntries, numberOfEntries):
+    # Check event weights
+    eventWeight = loop_args["eventWeight"]
+    cross_section = loop_args["cross_section"]
+    luminosity = loop_args["luminosity"]
     if eventWeight is None:
         if (cross_section is None) != (luminosity is None):
             raise ValueError("cross section and luminosity must be provided together")
@@ -90,25 +95,37 @@ def get_event_weight(eventWeight, cross_section, luminosity, numberOfProcessedEn
             eventWeight = cross_section * luminosity / numberOfProcessedEntries
         else:
             eventWeight = 1.0
-    return eventWeight
 
+    # Validate / create output_dir 
+    output_dir = loop_args["output_dir"]
+    overwrite = loop_args["overwrite"]
+    if output_dir is not None:
+        if os.path.exists(output_dir):
+            if not os.path.isdir(output_dir):
+                raise ValueError(f"output_dir is not a directory: {output_dir}")
+            if not overwrite:
+                raise FileExistsError(
+                    f"Output directory already exists, cannot write there: {output_dir}"
+                )
+        else:
+            print(f"Creating output directory : {output_dir}")
+            os.makedirs(output_dir)
 
-def prepare_output_dir(output_dir, overwrite):
-    """Validate / create output_dir. Returns the resolved path (or None)."""
-    if output_dir is None:
-        return None
-    if os.path.exists(output_dir):
-        if not os.path.isdir(output_dir):
-            raise ValueError(f"output_dir is not a directory: {output_dir}")
-        if not overwrite:
-            raise FileExistsError(
-                f"Output directory already exists, cannot write there: {output_dir}"
-            )
-    else:
-        print(f"Creating output directory : {output_dir}")
-        os.makedirs(output_dir)
-    return output_dir
+    # Correct the loop arguments
+    loop_args["start_entry"] = start_entry
+    loop_args["end_entry"] = end_entry
+    loop_args["numberOfEntries"] = numberOfEntries
+    loop_args["numberOfProcessedEntries"] = numberOfProcessedEntries
+    loop_args["eventWeight"] = eventWeight
+    loop_args["output_dir"] = output_dir
 
+    if loop_args["show_progress"]:
+        print(f"Reading ROOT file: {loop_args['inputRootFile']}")
+        print(f"Total events in file: {numberOfEntries}")
+        print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
+        print(f"Event weight: {eventWeight}")
+
+    return loop_args
 
 # ---------------------------------------------------------------------------
 # CLI entry point

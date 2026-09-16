@@ -1,5 +1,19 @@
 # analysis_channels.py
 
+def PrintAnalysisChannelYields(ac_counts, treeName, event_weight = None, lum = None):
+    total_events = ac_counts["initial"]
+    if total_events == 0:
+        return
+    df = pd.DataFrame(ac_counts.items(), columns=[" Analysis Channel/Region", "Events"])
+    if (event_weight is not None) and (lum is not None):
+        df[f"Yield ({int(lum)} fb^-1)"] = df["Events"] * event_weight
+        df[f"Cross Section (fb)"] = df[f"Yield ({int(lum)} fb^-1)"] / lum
+    df["Fraction"] = df["Events"] / total_events
+    df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
+    print(f"\n*** Analysis channels yields for {treeName} ***")
+    print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * 4))
+
+
 def lepton_flavour(lep, splitByFlavour=False):
     """
     Return 'lep' if we don't split by flavour, else 'e' / 'mu'.
