@@ -1,95 +1,126 @@
-# analysis_channels.py
-
-def PrintAnalysisChannelYields(ac_counts, treeName, event_weight = None, lum = None):
-    total_events = ac_counts["initial"]
-    if total_events == 0:
-        return
-    df = pd.DataFrame(ac_counts.items(), columns=[" Analysis Channel/Region", "Events"])
-    if (event_weight is not None) and (lum is not None):
-        df[f"Yield ({int(lum)} fb^-1)"] = df["Events"] * event_weight
-        df[f"Cross Section (fb)"] = df[f"Yield ({int(lum)} fb^-1)"] / lum
-    df["Fraction"] = df["Events"] / total_events
-    df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
-    print(f"\n*** Analysis channels yields for {treeName} ***")
-    print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * 4))
+# event_selection.py
+import ROOT
+import pandas as pd
+from tabulate import tabulate
 
 
-def lepton_flavour(lep, splitByFlavour=False):
-    """
-    Return 'lep' if we don't split by flavour, else 'e' / 'mu'.
-    """
-    return ("e" if lep.ClassName() == "Electron" else "mu") if splitByFlavour else "lep"
+class EventSelector:
+
+    def __init__(self):
+        self.splitByFlavour = False
+        self.ac_keys, self.ac_dict = self.GetChannelKeys()
+        self.ac_counts = dict.fromkeys(["initial", *self.ac_keys, "dropped"], 0)
+    
+
+    def LeptonFlavour(self, lep):
+        """
+        Return 'lep' if we don't split by flavour, else 'e' / 'mu'.
+        """
+        return ("e" if lep.ClassName() == "Electron" else "mu") if self.splitByFlavour else "lep"
+
+    def GetChannelKeys(self):
+        if self.splitByFlavour:
+            ac_dict = {
+                "0L" : ["JJ"],
+                "1L" : ["eJ", "muJ", "eJJ", "muJJ"],
+                "2OSL": ["eeJ", "emuJ", "mumuJ"],
+                "2SSL": ["eeJ", "emuJ", "mumuJ"],
+                "3L" : ["eee", "eemu", "emumu", "mumumu"],
+                # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
+            }
+        else:
+            ac_dict = {
+                "0L" : ["JJ"],
+                "1L" : ["lepJ", "lepJJ"],
+                "2OSL": ["leplepJ"],
+                "2SSL": ["leplepJ"],
+                "3L" : ["lepleplep"],
+                # "4L": ["leplepleplep"],
+            }
+
+        ac_keys = [f"{ac}_{r}" for ac, acr in ac_dict.items() for r in acr]
+        return ac_keys, ac_dict
 
 
-def get_analysis_channel_keys(splitByFlavour=False):
-    if splitByFlavour:
-        ac_dict = {
-            "0L" : ["JJ"],
-            "1L" : ["eJ", "muJ", "eJJ", "muJJ"],
-            "2OSL": ["eeJ", "emuJ", "mumuJ"],
-            "2SSL": ["eeJ", "emuJ", "mumuJ"],
-            "3L" : ["eee", "eemu", "emumu", "mumumu"],
-            # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
-        }
-    else:
-        ac_dict = {
-            "0L" : ["JJ"],
-            "1L" : ["lepJ", "lepJJ"],
-            "2OSL": ["leplepJ"],
-            "2SSL": ["leplepJ"],
-            "3L" : ["lepleplep"],
-            # "4L": ["leplepleplep"],
-        }
+    def ClassifyChannelKey(self, goodLeptons, goodFatJets):
+        n_lep = len(goodLeptons)
+        n_fj  = len(goodFatJets)
 
-    ac_keys = [f"{ac}_{r}" for ac, acr in ac_dict.items() for r in acr]
-    return ac_keys, ac_dict
+        # 0 leptons
+        if n_lep == 0:
+            return "0L_JJ" if n_fj >= 2 else None
 
-
-def classify_analysis_channel(goodLeptons, goodFatJets, splitByFlavour=False):
-    n_lep = len(goodLeptons)
-    n_fj  = len(goodFatJets)
-
-    # 0 leptons
-    if n_lep == 0:
-        return "0L_JJ" if n_fj >= 2 else None
-
-    # 1 lepton
-    if n_lep == 1:
-        f = lepton_flavour(goodLeptons[0], splitByFlavour)
-        if n_fj == 1: return f"1L_{f}J"
-        elif n_fj >= 2: return f"1L_{f}JJ"
-        else: return None
-
-    # 2 leptons
-    if n_lep == 2:
-        lep1, lep2 = goodLeptons[0], goodLeptons[1]
-        q_tot_abs  = abs(lep1.Charge + lep2.Charge)
-        fs = "".join(sorted(lepton_flavour(l, splitByFlavour) for l in (lep1, lep2)))
-
-        # opposite sign lepton pair (no requirment on the flavour)
-        if q_tot_abs == 0: 
-            if n_fj >= 1: return f"2OSL_{fs}J"
+        # 1 lepton
+        if n_lep == 1:
+            f = self.LeptonFlavour(goodLeptons[0])
+            if n_fj == 1: return f"1L_{f}J"
+            elif n_fj >= 2: return f"1L_{f}JJ"
             else: return None
 
-        # same sign lepton pair (no requirment on the flavour)
-        if q_tot_abs == 2: 
-            if n_fj >= 1: return f"2SSL_{fs}J"
+        # 2 leptons
+        if n_lep == 2:
+            lep1, lep2 = goodLeptons[0], goodLeptons[1]
+            q_tot_abs  = abs(lep1.Charge + lep2.Charge)
+            fs = "".join(sorted(self.LeptonFlavour(l) for l in (lep1, lep2)))
+
+            # opposite sign lepton pair (no requirment on the flavour)
+            if q_tot_abs == 0: 
+                if n_fj >= 1: return f"2OSL_{fs}J"
+                else: return None
+
+            # same sign lepton pair (no requirment on the flavour)
+            if q_tot_abs == 2: 
+                if n_fj >= 1: return f"2SSL_{fs}J"
+                else: return None
+
+        # 3 leptons
+        if n_lep >= 3:
+            fs = "".join(sorted(self.LeptonFlavour(l) for l in goodLeptons[:3]))
+            if n_fj >= 0: return f"3L_{fs}"
             else: return None
 
-    # 3 leptons
-    if n_lep >= 3:
-        fs = "".join(sorted(lepton_flavour(l, splitByFlavour) for l in goodLeptons[:3]))
-        if n_fj >= 0: return f"3L_{fs}"
-        else: return None
+        # 4 leptons channel
+        # if n_lep == 4:
+        #     fs = "".join(sorted(self.LeptonFlavour(l) for l in goodLeptons[:4]))
+        #     if f n_fatjets >= 0: return f"4L_{fs}"
+        #     else: return None
 
-    # 4 leptons channel
-    # if n_lep == 4:
-    #     fs = "".join(sorted(lepton_flavour(l, splitByFlavour) for l in goodLeptons[:4]))
-    #     if f n_fatjets >= 0: return f"4L_{fs}"
-    #     else: return None
+        return None
 
-    return None
+    def Select(self, goodLeptons, goodFatJets, valid_keys = None):
+        """Classify the event, update self.ac_counts, and return the ac_key (or None)."""
+        if valid_keys is None:
+            valid_keys = self.ac_keys
+        self.ac_counts["initial"] += 1
+        ac_key = self.ClassifyChannelKey(goodLeptons, goodFatJets)
+        if ac_key is None or ac_key not in valid_keys:
+            self.ac_counts["dropped"] += 1
+            return None
+        self.ac_counts[ac_key] += 1
+        return ac_key
 
+    def WriteEventSelectionSummary(self, root_file, treeName):
+        root_file.cd()
+        stages = list(self.ac_counts.keys())
+        h = ROOT.TH1D(f"cutflow_{treeName}", f"analysis channels ({treeName})",
+                      len(stages), 0.5, len(stages) + 0.5)
+        for i, (stage, count) in enumerate(self.ac_counts.items(), start=1):
+            h.SetBinContent(i, count)
+            h.GetXaxis().SetBinLabel(i, stage)
+        h.Write()
+
+    def PrintEventSelectionSummary(self, treeName, event_weight = None, lum = None):
+        total_events = self.ac_counts["initial"]
+        if total_events == 0:
+            return
+        df = pd.DataFrame(self.ac_counts.items(), columns=[" Analysis Channel/Region", "Events"])
+        if (event_weight is not None) and (lum is not None):
+            df[f"Yield ({int(lum)} fb^-1)"] = df["Events"] * event_weight
+            df[f"Cross Section (fb)"] = df[f"Yield ({int(lum)} fb^-1)"] / lum
+        df["Fraction"] = df["Events"] / total_events
+        df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
+        print(f"\n*** Analysis channels yields for {treeName} ***")
+        print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * 4))
 
 if __name__ == "__main__":
 
@@ -111,9 +142,11 @@ if __name__ == "__main__":
 
         for split in (False, True):
             print(f"--- splitByFlavour={split} ---")
+            sel = EventSelector()
+            sel.splitByFlavour = split
             for leps, jets in samples:
                 tag = f"{[l.ClassName()[0].lower() + ('+' if l.Charge > 0 else '-') for l in leps]}, {len(jets)}j"
-                print(f" {tag:25s} -> {classify_analysis_channel(leps, jets, split)}")
+                print(f" {tag:25s} -> {sel.ClassifyChannelKey(leps, jets)}")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="Run channel-classification self-tests")

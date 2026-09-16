@@ -9,7 +9,7 @@ from delphes import load_delphes, build_chain
 from loop_utilis import check_loop_args
 from kinematics import DeltaR, DeltaPhi, DeltaEta
 from object_selection import ObjectSelector
-from analysis_channels import get_analysis_channel_keys, classify_analysis_channel, PrintAnalysisChannelYields
+from event_selection import EventSelector
 from itertools import combinations
 from tabulate import tabulate
 
@@ -50,8 +50,12 @@ def loop_tree(**loop_args):
     branch_names += ["MET", "HT", "LT", "ST", "Meff"]
     branch_names += ["weight", "gen_weight"]
 
-    # get the analysis channels keys and definitions
-    ac_keys, ac_dict = get_analysis_channel_keys(splitByFlavour=False)
+    # Analysis channel bookkeeping
+    eventSel = EventSelector()
+    ac_keys, ac_dict = eventSel.ac_keys, eventSel.ac_dict
+
+    # Initialize object selector
+    objSel = ObjectSelector()
 
     # book the trees and create the branch buffers
     trees, buffers = {}, {}
@@ -68,11 +72,6 @@ def loop_tree(**loop_args):
 
         trees[ac_key] = tree
 
-    # Prepare count dict to count number of events going to each analysis channel:
-    # Also prepare some dictonaries to loging object selection cutflow
-    ac_counts = dict.fromkeys(["initial", *ac_keys, "dropped"], 0)
-    objSel = ObjectSelector()
-
     # Event loop
     rng = range(start_entry, end_entry)
     for entry in (tqdm(rng) if show_progress else rng):
@@ -88,14 +87,11 @@ def loop_tree(**loop_args):
         goodTauJets = selected_objects["goodTauJets"]
 
         # Identify the analysis channel key
-        ac_key = classify_analysis_channel(goodLeptons, goodFatJets, splitByFlavour=False)
+        ac_key = eventSel.Select(goodLeptons, goodFatJets, valid_keys = trees.keys())
 
         # Skip events that don't match any analysis channel
-        ac_counts["initial"] += 1
-        if ac_key is None or ac_key not in trees.keys():
-            ac_counts["dropped"] += 1
-            continue  
-        ac_counts[ac_key] += 1
+        if ac_key is None:
+            continue
 
         # Reset all branches of this tree to NaN
         b = buffers[ac_key]
@@ -156,7 +152,7 @@ def loop_tree(**loop_args):
     # Print object selection cutflow & analysis channels yeilds
     if show_progress:
         objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=eventWeight)
-        PrintAnalysisChannelYields(ac_counts, treeName, event_weight = eventWeight, lum = luminosity)
+        eventSel.PrintEventSelectionSummary(treeName, event_weight = eventWeight, lum = luminosity)
         
     # if output_dir is given, then write the trees into root files.
     if output_dir is not None:
@@ -185,6 +181,14 @@ def loop_tree(**loop_args):
         objSel.WriteObjectSelectionSummary(f_objsel)
         f_objsel.Close()
 
+        # Write event-selection cutflow into a dedicated root file at:
+        # <output_dir>/EventSelection/<treeName>.root
+        out_evtsel = os.path.join(output_dir, "EventSelection")
+        os.makedirs(out_evtsel, exist_ok=True)
+        f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, f"{treeName}.root"), "RECREATE")
+        eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
+        f_evtsel.Close()
+
         # Draw the object selection histograms (PNGs go in the same directory)
         if show_progress:
             objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
@@ -196,7 +200,7 @@ def loop_tree(**loop_args):
     if collect_summary:
         return result, {
             "ObjectSelector": objSel,
-            "ac_counts": ac_counts
+            "EventSelector": eventSel
         }
     return result
 
