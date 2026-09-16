@@ -12,8 +12,6 @@ import ROOT
 
 n_cpu = os.cpu_count()
 
-from object_selection import PrintObjectSelectionSummary, PrintAnalysisChannelYields, merge_object_selection_histograms, DrawObjectSelectionHistograms
-
 def merge_summaries(summaries):
     merged_cutflow = {}
     for s in summaries:

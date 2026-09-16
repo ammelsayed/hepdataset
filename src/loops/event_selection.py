@@ -21,20 +21,20 @@ class EventSelector:
     def GetChannelKeys(self):
         if self.splitByFlavour:
             ac_dict = {
-                "0L" : ["JJ"],
-                "1L" : ["eJ", "muJ", "eJJ", "muJJ"],
-                "2OSL": ["eeJ", "emuJ", "mumuJ"],
-                "2SSL": ["eeJ", "emuJ", "mumuJ"],
-                "3L" : ["eee", "eemu", "emumu", "mumumu"],
+                "0L"   : ["Nothing", "J", "JJ", "JJJ"],
+                "1L"   : ["e", "mu", "eJ", "muJ", "eJJ", "muJJ"],
+                "2OSL ": ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
+                "2SSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
+                "3L"   : ["eee", "eemu", "emumu", "mumumu"],
                 # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
             }
         else:
             ac_dict = {
-                "0L" : ["JJ"],
-                "1L" : ["lepJ", "lepJJ"],
-                "2OSL": ["leplepJ"],
-                "2SSL": ["leplepJ"],
-                "3L" : ["lepleplep"],
+                "0L"   : ["Nothing", "J", "JJ", "JJJ"],
+                "1L"   : ["lep", "lepJ", "lepJJ"],
+                "2OSL" : ["leplep", "leplepJ"],
+                "2SSL" : ["leplep", "leplepJ"],
+                "3L"   : ["lepleplep"],
                 # "4L": ["leplepleplep"],
             }
 
@@ -48,14 +48,19 @@ class EventSelector:
 
         # 0 leptons
         if n_lep == 0:
-            return "0L_JJ" if n_fj >= 2 else None
+            if n_fj == 0: return "0L_Nothing"
+            if n_fj == 1: return "0L_J"
+            if n_fj == 2: return "0L_JJ"
+            if n_fj >= 3: return "0L_JJJ"
+            return None
 
         # 1 lepton
         if n_lep == 1:
             f = self.LeptonFlavour(goodLeptons[0])
+            if n_fj == 0: return f"1L_{f}"
             if n_fj == 1: return f"1L_{f}J"
-            elif n_fj >= 2: return f"1L_{f}JJ"
-            else: return None
+            if n_fj >= 2: return f"1L_{f}JJ"
+            return None
 
         # 2 leptons
         if n_lep == 2:
@@ -65,26 +70,22 @@ class EventSelector:
 
             # opposite sign lepton pair (no requirment on the flavour)
             if q_tot_abs == 0: 
+                if n_fj == 0: return f"2OSL_{fs}"
                 if n_fj >= 1: return f"2OSL_{fs}J"
-                else: return None
+                return None
 
             # same sign lepton pair (no requirment on the flavour)
             if q_tot_abs == 2: 
+                if n_fj == 0: return f"2SSL_{fs}"
                 if n_fj >= 1: return f"2SSL_{fs}J"
-                else: return None
+                return None
 
         # 3 leptons
         if n_lep >= 3:
             fs = "".join(sorted(self.LeptonFlavour(l) for l in goodLeptons[:3]))
             if n_fj >= 0: return f"3L_{fs}"
-            else: return None
-
-        # 4 leptons channel
-        # if n_lep == 4:
-        #     fs = "".join(sorted(self.LeptonFlavour(l) for l in goodLeptons[:4]))
-        #     if f n_fatjets >= 0: return f"4L_{fs}"
-        #     else: return None
-
+            return None
+        
         return None
 
     def Select(self, goodLeptons, goodFatJets, valid_keys = None):
@@ -127,6 +128,7 @@ if __name__ == "__main__":
     import argparse
     from itertools import combinations_with_replacement as cwr
 
+    # Simple class to mimic the Delphes Electron/Muon objects
     class Lepton:
         def __init__(self, flavour, charge):
             self._flavour = flavour
@@ -140,13 +142,21 @@ if __name__ == "__main__":
 
         samples = [(lp, nj * [J]) for nlp in range(n_lep_max + 1) for lp in cwr(L, nlp) for nj in range(n_fj_max + 1)]
 
-        for split in (False, True):
-            print(f"--- splitByFlavour={split} ---")
-            sel = EventSelector()
-            sel.splitByFlavour = split
-            for leps, jets in samples:
-                tag = f"{[l.ClassName()[0].lower() + ('+' if l.Charge > 0 else '-') for l in leps]}, {len(jets)}j"
-                print(f" {tag:25s} -> {sel.ClassifyChannelKey(leps, jets)}")
+        headers = ["Possible Combinations", "`splitByFlavour`=False", "`splitByFlavour`=True"]
+        rows = []
+        sel = EventSelector()
+        rows = []
+        for leps, jets in samples:
+            tag = f"{' '.join([l.ClassName()[0].lower().replace("m", "mu") + ('+' if l.Charge > 0 else '-') for l in leps])}"
+            seperator = "" if tag == "" else ", "
+            tag += f"{seperator}{len(jets)}J" if len(jets) > 0 else ""
+            sel.splitByFlavour = False
+            r_false = sel.ClassifyChannelKey(leps, jets)
+            sel.splitByFlavour = True
+            r_true  = sel.ClassifyChannelKey(leps, jets)
+            rows.append([tag, r_false, r_true])
+        
+        print(tabulate(rows, headers, tablefmt="github", colalign=("left",)*3))
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="Run channel-classification self-tests")

@@ -199,4 +199,7 @@ if __name__ == "__main__":
 
     from delphes_utilis import load_delphes
     from loop_utilis import run_loop_cli
+
+    load_delphes()
+    
     run_loop_cli(loop_tree)

@@ -121,9 +121,9 @@ def check_loop_args(loop_args, numberOfEntries):
 
     if loop_args["show_progress"]:
         print(f"Reading ROOT file: {loop_args['inputRootFile']}")
-        print(f"Total events in file: {numberOfEntries}")
+        print(f"Total number of events: {numberOfEntries}")
         print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
-        print(f"Event weight: {eventWeight}")
+        print(f"Weight per-event: {eventWeight}")
 
     return loop_args
 
