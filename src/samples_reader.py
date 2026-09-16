@@ -1,6 +1,10 @@
 import os
 import uproot
+import pandas as pd
+from tabulate import tabulate
+from ROOT import TFile
 from yaml import safe_load
+from tqdm import tqdm
 
 
 class SamplesReader:
@@ -21,8 +25,7 @@ class SamplesReader:
     def get_nb_events(self, file_path):
         # ROOT's TTree::GetEntries() is C++ and reads only the header;
         # orders of magnitude faster than uproot for this specific call
-        import ROOT
-        f = ROOT.TFile.Open(file_path)
+        f = TFile.Open(file_path)
         try:
             if not f or f.IsZombie():
                 return 0
@@ -68,61 +71,6 @@ class SamplesReader:
         # remove duplicates and return the valid list
         return list(set(valid))
 
-    # def inspect(self):
-    #     data = self.read()
-    #     for category, processes in data.items():
-    #         for proc_name, proc_info in processes.items():
-    #             for file_path in proc_info.get('files', []):
-    #                 # Open the file and read 10 evenly spaced entries to check for basket corruption
-    #                 try:
-    #                     with uproot.open(file_path) as f:
-    #                         if "Delphes" not in f:
-    #                             print(f"Error: no Delphes tree in {file_path}")
-    #                             return
-    #                         tree = f["Delphes"]
-    #                         n = tree.num_entries
-    #                         if n == 0:
-    #                             print(f"Warning: empty tree in {file_path}")
-    #                             return
-    #                         step = max(1, n // 10)
-    #                         for entry in range(0, n, step):
-    #                             tree.arrays(entry_start=entry, entry_stop=entry + 1, library="np")
-    #                 except Exception as e:
-    #                     print(f"Error reading {file_path}: {e}")
-    #     return data
-
-    def inspect(self):
-        import ROOT
-
-        data = self.read()
-        for category, processes in data.items():
-            for proc_name, proc_info in processes.items():
-                for file_path in proc_info.get('files', []):
-                    # Open the file and read 10 evenly spaced entries to check for basket corruption
-                    f = None
-                    try:
-                        f = ROOT.TFile.Open(file_path)
-                        if not f or f.IsZombie():
-                            print(f"Error reading {file_path}: cannot open file")
-                            return
-                        tree = f.Get("Delphes")
-                        if not tree:
-                            print(f"Error: no Delphes tree in {file_path}")
-                            return
-                        n = tree.GetEntries()
-                        if n == 0:
-                            print(f"Warning: empty tree in {file_path}")
-                            return
-                        step = max(1, n // 10)
-                        for entry in range(0, n, step):
-                            tree.GetEntry(entry)
-                    except Exception as e:
-                        print(f"Error reading {file_path}: {e}")
-                    finally:
-                        if f is not None:
-                            f.Close()
-        return data
-
     def read(self):
 
         with open(self.yml_path, 'r') as f:
@@ -130,15 +78,22 @@ class SamplesReader:
         
         to_remove = []
         for category, processes in data.items():
-            for proc_name, proc_info in processes.items():
+
+            print(f"Reading {category.lower()} processes ...")
+            nb_processes = len(processes)
+
+            for idx, (proc_name, proc_info) in enumerate(processes.items(), start = 1):
                 
+                print(f"({idx}/{nb_processes}) {proc_name}")
+
                 # Check for the .root files
                 # Drop processes without valid ROOT files
                 if 'files' not in proc_info:
                     print(f"Warning: '{proc_name}' in '{category}' is missing 'files'. Removing this process.")
                     to_remove.append((category, proc_name))
                     continue
-
+                
+                print("Reading .root files ...")
                 proc_info['files'] = self.clean_root_files(proc_info['files'])
                 if not proc_info['files']:
                     print(f"Warning: '{proc_name}' in '{category}' has no valid ROOT files! Removing this process.")
@@ -146,6 +101,7 @@ class SamplesReader:
                     continue
                 
                 # Read the number of events
+                print("Calculating total number of events ...")
                 proc_info['nb_events'] = sum(self.get_nb_events(f) for f in proc_info['files'])
                    
                 
@@ -174,30 +130,136 @@ class SamplesReader:
 
         return data
 
-    def print_table(self, data, fmt="plain"):
-        import pandas as pd
-        from tabulate import tabulate
 
-        # Build rows from the parsed samples dict, tagging category headers as sections
-        rows = []
-        for category, processes in data.items():
-            rows.append({"Process": category, "N_gen": "", "sigma": ""})
+# def inspect(data):
+#     for category, processes in data.items():
+#         for proc_name, proc_info in processes.items():
+#             for file_path in proc_info.get('files', []):
+#                 # Open the file and read 10 evenly spaced entries to check for basket corruption
+#                 try:
+#                     with uproot.open(file_path) as f:
+#                         if "Delphes" not in f:
+#                             print(f"Error: no Delphes tree in {file_path}")
+#                             return
+#                         tree = f["Delphes"]
+#                         n = tree.num_entries
+#                         if n == 0:
+#                             print(f"Warning: empty tree in {file_path}")
+#                             return
+#                         step = max(1, n // 10)
+#                         for entry in range(0, n, step):
+#                             tree.arrays(entry_start=entry, entry_stop=entry + 1, library="np")
+#                 except Exception as e:
+#                     print(f"Error reading {file_path}: {e}")
+#     return data
+
+def inspect(data):
+
+    for category, processes in data.items():
+
+        print(f"\nInspecting {category.lower()} .root files ...")
+        nb_processes = len(processes)
+
+        for idx, (proc_name, proc_info) in enumerate(processes.items(), start = 1):
+
+            print(f"({idx}/{nb_processes}) {proc_name}")
+            
+            for file_path in tqdm(proc_info.get('files', [])):
+                # Open the file and read 10 evenly spaced entries to check for basket corruption
+                f = None
+                try:
+                    f = TFile.Open(file_path)
+                    if not f or f.IsZombie():
+                        print(f"Error reading {file_path}: cannot open file")
+                        return
+                    tree = f.Get("Delphes")
+                    if not tree:
+                        print(f"Error: no Delphes tree in {file_path}")
+                        return
+                    n = tree.GetEntries()
+                    if n == 0:
+                        print(f"Warning: empty tree in {file_path}")
+                        return
+                    step = max(1, n // 10)
+                    for entry in range(0, n, step):
+                        tree.GetEntry(entry)
+                except Exception as e:
+                    print(f"Error reading {file_path}: {e}")
+                finally:
+                    if f is not None:
+                        f.Close()
+    return data
+
+
+def print_table(data, fmt="plain"):
+
+    print("\nPrinting table ...")
+
+    if fmt == "plain":
+        header = f"{'Process':<20} {'N_gen':>8} {'sigma [fb]':>10} {'+err':>8} {'-err':>8} {'K_F':>6} {'w_i':>10}"
+        print("=" * len(header))
+        print(header)
+        print("=" * len(header))
+        for idx, (category, processes) in enumerate(data.items()):
+            if idx > 0: print("-" * len(header))
+            print(category)
+            print("-" * len(header))
             for name, info in processes.items():
-                rows.append({"Process": name, "N_gen": f"{info['nb_events']:,}", "sigma": info['cross_section']})
+                nb_events = info['nb_events']
+                sigma     = info['cross_section']        * 1e3
+                sigma_eh  = info['cross_section_err_high'] * 1e3
+                sigma_el  = info['cross_section_err_low']  * 1e3
+                k_factor  = info['k_factor']
+                w         = sigma / nb_events
+                print(f"{name:<20} {nb_events:>8,} {sigma:>10.3f} {sigma_eh:>8.3f} {sigma_el:>8.3f} {k_factor:>6.3f} {w:>10.3g}")
+        print("=" * len(header))
+        return None
 
-        df = pd.DataFrame(rows)
 
-        if fmt == "latex":
+    if fmt == "latex":
 
-            # Wrap data cells in math mode, set LaTeX-style column names
-            for c in  ("N_gen", "sigma"):
-                df[c] = df[c].apply(lambda x: f"${x}$")
+        # error formatting for the latex table
+        def fmt_with_err(val, high, low, digits=3):
+            if (high != 0.0) or (low != 0.0):
+                return f"${val:.{digits}f}^{{+{high:.{digits}f}}}_{{-{low:.{digits}f}}}$"
+            return f"${val:.{digits}f}$"
 
-            df.columns = ["Process", "$N_{\\mathrm{gen}}$", "$\\sigma$ [pb]"]
-            print(df.to_latex(index=False, escape=False, column_format="lcc"))
+        def fmt_sci(x, digits=3):
+            mant, exp = f"{x:.{digits}e}".split("e")
+            if int(exp) != 0:
+                return rf"{mant} \times 10^{{{int(exp)}}}"
+            return rf"{mant}"
 
-        else:
-            print(tabulate(df, headers='keys', tablefmt="grid", showindex=False))
+        ncols   = 5
+        header  = r"Process & $N_{\mathrm{gen}}$ & $\sigma_{\mathrm{LO}}$ [fb] & $K_{\mathrm{F}}$ & $w_{i}$ \\"
+        out = []
+        out.append(r"\begin{table}")
+        out.append(r"\centering")
+        out.append(r"\scriptsize")
+        out.append(r"\setlength{\tabcolsep}{2.5pt}")
+        out.append(r"\renewcommand{\arraystretch}{1.05}")
+        out.append(r"\begin{tabular}{lcccc}")
+        out.append(r"\toprule")
+        out.append(header)
+        out.append(r"\midrule")
+        for category, processes in data.items():
+            out.append(rf"\multicolumn{{{ncols}}}{{l}}{{\textbf{{{category}}}}} \\")
+            out.append(r"\midrule")   
+            for name, info in processes.items():
+                nb_events = info['nb_events']
+                sigma     = info['cross_section']        * 1e3
+                sigma_eh  = info['cross_section_err_high'] * 1e3
+                sigma_el  = info['cross_section_err_low']  * 1e3
+                k_factor  = info['k_factor']
+                w         = sigma / nb_events
+                sigma_str = fmt_with_err(sigma, sigma_eh, sigma_el)
+                out.append(f"{name} & ${nb_events:,}$ & {sigma_str} & ${k_factor}$ & ${fmt_sci(w)}$ \\\\")
+        out.append(r"\bottomrule")
+        out.append(r"\end{tabular}")
+        out.append(r"\end{table}")
+        print("\n".join(out))
+        return None
+
 
 
 if __name__ == "__main__":    
@@ -214,15 +276,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Read the yaml file
-    samples_dict = SamplesReader(args.yml_file)
+    data = SamplesReader(args.yml_file).read()
+
     if args.inspect:
-        data = samples_dict.inspect()
-    else:
-        data = samples_dict.read()
+       inspect(data)
     
-    # Print the output in the requested format
     if args.print_fmt:
-        samples_dict.print_table(data, args.print_fmt)
+        print_table(data, args.print_fmt)
     else:
         print("Parsed YAML Dictionary:")
         pprint(data)
