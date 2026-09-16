@@ -1,68 +1,141 @@
-"""Shared CLI plumbing and loop helpers for Delphes loop scripts."""
-
 import os
 import time
 import argparse
-from pprint import pprint
+from parallel_loop import add_parallel_arguments, run_in_parallel, format_time
 
-from parallel_loop import (
-    add_parallel_arguments,
-    run_in_parallel,
-    format_time,
-)
-
-
-# Each entry: loop_key, CLI flag, argparse kwargs, default for the loop_kwargs dict
-LOOP_ARGUMENTS = [
-    dict(key="inputRootFile",    cli="input_root_file",      default=None,
-         kwargs=dict(type=str, help="Path to the input Delphes ROOT file.")),
-    dict(key="treeName",         cli="--tree-name",          default="Delphes",
-         kwargs=dict(type=str, metavar="", help="Name of the output TTree.")),
-    dict(key="eventWeight",      cli="--event-weight",       default=None,
-         kwargs=dict(type=float, metavar="", help="Per-event weight. If omitted, computed from cross section and luminosity.")),
-    dict(key="cross_section",    cli="--cross-section",      default=None,
-         kwargs=dict(type=float, metavar="", help="Cross section in fb. Used with --luminosity.")),
-    dict(key="luminosity",       cli="--luminosity",         default=None,
-         kwargs=dict(type=float, metavar="", help="Integrated luminosity in fb^-1. Used with --cross-section.")),
-    dict(key="start_entry",      cli="--start-entry",        default=0,
-         kwargs=dict(type=int, metavar="", help="Entry to start processing from.")),
-    dict(key="end_entry",        cli="--end-entry",          default=None,
-         kwargs=dict(type=int, metavar="", help="Entry to stop processing at.")),
-    dict(key="show_progress",    cli="--show-progress",      default=False,
-         kwargs=dict(action="store_true", help="Show a progress bar during processing.")),
-    dict(key="debug_loop",       cli="--debug",              default=False,
-         kwargs=dict(action="store_true", help="Show debug information during processing.")),
-    dict(key="output_dir",       cli="--output-dir",         default=".",
-         kwargs=dict(type=str, metavar="", help="Directory where the output ROOT file will be written.")),
-    dict(key="output_file_name", cli="--output-file-name",   default="events.root",
-         kwargs=dict(metavar="", help="Name of the output ROOT file.")),
-    dict(key="overwrite",        cli="--overwrite",          default=False,
-         kwargs=dict(action="store_true", help="Allow overwriting the output directory if it already exists.")),
-    dict(key="branches_config_path", cli="--branches-config-path", default=None,
-         kwargs=dict(type=str, metavar="", help="Path to the branches configuration YAML.")),
-]
-
-
-def _dest(cli):
-    return cli.lstrip("-").replace("-", "_")
-
+LOOP_ARGUMENTS = {
+    "inputRootFile": dict(
+        cli="input_root_file",
+        default=None,
+        kwargs=dict(
+            type=str,
+            help="Path to the input Delphes ROOT file.",
+        ),
+    ),
+    "treeName": dict(
+        cli="--tree-name",
+        default="Delphes",
+        kwargs=dict(
+            type=str,
+            metavar="",
+            help="Name of the output TTree.",
+        ),
+    ),
+    "eventWeight": dict(
+        cli="--event-weight",
+        default=None,
+        kwargs=dict(
+            type=float,
+            metavar="",
+            help="Per-event weight. If omitted, computed from cross section and luminosity.",
+        ),
+    ),
+    "cross_section": dict(
+        cli="--cross-section",
+        default=None,
+        kwargs=dict(
+            type=float,
+            metavar="",
+            help="Cross section in fb. Used with --luminosity.",
+        ),
+    ),
+    "luminosity": dict(
+        cli="--luminosity",
+        default=None,
+        kwargs=dict(
+            type=float,
+            metavar="",
+            help="Integrated luminosity in fb^-1. Used with --cross-section.",
+        ),
+    ),
+    "start_entry": dict(
+        cli="--start-entry",
+        default=0,
+        kwargs=dict(
+            type=int,
+            metavar="",
+            help="Entry to start processing from.",
+        ),
+    ),
+    "end_entry": dict(
+        cli="--end-entry",
+        default=None,
+        kwargs=dict(
+            type=int,
+            metavar="",
+            help="Entry to stop processing at.",
+        ),
+    ),
+    "show_progress": dict(
+        cli="--show-progress",
+        default=False,
+        kwargs=dict(
+            action="store_true",
+            help="Show a progress bar during processing.",
+        ),
+    ),
+    "debug_loop": dict(
+        cli="--debug",
+        default=False,
+        kwargs=dict(
+            action="store_true",
+            help="Show debug information during processing.",
+        ),
+    ),
+    "output_dir": dict(
+        cli="--output-dir",
+        default=".",
+        kwargs=dict(
+            type=str,
+            metavar="",
+            help="Directory where the output ROOT file will be written.",
+        ),
+    ),
+    "output_file_name": dict(
+        cli="--output-file-name",
+        default="events.root",
+        kwargs=dict(
+            metavar="",
+            help="Name of the output ROOT file.",
+        ),
+    ),
+    "overwrite": dict(
+        cli="--overwrite",
+        default=False,
+        kwargs=dict(
+            action="store_true",
+            help="Allow overwriting the output directory if it already exists.",
+        ),
+    ),
+    "branches_config_path": dict(
+        cli="--branches-config-path",
+        default=None,
+        kwargs=dict(
+            type=str,
+            metavar="",
+            help="Path to the branches configuration YAML.",
+        ),
+    ),
+}
 
 def add_loop_arguments(parser):
-    for spec in LOOP_ARGUMENTS:
+    for key, spec in LOOP_ARGUMENTS.items():
         kwargs = dict(spec["kwargs"])
-        kwargs.setdefault("default", spec["default"])
-        parser.add_argument(spec["cli"], **kwargs)
-
+        # Positional arguments are required; only set default for optional flags.
+        if spec["cli"].startswith("-"):
+            kwargs.setdefault("default", spec["default"])
+        parser.add_argument(spec["cli"], dest=key, **kwargs)
 
 def make_loop_kwargs(args):
-    return {spec["key"]: getattr(args, _dest(spec["cli"])) for spec in LOOP_ARGUMENTS}
+    return {key: getattr(args, key) for key in LOOP_ARGUMENTS}
 
 
 def apply_loop_defaults(loop_args):
     """Fill in defaults for any key the caller did not supply."""
     filled = dict(loop_args)
-    for spec in LOOP_ARGUMENTS:
-        filled.setdefault(spec["key"], spec["default"])
+    for key, spec in LOOP_ARGUMENTS.items():
+        if filled.get(key) is None and spec["default"] is not None:
+            filled[key] = spec["default"]
     return filled
 
 def check_loop_args(loop_args, numberOfEntries):
@@ -90,8 +163,8 @@ def check_loop_args(loop_args, numberOfEntries):
         if (cross_section is None) != (luminosity is None):
             raise ValueError("cross section and luminosity must be provided together")
         if cross_section is not None and luminosity is not None:
-            if numberOfEntries == 0:
-                raise ValueError("Cannot calculate an event weight for an empty ROOT file")
+            if numberOfProcessedEntries == 0:
+                raise ValueError("Cannot compute an event weight when no entries will be processed")
             eventWeight = cross_section * luminosity / numberOfProcessedEntries
         else:
             eventWeight = 1.0
@@ -127,9 +200,6 @@ def check_loop_args(loop_args, numberOfEntries):
 
     return loop_args
 
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
 
 def run_loop_cli(loop_tree, description="Process a Delphes ROOT file and write a flat tree with selected events."):
     start_time = time.perf_counter()
@@ -154,7 +224,7 @@ def run_loop_cli(loop_tree, description="Process a Delphes ROOT file and write a
 
     print(f"Finished in {format_time(time.perf_counter() - start_time)}.")
 
-    print(f"\nOutput written to:")
-    pprint(out_path)
+    # print(f"\nOutput written to:")
+    # print(out_path)
     
     return out_path

@@ -155,19 +155,18 @@ def merge_trees(results, treeName):
 def hadd_files(target_path, source_paths, max_workers=None):
     if isinstance(source_paths, str):
         source_paths = [source_paths]
-    j = max_workers or n_cpu
+    j = max_workers or os.cpu_count()
     cmd = ["hadd", "-f", "-j", str(j), target_path] + list(source_paths)
-    # print(f"  hadd: {' '.join(cmd)}")
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"  hadd FAILED (rc={result.returncode}):\n{result.stderr}")
+        print(f"hadd FAILED (rc={result.returncode}):\n{result.stderr}")
         return False
     return True
 
 def hadd_splits(results, treeName, output_dir, output_file_name="events.root", max_workers=None):
     """results = list of {ac_key: file_path} dicts from parallel workers."""
 
-    print(f"Merging split .root files with hadd (-j {max_workers or n_cpu}) ..")
+    print(f"Merging split .root files with hadd (-j {max_workers or os.cpu_count()}) ..")
     start = time.perf_counter()
 
     ac_keys = list(results[0].keys())  # learn structure from first worker
