@@ -138,9 +138,21 @@ def run_in_background(log_file):
     import subprocess
     log_path = Path(log_file).resolve()
     log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    filtered = [a for a in sys.argv[1:] if a not in ("-b", "--background")]
     # The -u flag means "unbuffered", so every print shows up in the log the moment it happens.
-    argv = [sys.executable, "-u", os.path.abspath(__file__)] + [a for a in sys.argv[1:] if a not in ("-b", "--background")]
-    with open(log_path, "ab") as log:
+    if __package__:
+        # We were imported as part of a package (the normal `hepdataset` CLI path),
+        # so re-launch as a module: `python -u -m hepdataset.make_dataset ...`
+        # This preserves __package__ in the child, so relative imports keep working.
+        module_name = f"{__package__}.{Path(__file__).stem}"
+        argv = [sys.executable, "-u", "-m", module_name] + filtered
+    else:
+        # Fallback: we were genuinely run as a bare script (e.g. `python make_dataset.py`),
+        # so re-exec the file as-is.
+        argv = [sys.executable, "-u", os.path.abspath(__file__)] + filtered
+
+    with open(log_path, "w") as log:
         proc = subprocess.Popen(
             argv,
             stdin=subprocess.DEVNULL,
@@ -172,10 +184,15 @@ def main():
     args = p.parse_args()
 
     if args.background:
-        print(f"=== Started at {datetime.now().isoformat(timespec='seconds')} ===", flush=True)
-        print(f"Args: {pprint(args)}", flush=True)
+        # Parent: spawn the detached child and exit. Nothing else is printed here —
+        # the header belongs to the child, whose stdout is the log file.
         run_in_background(args.log_file)
         return
+
+    # Foreground run OR the detached child (whose argv no longer contains -b).
+    # Only this branch's stdout is the log file (in background mode) or the terminal.
+    print(f"=== Started at {datetime.now().isoformat(timespec='seconds')} ===", flush=True)
+    print(f"Args: {vars(args)}", flush=True)
 
     kwargs = vars(args).copy()
     kwargs.pop("background", None)
