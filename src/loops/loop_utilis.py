@@ -128,14 +128,6 @@ def make_loop_kwargs(args):
     return {key: getattr(args, key) for key in LOOP_ARGUMENTS}
 
 
-def apply_loop_defaults(loop_args):
-    """Fill in defaults for any key the caller did not supply."""
-    filled = dict(loop_args)
-    for key, spec in LOOP_ARGUMENTS.items():
-        if filled.get(key) is None and spec["default"] is not None:
-            filled[key] = spec["default"]
-    return filled
-
 def check_loop_args(loop_args, numberOfEntries):
 
     loop_args = apply_loop_defaults(loop_args)

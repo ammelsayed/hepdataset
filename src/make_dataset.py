@@ -87,7 +87,7 @@ def make_dataset(
                     loop_tree,
                     max_workers=max_workers,
                     n_chunks=n_chunks,
-                    merge_method=2,
+                    merge_method=1,
                     inputRootFile=str(sampleRootFile),
                     treeName=proc_treeName,               # <-- same tree name for every sample
                     eventWeight=proc_eventWeight,
