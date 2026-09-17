@@ -325,11 +325,8 @@ class SamplesReader:
             f.write(pretty)
 
 
-if __name__ == "__main__":    
-
-    import argparse
-    from pprint import pprint
-    
+def main():
+    import argparse  
     parser = argparse.ArgumentParser(description="Parse a samples.yml file and print the resulting dictionary.")
     parser.add_argument("yml_file", type=str, help="Path to the samples file (.yml, .yaml, or .json)")
     parser.add_argument("--inspect", action="store_true", help="Deep inspect ROOT files by reading events")
@@ -349,9 +346,6 @@ if __name__ == "__main__":
     
     if args.print_fmt:
         print_table(data, args.print_fmt)
-    else:
-        print("Parsed YAML Dictionary:")
-        pprint(data)
 
     if args.json:
         reader.to_json(data, args.json)
@@ -360,3 +354,8 @@ if __name__ == "__main__":
     if args.xml:
         reader.to_xml(data, args.xml)
         print(f"Wrote XML  -> {args.xml}")
+
+
+if __name__ == "__main__":
+
+    main()

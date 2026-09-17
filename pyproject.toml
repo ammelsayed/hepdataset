@@ -67,17 +67,20 @@ dev = [
 ]
 
 [project.scripts]
-hepdataset = "hepdataset.make_dataset:main"
-hepdataset-make = "hepdataset.make_dataset:main"
+hepdataset = "hepdataset.cli:main"
 
 [tool.setuptools]
 packages = [
     "hepdataset",
     "hepdataset.loops",
-    "hepdataset.parallelization",
     "hepdataset.utils",
 ]
-package-dir = {"hepdataset" = "src", "hepdataset.loops" = "src/loops", "hepdataset.parallelization" = "src/parallelization", "hepdataset.utils" = "src/utils"}
+package-dir = {
+    "hepdataset" = "src",
+    "hepdataset.loops" = "src/loops",
+    "hepdataset.utils" = "src/utils",
+}
+
 [tool.setuptools.package-data]
 hepdataset = [
     "cpp_loop/**/*",

@@ -59,95 +59,105 @@ def make_dataset(
     ):
 
     # Import the required libraries
+    import os
     import sys
     loops_dir = str(Path(__file__).resolve().parent / "loops")
     if loops_dir not in sys.path:
         sys.path.insert(0, loops_dir)
+
     from samples_reader import SamplesReader
     from loops.delphes_utilis import load_delphes
-    from loops.parallel_loop import run_in_parallel
+    from loops.parallel_loop import run_in_parallel, hadd_files
     from loops.object_selection import ObjectSelector
+    from loops.event_selection import EventSelector
 
     loop_tree = _load_loop(loop_file)
     load_delphes()
     output_dir = Path(output_dir).resolve()
 
     for category, processes in SamplesReader(str(samples)).read().items():
-
         prefix = resolve_category_name(category)
 
         for proc_name, proc_meta in processes.items():
-
-            proc_RootFiles = proc_meta["files"]
-            proc_NbRootFiles = len(proc_RootFiles)
+            proc_RootFiles      = proc_meta["files"]
+            proc_NbRootFiles    = len(proc_RootFiles)
             proc_totalNbEvents  = proc_meta["nb_events"]
-            proc_CrossSection  = proc_meta["cross_section"] * 1000
+            proc_CrossSection   = proc_meta["cross_section"] * 1000
 
-            if not proc_RootFiles or not proc_totalNbEvents :
+            if not proc_RootFiles or not proc_totalNbEvents:
                 continue
 
-            proc_eventWeight  = proc_CrossSection * luminosity / proc_totalNbEvents 
-            proc_treeName  = f"{prefix}_{proc_name}"
+            proc_eventWeight = proc_CrossSection * luminosity / proc_totalNbEvents
+            proc_treeName    = f"{prefix}_{proc_name}"
 
-            print("-"*80)
+            print("-" * 80)
             print(f"Processing : {proc_name} ({prefix})")
             print(f" Cross section                  : {proc_CrossSection} fb")
             print(f" Total number of .root files:   : {proc_NbRootFiles}")
-            print(f" Total number of events         : {proc_totalNbEvents }")
+            print(f" Total number of events         : {proc_totalNbEvents}")
             print(f" Average weight per event       : {proc_eventWeight} (at {luminosity} fb^-1)")
-            print("-"*80)
+            print("-" * 80)
 
-            summaries, proc_paths = [], {}
+            proc_paths = {}
+            all_objSel, all_evtSel = [], []
             for i, sampleRootFile in enumerate(proc_RootFiles):
                 if i > 0: print("-"*80)
                 print(f"Sample {i+1}/{proc_NbRootFiles}")   
                 print("-"*80)
 
                 sample_treeName = f"{proc_treeName}_sample{i}"
+                sample_fileName = f"{proc_treeName}_sample{i}.root"
 
-                result, sample_summaries  = run_in_parallel(
+                result = run_in_parallel(
                     loop_tree,
-
                     max_workers=max_workers,
                     n_chunks=n_chunks,
-                    merge_method = 2,
-
+                    merge_method=2,
                     inputRootFile=str(sampleRootFile),
-                    treeName = sample_treeName,
-                    eventWeight = proc_eventWeight,
+                    treeName=proc_treeName,               # <-- same tree name for every sample
+                    eventWeight=proc_eventWeight,
                     output_dir=str(output_dir),
-                    output_file_name= f"{sample_treeName}.root",
+                    output_file_name=sample_file_name,
                     overwrite=True,
                     show_progress=False,
-                    return_summary=True,
                 )
 
-                if sample_summaries:
-                    summaries.extend(sample_summaries) 
-                if not isinstance(result, dict):
-                    result = {None: result}
-                for key, path in result.items():
+                all_objSel.append(result["ObjectSelector"])
+                all_evtSel.append(result["EventSelector"])
+
+                for key, path in result["root_paths"].items():
                     proc_paths.setdefault(key, []).append(path)
 
+
+            # Merge per-sample files with hadd 
             if merge:
                 for key, paths in proc_paths.items():
                     if key is None:
-                        target = output_dir / "events.root"
+                        ac, ac_r = "", ""
                     else:
                         ac, _, ac_r = key.rpartition("_")
-                        target = output_dir / ac / ac_r / "events.root"
-                    _append_tree(target, proc_treeName, paths)
+                    target = output_dir / ac / ac_r / f"{proc_treeName}.root"
+                    target.parent.mkdir(parents=True, exist_ok=True)
 
-            if summaries:
-                merged = merge_summaries(summaries)
-                PrintObjectSelectionSummary(merged["objSel_cutflow"], lum=luminosity, event_weight=proc_eventWeight)
-                PrintAnalysisChannelYields(merged["ac_counts"], proc_treeName, event_weight=proc_eventWeight, lum=luminosity)
+                    if hadd_files(str(target), paths, max_workers=max_workers):
+                        for p in paths:
+                            try:
+                                os.remove(p)
+                            except OSError:
+                                pass
+
+            # Merge the selectors across samples and print 
+            if all_objSel and all_evtSel:
+                merged_objSel = ObjectSelector.Merge(all_objSel)
+                merged_evtSel = EventSelector.Merge(all_evtSel)
+
+                merged_objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=proc_eventWeight)
+                merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=luminosity)
+
                 obj_dir = output_dir / "ObjectSelection" / proc_treeName
                 obj_dir.mkdir(parents=True, exist_ok=True)
-                DrawObjectSelectionHistograms(merged["objSel_h"], output_dir=str(obj_dir))
+                merged_objSel.DrawObjectSelectionHistograms(output_dir=str(obj_dir))
 
-    if merge:
-        shutil.rmtree(samples_dir, ignore_errors=True)
 
 
 def main():

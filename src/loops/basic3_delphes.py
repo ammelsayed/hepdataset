@@ -195,11 +195,13 @@ def loop_tree(**loop_args):
         "EventSelector": eventSel
     }
 
-if __name__ == "__main__":
 
+def main():
     from delphes_utilis import load_delphes
     from loop_utilis import run_loop_cli
-
     load_delphes()
-    
-    run_loop_cli(loop_tree)
+    return run_loop_cli(loop_tree)
+
+if __name__ == "__main__":
+
+    main()
