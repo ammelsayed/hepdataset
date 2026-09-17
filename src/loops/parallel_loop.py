@@ -249,6 +249,7 @@ def run_in_parallel(
     chunk_ranges = split_range(numberOfProcessedEntries, n_chunks)
     print(f"Splitting {numberOfProcessedEntries} events into {len(chunk_ranges)} chunks")
     print(f"Assining {len(chunk_ranges)} jobs across {max_workers} worker(s)")
+    print(f"Loop method: {loop_tree_method}")
     print(f"Merge method: {merge_method} ({'in-memory TTree merge' if merge_method == 1 else 'hadd per-chunk .root files'})")
 
     # Workers should never print their own progress bars or summaries.

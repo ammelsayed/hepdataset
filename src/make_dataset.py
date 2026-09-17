@@ -95,6 +95,7 @@ def make_dataset(
                     output_file_name=sample_fileName,
                     overwrite=True,
                     show_progress=show_progress,
+                    branches_config_path = branches_config_path
                 )
 
                 all_objSel.append(result["ObjectSelector"])
@@ -138,9 +139,10 @@ def main():
     import argparse
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("samples_file", help="Samples YAML file.")
+    p.add_argument("--branches-config-file", default="defaults/branches_config.yml")
     p.add_argument("--output-dir", default = "HEPDataset", help="Output directory.")
     p.add_argument("--working-luminosity", type=float, default=400.0)
-    p.add_argument("--loop-method", default="basic3_delphes")
+    p.add_argument("--loop-method", default="adaptive_delphes")
     p.add_argument("--merge-proc-samples", action="store_true")
     p.add_argument("--max-workers", type=int, default=None)
     p.add_argument("--n-chunks", type=int, default=None)
