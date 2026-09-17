@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Process every ROOT file in a samples YAML card and merge per process."""
+
 import os
 import sys
 import importlib
@@ -8,11 +11,9 @@ def resolve_category_name(category):
     return "bkg" if cat == "background" else "sig" if cat == "signal" else "Unknown"
 
 def _load_loop(name):
-    """Import a loop module from src/loops and return its loop_tree."""
-    loops_dir = Path(__file__).resolve().parent / "loops"
-    if str(loops_dir) not in sys.path:
-        sys.path.insert(0, str(loops_dir))
-    return importlib.import_module(Path(name).stem).loop_tree
+    """Import a hepdataset.loops module and return its loop_tree."""
+    module = importlib.import_module(f".loops.{Path(name).stem}", package=__package__)
+    return module.loop_tree
 
 def make_dataset(
     samples_file,
@@ -28,21 +29,15 @@ def make_dataset(
     ):
 
     # Import the required libraries
-    pkg_dir   = str(Path(__file__).resolve().parent)
-    loops_dir = str(Path(__file__).resolve().parent / "loops")
-    for d in (pkg_dir, loops_dir):
-        if d not in sys.path:
-            sys.path.insert(0, d)
-
-    from .samples_reader import SamplesReader
-    from .loops.delphes_utilis import load_delphes
-    from .loops.parallel_loop    import run_in_parallel, hadd_files
-    from .loops.object_selection import ObjectSelector
-    from .loops.event_selection  import EventSelector
+    from .samples_reader          import SamplesReader
+    from .core.delphes_utilis     import load_delphes
+    from .loops.parallel_loop     import run_in_parallel, hadd_files
+    from .core.object_selection   import ObjectSelector
+    from .core.event_selection    import EventSelector
 
     # Read samples
     print("Reading the samples file ...")
-    Data = SamplesReader(str(samples)).read()
+    Data = SamplesReader(str(samples_file)).read()
 
     # Read the branches configuration file.
     if branches_config_file is None:

@@ -1,15 +1,15 @@
 #parallel_loop.py
-
 import os
 import ROOT
 import time
 import subprocess
 from multiprocessing import get_context
 from concurrent.futures import ProcessPoolExecutor, FIRST_COMPLETED, wait
-from delphes_utilis import build_chain, count_entries
-from object_selection import ObjectSelector
-from event_selection import EventSelector
-from loop_utilis import check_loop_args
+
+from ..core.delphes_utilis   import build_chain, count_entries
+from ..core.object_selection import ObjectSelector
+from ..core.event_selection  import EventSelector
+from .loop_utilis            import check_loop_args
 
 
 def format_time(seconds):
@@ -289,7 +289,6 @@ def run_in_parallel(
             raise r
     
     # Merge ObjectSelector and EventSelector from all workers.
-    merged = merge_summaries(results)
     merged_objSel = ObjectSelector.Merge([r["ObjectSelector"] for r in results])
     merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results])
 

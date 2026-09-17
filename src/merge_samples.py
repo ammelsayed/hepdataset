@@ -105,14 +105,19 @@ def merge_all(path):
     for fn in per_process:
         os.remove(os.path.join(path, fn))
 
-if __name__ == "__main__":
-    p = argparse.ArgumentParser()
+def main():
+    import argparse
+    p = argparse.ArgumentParser(description="Merge per-sample ROOT files.")
     p.add_argument("path", help="Directory containing the ROOT files")
-    p.add_argument("--merge-samples", action="store_true", help="Merge samples of the same process and delete originals")
-    p.add_argument("--merge", action="store_true", help="Merge samples, combine into events.root, delete per-process files")
+    p.add_argument("--merge-samples", action="store_true",  help="Merge samples of the same process and delete originals")
+    p.add_argument("--merge", action="store_true",  help="Merge samples, combine into events.root, delete per-process files")
     args = p.parse_args()
 
     if args.merge:
         merge_all(args.path)
     elif args.merge_samples:
         merge_samples(args.path)
+
+
+if __name__ == "__main__":
+    main()

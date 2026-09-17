@@ -1,7 +1,6 @@
 import os
 import time
 import argparse
-from parallel_loop import add_parallel_arguments, run_in_parallel, format_time
 
 LOOP_ARGUMENTS = {
     "inputRootFile": dict(
@@ -118,13 +117,12 @@ LOOP_ARGUMENTS = {
     ),
 }
 
-def add_loop_arguments(parser):
+def apply_loop_defaults(loop_args):
+    """Fill in defaults for every LOOP_ARGUMENTS key the caller did not supply."""
+    filled = dict(loop_args)
     for key, spec in LOOP_ARGUMENTS.items():
-        kwargs = dict(spec["kwargs"])
-        # Positional arguments are required; only set default for optional flags.
-        if spec["cli"].startswith("-"):
-            kwargs.setdefault("default", spec["default"])
-        parser.add_argument(spec["cli"], dest=key, **kwargs)
+        filled.setdefault(key, spec["default"])
+    return filled
 
 def make_loop_kwargs(args):
     return {key: getattr(args, key) for key in LOOP_ARGUMENTS}
@@ -202,6 +200,8 @@ def check_loop_args(loop_args, numberOfEntries):
 
 
 def run_loop_cli(loop_tree, description="Process a Delphes ROOT file and write a flat tree with selected events."):
+    from .parallel_loop import add_parallel_arguments, run_in_parallel, format_time
+
     start_time = time.perf_counter()
 
     parser = argparse.ArgumentParser(description=description)

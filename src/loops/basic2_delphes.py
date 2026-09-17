@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
-
-"""
-Supports reading of one Delphes root file at a time, and writing a flat tree with selected events to a new root file.
-Requires an event to contain exactly one lepton and at least one fatjet to be selected.
-More branches are supported compared to basic1_delphes.py, including pairwise kinematic variables and global event variables.
-"""
-
 import os
 import ROOT
-import math
 import numpy as np
 from tqdm import tqdm
-from delphes import load_delphes, build_chain
-from kinematics import DeltaR, DeltaPhi, DeltaEta
-from object_selection import select_objects
-from loop_utilis import apply_loop_defaults, check_start_end_entries, get_event_weight, prepare_output_dir
 from itertools import combinations
-from tabulate import tabulate
+from ..core.delphes_utilis   import build_chain
+from ..core.object_selection import ObjectSelector
+from ..core.event_selection  import EventSelector
+from .loop_utilis            import check_loop_args
+
 
 def loop_tree(**loop_args):
     loop_args = apply_loop_defaults(loop_args)

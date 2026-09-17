@@ -3,11 +3,11 @@ import os
 import ROOT
 import numpy as np
 from tqdm import tqdm
-from delphes_utilis import build_chain
-from loop_utilis import check_loop_args
-from object_selection import ObjectSelector
-from event_selection import EventSelector
 from itertools import combinations
+from ..core.delphes_utilis   import build_chain
+from ..core.object_selection import ObjectSelector
+from ..core.event_selection  import EventSelector
+from .loop_utilis            import check_loop_args
 
 def loop_tree(**loop_args):
     inputRootFile = loop_args["inputRootFile"]
@@ -197,8 +197,8 @@ def loop_tree(**loop_args):
 
 
 def main():
-    from delphes_utilis import load_delphes
-    from loop_utilis import run_loop_cli
+    from ..core.delphes_utilis import load_delphes
+    from .loop_utilis          import run_loop_cli
     load_delphes()
     return run_loop_cli(loop_tree)
 
