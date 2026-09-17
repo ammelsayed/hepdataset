@@ -29,8 +29,6 @@ Background:
     files:
       - /data/ammelsayed/new_stuff/tt_1L/Events/run_02_01/tag_1_delphes_events.root
       - /data/ammelsayed/new_stuff/tt_1L/Events/run_02_02/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/tt_1L/Events/run_02_03/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/tt_1L/Events/run_02_04/tag_1_delphes_events.root
 
   tt_2L:
     cross_section: 0.37395           # [pb] tt (2L)
@@ -40,8 +38,6 @@ Background:
     files:
       - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_01_01/tag_1_delphes_events.root
       - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_01_02/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_02_01/tag_1_delphes_events.root
-      - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_02_02/tag_1_delphes_events.root
 
   # ttW_1L:
   #   cross_section: 0.00135          # [pb] ttW (1L) = 1.35e-3

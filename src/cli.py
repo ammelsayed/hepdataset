@@ -1,4 +1,5 @@
-"""Top-level CLI dispatcher for the hepdataset package.
+"""
+Top-level CLI dispatcher for the hepdataset package.
 
 Usage:
     hepdataset [SUBCOMMAND] [ARGS...]
@@ -12,7 +13,7 @@ from importlib import import_module
 
 # Subcommand name -> (module path, function name)
 SUBCOMMANDS = {
-    "make_dataset":     ("hepdataset.make_dataset",          "main"),
+    "make":     ("hepdataset.make_dataset",          "main"),
     "samples_reader":   ("hepdataset.samples_reader",        "main"),
     "basic1_delphes":   ("hepdataset.loops.basic1_delphes",  "main"),
     "basic2_delphes":   ("hepdataset.loops.basic2_delphes",  "main"),
@@ -41,7 +42,7 @@ def main():
 
     # Unknown first token -> treat it as an argument to make_dataset
     if sub not in SUBCOMMANDS:
-        sub, rest = "make_dataset", argv
+        sub, rest = "make", argv
 
     module_path, func_name = SUBCOMMANDS[sub]
 

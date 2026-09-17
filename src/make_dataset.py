@@ -1,3 +1,4 @@
+import os
 import sys
 import importlib
 from pathlib import Path
@@ -14,33 +15,47 @@ def _load_loop(name):
     return importlib.import_module(Path(name).stem).loop_tree
 
 def make_dataset(
-    samples, 
-    output_dir, 
-    luminosity=400.0, 
-    loop_file="adaptive_delphes",
-    merge=False,
-    max_workers=None, 
-    n_chunks=None,
+    samples_file,
+    branches_config_file = None, 
+    output_dir = "HEPDataset", 
+    loop_method = "adaptive_delphes",
+    working_luminosity = 400.0,
+    run_parallel = True, 
+    merge_proc_samples = False,
+    max_workers = None, 
+    n_chunks = None,
     show_progress=False, 
     ):
 
     # Import the required libraries
-    import os
+    pkg_dir   = str(Path(__file__).resolve().parent)
     loops_dir = str(Path(__file__).resolve().parent / "loops")
-    if loops_dir not in sys.path:
-        sys.path.insert(0, loops_dir)
+    for d in (pkg_dir, loops_dir):
+        if d not in sys.path:
+            sys.path.insert(0, d)
 
-    from samples_reader import SamplesReader
-    from loops.delphes_utilis import load_delphes
-    from loops.parallel_loop import run_in_parallel, hadd_files
-    from loops.object_selection import ObjectSelector
-    from loops.event_selection import EventSelector
+    from .samples_reader import SamplesReader
+    from .loops.delphes_utilis import load_delphes
+    from .loops.parallel_loop    import run_in_parallel, hadd_files
+    from .loops.object_selection import ObjectSelector
+    from .loops.event_selection  import EventSelector
 
-    loop_tree = _load_loop(loop_file)
+    # Read samples
+    print("Reading the samples file ...")
+    Data = SamplesReader(str(samples)).read()
+
+    # Read the branches configuration file.
+    if branches_config_file is None:
+        branches_config_file = "./default_branches_config.yml"
+        print(f"Using default branches configuration file at: {branches_config_file}")
+    else:
+        print("Checking the given branches configuration file ...")
+
+    loop_tree = _load_loop(loop_method)
     load_delphes()
     output_dir = Path(output_dir).resolve()
 
-    for category, processes in SamplesReader(str(samples)).read().items():
+    for category, processes in Data.items():
         prefix = resolve_category_name(category)
 
         for proc_name, proc_meta in processes.items():
@@ -52,7 +67,7 @@ def make_dataset(
             if not proc_RootFiles or not proc_totalNbEvents:
                 continue
 
-            proc_eventWeight = proc_CrossSection * luminosity / proc_totalNbEvents
+            proc_eventWeight = proc_CrossSection * working_luminosity / proc_totalNbEvents
             proc_treeName    = f"{prefix}_{proc_name}"
 
             print("-" * 80)
@@ -60,7 +75,7 @@ def make_dataset(
             print(f" Cross section                  : {proc_CrossSection} fb")
             print(f" Total number of .root files:   : {proc_NbRootFiles}")
             print(f" Total number of events         : {proc_totalNbEvents}")
-            print(f" Average weight per event       : {proc_eventWeight} (at {luminosity} fb^-1)")
+            print(f" Average weight per event       : {proc_eventWeight} (at {working_luminosity} fb^-1)")
             print("-" * 80)
 
             proc_paths = {}
@@ -82,9 +97,9 @@ def make_dataset(
                     treeName=proc_treeName,               # <-- same tree name for every sample
                     eventWeight=proc_eventWeight,
                     output_dir=str(output_dir),
-                    output_file_name=sample_file_name,
+                    output_file_name=sample_fileName,
                     overwrite=True,
-                    show_progress=False,
+                    show_progress=show_progress,
                 )
 
                 all_objSel.append(result["ObjectSelector"])
@@ -93,9 +108,8 @@ def make_dataset(
                 for key, path in result["root_paths"].items():
                     proc_paths.setdefault(key, []).append(path)
 
-
             # Merge per-sample files with hadd 
-            if merge:
+            if merge_proc_samples:
                 for key, paths in proc_paths.items():
                     if key is None:
                         ac, ac_r = "", ""
@@ -115,24 +129,24 @@ def make_dataset(
             if all_objSel and all_evtSel:
                 merged_objSel = ObjectSelector.Merge(all_objSel)
                 merged_evtSel = EventSelector.Merge(all_evtSel)
-
-                merged_objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=proc_eventWeight)
-                merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=luminosity)
-
+                merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)
+                merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=working_luminosity)
                 obj_dir = output_dir / "ObjectSelection" / proc_treeName
                 obj_dir.mkdir(parents=True, exist_ok=True)
                 merged_objSel.DrawObjectSelectionHistograms(output_dir=str(obj_dir))
+            
+            print(f"Finished working on {proc_name}.\n")
 
 
 
 def main():
     import argparse
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("samples", help="Samples YAML file.")
-    p.add_argument("output_dir", help="Output directory.")
-    p.add_argument("--luminosity", type=float, default=400.0)
-    p.add_argument("--loop-file", default="adaptive_delphes")
-    p.add_argument("--merge", action="store_true")
+    p.add_argument("samples_file", help="Samples YAML file.")
+    p.add_argument("--output-dir", default = "HEPDataset", help="Output directory.")
+    p.add_argument("--working-luminosity", type=float, default=400.0)
+    p.add_argument("--loop-method", default="basic3_delphes")
+    p.add_argument("--merge-proc-samples", action="store_true")
     p.add_argument("--max-workers", type=int, default=None)
     p.add_argument("--n-chunks", type=int, default=None)
     p.add_argument("--show-progress", action="store_true")
