@@ -162,6 +162,7 @@ def run_in_background(log_file):
             close_fds=True, 
         )
     print(f"Started PID {proc.pid}; logs -> {log_path}")
+    print(f"If you wish to kill this process, use: kill -TERM -- -{proc.pid}")
 
 
 def main():
@@ -191,13 +192,21 @@ def main():
 
     # Foreground run OR the detached child (whose argv no longer contains -b).
     # Only this branch's stdout is the log file (in background mode) or the terminal.
-    print(f"=== Started at {datetime.now().isoformat(timespec='seconds')} ===", flush=True)
+    started = datetime.now()
+    print(f"=== Started at {started.isoformat(timespec='seconds')} ===", flush=True)
     print(f"Args: {vars(args)}", flush=True)
 
-    kwargs = vars(args).copy()
-    kwargs.pop("background", None)
-    kwargs.pop("log_file", None)
-    make_dataset(**kwargs)
+    try:
+        make_dataset(**kwargs)
+    except BaseException:
+        finished = datetime.now()
+        print(f"=== CRASHED at {finished.isoformat(timespec='seconds')} "
+              f"(after {finished - started}) ===", flush=True)
+        raise
+    else:
+        finished = datetime.now()
+        print(f"=== Finished at {finished.isoformat(timespec='seconds')} "
+              f"(total {finished - started}) ===", flush=True)
 
 if __name__ == "__main__":
     main()
