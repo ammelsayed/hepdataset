@@ -154,6 +154,9 @@ def run_in_background(log_file):
 
 def main():
     import argparse
+    from datetime import datetime
+    from pprint import pprint
+
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("samples_file", help="Samples YAML file.")
     p.add_argument("--branches-config-file", default="defaults/branches_config.yml")
@@ -169,19 +172,15 @@ def main():
     args = p.parse_args()
 
     if args.background:
-        # Parent: spawn the detached worker and exit immediately.
+        print(f"=== Started at {datetime.now().isoformat(timespec='seconds')} ===", flush=True)
+        print(f"Args: {pprint(args)}", flush=True)
         run_in_background(args.log_file)
         return
-
-    # Foreground, OR the detached child (whose argv no longer has -b).
-    print(f"=== Started at {datetime.now().isoformat(timespec='seconds')} ===", flush=True)
-    print(f"Args: {vars(args)}", flush=True)
 
     kwargs = vars(args).copy()
     kwargs.pop("background", None)
     kwargs.pop("log_file", None)
     make_dataset(**kwargs)
-
 
 if __name__ == "__main__":
     main()

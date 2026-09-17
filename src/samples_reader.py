@@ -8,7 +8,6 @@ from ROOT import TFile
 from yaml import safe_load
 from tqdm import tqdm
 
-
 #######################################################
 #######################################################
 # Helper methods
