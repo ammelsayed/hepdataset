@@ -95,7 +95,7 @@ def make_dataset(
                     output_file_name=sample_fileName,
                     overwrite=True,
                     show_progress=show_progress,
-                    branches_config_path = branches_config_path
+                    branches_config_path = branches_config_file
                 )
 
                 all_objSel.append(result["ObjectSelector"])
@@ -134,6 +134,23 @@ def make_dataset(
             print(f"Finished working on {proc_name}.\n")
 
 
+def run_in_background(log_file):
+    import subprocess
+    log_path = Path(log_file).resolve()
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    # The -u flag means "unbuffered", so every print shows up in the log the moment it happens.
+    argv = [sys.executable, "-u", os.path.abspath(__file__)] + [a for a in sys.argv[1:] if a not in ("-b", "--background")]
+    with open(log_path, "ab") as log:
+        proc = subprocess.Popen(
+            argv,
+            stdin=subprocess.DEVNULL,
+            stdout=log,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,  
+            close_fds=True, 
+        )
+    print(f"Started PID {proc.pid}; logs -> {log_path}")
+
 
 def main():
     import argparse
@@ -147,8 +164,24 @@ def main():
     p.add_argument("--max-workers", type=int, default=None)
     p.add_argument("--n-chunks", type=int, default=None)
     p.add_argument("--show-progress", action="store_true")
+    p.add_argument("-b", "--background", action="store_true",  help="Run in background")
+    p.add_argument("--log-file", default="hepdataset.log", help="Log file used in background mode (default: hepdataset.log).")
     args = p.parse_args()
-    make_dataset(**vars(args))
+
+    if args.background:
+        # Parent: spawn the detached worker and exit immediately.
+        run_in_background(args.log_file)
+        return
+
+    # Foreground, OR the detached child (whose argv no longer has -b).
+    print(f"=== Started at {datetime.now().isoformat(timespec='seconds')} ===", flush=True)
+    print(f"Args: {vars(args)}", flush=True)
+
+    kwargs = vars(args).copy()
+    kwargs.pop("background", None)
+    kwargs.pop("log_file", None)
+    make_dataset(**kwargs)
+
 
 if __name__ == "__main__":
     main()

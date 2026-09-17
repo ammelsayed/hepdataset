@@ -147,7 +147,13 @@ def merge_trees(results, treeName):
         merged.SetTitle(ac_key)
         merged.SetDirectory(0)   # keep detached; read() will cd() + Write()
         merged_trees[ac_key] = merged
+        del tl
     
+    # Delete the input worker trees
+    for trees in results:
+        for tree in trees.values():
+            tree.Delete()
+
     print(f"Merged {len(results)} splits x {len(merged_trees)} AC(s) [{format_time(time.perf_counter() - start)}]")
     return merged_trees
 
@@ -311,6 +317,9 @@ def run_in_parallel(
     else:
         # merge_method == 2: workers wrote chunk files, merge them with hadd.
         root_paths = hadd_splits([r["root_paths"] for r in results], treeName, output_dir, output_file_name, max_workers=max_workers)
+        for r in results:
+            for tree in r.get("trees", {}).values():
+                tree.Delete()
         trees = {}
 
     # Write the merged ObjectSelection / EventSelection summaries (once, from the parent).
