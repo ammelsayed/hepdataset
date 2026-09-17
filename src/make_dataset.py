@@ -196,6 +196,10 @@ def main():
     print(f"=== Started at {started.isoformat(timespec='seconds')} ===", flush=True)
     print(f"Args: {vars(args)}", flush=True)
 
+    kwargs = vars(args).copy()
+    kwargs.pop("background", None)
+    kwargs.pop("log_file", None)
+
     try:
         make_dataset(**kwargs)
     except BaseException:
