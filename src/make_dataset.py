@@ -1,12 +1,6 @@
-#!/usr/bin/env python3
-"""Process every ROOT file in a samples YAML card and merge per process."""
-
-import argparse
-import importlib
-import shutil
 import sys
+import importlib
 from pathlib import Path
-
 
 def resolve_category_name(category):
     cat = str(category).lower()
@@ -18,34 +12,6 @@ def _load_loop(name):
     if str(loops_dir) not in sys.path:
         sys.path.insert(0, str(loops_dir))
     return importlib.import_module(Path(name).stem).loop_tree
-
-
-def _append_tree(output_path, tree_name, sample_paths):
-    """Merge sample_paths into one TTree named tree_name inside output_path."""
-    import ROOT
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    target = ROOT.TFile.Open(str(output_path), "UPDATE")
-    open_files = []
-    tlist = ROOT.TList()
-    for p in sample_paths:
-        f = ROOT.TFile.Open(str(p))
-        if not f or f.IsZombie():
-            continue
-        open_files.append(f)
-        for k in f.GetListOfKeys():
-            obj = f.Get(k.GetName())
-            if obj and obj.InheritsFrom("ROOT.TTree"):
-                tlist.Add(obj)
-                break
-    if tlist.GetEntries() > 0:
-        merged = ROOT.TTree.MergeTrees(tlist)
-        merged.SetName(tree_name)
-        target.cd()
-        merged.Write()
-    for f in open_files:
-        f.Close()
-    target.Close()
-
 
 def make_dataset(
     samples, 
@@ -60,7 +26,6 @@ def make_dataset(
 
     # Import the required libraries
     import os
-    import sys
     loops_dir = str(Path(__file__).resolve().parent / "loops")
     if loops_dir not in sys.path:
         sys.path.insert(0, loops_dir)
@@ -161,6 +126,7 @@ def make_dataset(
 
 
 def main():
+    import argparse
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("samples", help="Samples YAML file.")
     p.add_argument("output_dir", help="Output directory.")
@@ -172,7 +138,6 @@ def main():
     p.add_argument("--show-progress", action="store_true")
     args = p.parse_args()
     make_dataset(**vars(args))
-
 
 if __name__ == "__main__":
     main()
