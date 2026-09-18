@@ -287,7 +287,7 @@ def run_in_parallel(
         splits_args.append(split_argrs)
 
     # Run process pool executor
-    results = parallel_runs(loop_tree_method, splits_args, max_workers=max_workers, info="", mpContext="fork")
+    results = parallel_runs(loop_tree_method, splits_args, max_workers=max_workers, info="", mpContext=("fork" if os.name != "nt" else "spawn"))
     for r in results:
         if isinstance(r, Exception):
             raise r
