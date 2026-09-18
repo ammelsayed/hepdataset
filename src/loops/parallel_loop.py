@@ -147,7 +147,6 @@ def merge_trees(results, treeName):
         merged.SetTitle(ac_key)
         merged.SetDirectory(0)   # keep detached; read() will cd() + Write()
         merged_trees[ac_key] = merged
-        del tl
     
     # Delete the input worker trees
     for trees in results:
