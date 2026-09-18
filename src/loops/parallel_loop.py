@@ -185,7 +185,7 @@ def hadd_splits(results, treeName, output_dir, output_file_name="events.root", m
                 ac_files[ac_key].append(path)
 
     merged = {}
-    for ac_key, files in ac_files.items():
+    for ac_key, files in tqdm(ac_files.items()):
         if not files:
             continue
 
