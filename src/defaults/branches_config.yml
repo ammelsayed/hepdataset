@@ -1,0 +1,76 @@
+
+##########################################################################################################
+## 
+## After editing this card, please run the follwoing command to verify your settings:
+## 
+##  python3 src/branches_reader.py branch_config.yml --inspect
+##
+## Reading large amounts of branches can slow down the computations and most of them could be empty
+## depending on your analysis channels definitions. Hence, if used for analysis purposes, please 
+## consider chosing only the branches that you will need in order to avoid wasting of computational
+## reasources.
+##
+#########################################################################################################
+
+
+#================================#
+#================================#
+objects:
+#================================#
+#================================#
+
+  Lepton:
+    count: 4
+    representations: ["Lepton"]               # add "Muon","Electron" when flavor matters
+    kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "IsolationVar", "IsolationVarRhoCorr", "Theta", "D0", "DZ", "ErrorD0", "ErrorDZ"]
+  FatJet:
+    count: 2
+    representations: ["FatJet", "SoftDroppedFatJet"]
+    kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "Theta", "D0", "DZ", "ErrorD0", "ErrorDZ", "Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]
+  Jet:
+    count: 4
+    representations: ["Jet"]                  # add "BJet","TauJet" when tagging matters
+    kinematics: ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy", "Theta", "D0", "DZ", "ErrorD0", "ErrorDZ"]
+  MET:
+    count: 1
+    representations: ["MET"]
+    kinematics: ["MET", Px, Py, Pz, Eta, Phi]
+
+
+#================================#
+#================================#
+event-variables:
+#================================#
+#================================#
+
+  global_scalars: ["ScalarSumPT_Jets", "ScalarSumPT_FatJets", "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic", "HT", "LT", "ST", "Meff", "Significance_MET"]
+
+  event_shapes: ["Sphericity", "Aplanarity", "Circularity", "Centrality"]
+
+
+#================================#
+#================================#
+multi-objects:
+#================================#
+#================================#
+
+  # Maximum number of objects to be considered
+  Nmax: 3
+
+  # Objects that will enter the N-body combinations (None these objects have to be included in the objects defintion)
+  combo_set: ["Lepton", "FatJet", "MET"]
+
+  # Do you want to include same representations of one object? i.e. Electron0_Muon1 etc .. ?
+  include_same_represenations: True
+
+  # kinematics that will be calculated for an N-body objects 
+  basic_kinematics  : ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy"] 
+
+  # kinematics that will be calculated for 2-body objects only
+  # the mt2 are calculated for any 2 bodies from the combo_set along with the Px and Py components of MET.
+  2body_kinematics  : ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+  include_mt2: True 
+  
+  # trival kinematics are kinematics that you chose to include or not by the boolean flag below
+  include_trival_kinematics: False
+  trival_kinematics : ["Sphericity", "Aplanarity", "Circularity", "Centrality", "ScalarSumPT", "VectorSumPT"]

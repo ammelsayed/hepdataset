@@ -1,217 +1,222 @@
 #!/usr/bin/env python3
-"""Run a Delphes loop for every sample file and optionally merge the outputs."""
+"""Process every ROOT file in a samples YAML card and merge per process."""
 
-import argparse
-import importlib
-import inspect
 import os
-import shutil
 import sys
-import tempfile
+import importlib
+try:
+    from importlib.resources import files as resource_files
+except ImportError:  # pragma: no cover - only used on Python 3.8
+    from importlib_resources import files as resource_files
 from pathlib import Path
 
+def resolve_category_name(category):
+    cat = str(category).lower()
+    return "bkg" if cat == "background" else "sig" if cat == "signal" else "Unknown"
 
-def _load_loop(loop_file):
-    module_name = Path(loop_file).stem
-    if not module_name.isidentifier():
-        raise ValueError(f"Invalid loop module name: {loop_file}")
-
-    loops_dir = Path(__file__).resolve().parent / "loops"
-    if str(loops_dir) not in os.sys.path:
-        os.sys.path.insert(0, str(loops_dir))
-
-    module = importlib.import_module(module_name)
-    if not hasattr(module, "loop_tree"):
-        raise ValueError(f"Loop module {module_name!r} has no loop_tree method")
-    return module
-
-
-def _sample_name(category, process_name, index):
-    category = str(category).lower()
-    category = "background" if category.startswith("bkg") else category
-    category = "signal" if category.startswith("sig") else category
-    return f"{category}_{process_name}_sample{index}"
-
-
-def _sample_output_paths(result, tree_name, output_dir):
-    """Rename parallel events.root outputs to the sample tree name."""
-    if not isinstance(result, dict):
-        result = {None: result}
-
-    paths = {}
-    for key, source in result.items():
-        source = Path(source)
-        if key is None:
-            target = output_dir / f"{tree_name}.root"
-        else:
-            channel, region = key.split("_", 1)
-            target = output_dir / channel / region / f"{tree_name}.root"
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.move(source, target)
-        paths[key] = target
-    return paths
-
+def _load_loop(name):
+    """Import a hepdataset.loops module and return its loop_tree."""
+    module = importlib.import_module(f".loops.{Path(name).stem}", package=__package__)
+    return module.loop_tree
 
 def make_dataset(
-    samples,
-    branches_config,
-    output_dir,
-    luminosity=400.0,
-    loop_file="adaptive_delphes",
-    merge=False,
-    max_workers=None,
-    n_chunks=None,
-    show_progress=False,
-    debug_loop=False,
-):
-    """Process every input ROOT file and optionally create merged events.root files.
+    samples_file,
+    branches_config_file = None, 
+    output_dir = "HEPDataset", 
+    loop_method = "adaptive_delphes",
+    working_luminosity = 400.0,
+    run_parallel = True, 
+    merge_proc_samples = False,
+    max_workers = None, 
+    n_chunks = None,
+    show_progress=False, 
+    ):
 
-    Each input file is written separately as ``tree_name.root``. For channelized
-    loops the path is ``output_dir/channel/region/tree_name.root``. With
-    ``merge=True``, files in each channel/region directory are merged into
-    ``events.root`` using ``hadd``; the individual sample files remain intact.
-    """
-    # The loop modules use local imports such as ``from delphes import ...``.
-    loops_dir = Path(__file__).resolve().parent / "loops"
-    if str(loops_dir) not in sys.path:
-        sys.path.insert(0, str(loops_dir))
+    # Import the required libraries
+    from .samples_reader          import SamplesReader
+    from .core.delphes_utilis     import load_delphes
+    from .loops.parallel_loop     import run_in_parallel, hadd_files
+    from .core.object_selection   import ObjectSelector
+    from .core.event_selection    import EventSelector
 
-    try:
-        from .loops.delphes import count_entries, load_delphes
-        from .samples_reader import SamplesReader
-        from .loops.parallelization.parallel_loop import run_in_parallel
-        from .loops.parallelization.delphes import hadd_files
-    except ImportError:
-        from loops.delphes import count_entries, load_delphes
-        from samples_reader import SamplesReader
-        from loops.parallelization.parallel_loop import run_in_parallel
-        from loops.parallelization.delphes import hadd_files
+    # Read samples
+    print("Reading the samples file ...")
+    Data = SamplesReader(str(samples_file)).read()
 
-    samples = Path(samples).resolve()
-    branches_config = Path(branches_config).resolve()
-    output_dir = Path(output_dir).resolve()
-    if not samples.is_file():
-        raise FileNotFoundError(samples)
-    if not branches_config.is_file():
-        raise FileNotFoundError(branches_config)
+    # Read the branches configuration file.
+    if branches_config_file is None:
+        branches_config_file = str(
+            resource_files("hepdataset").joinpath("defaults/branches_config.yml")
+        )
+        print(f"Using packaged default branches configuration file at: {branches_config_file}")
+    else:
+        print("Checking the given branches configuration file ...")
 
-    loop_module = _load_loop(loop_file)
-    loop_parameters = {"branches_config_path": str(branches_config)}
-    accepted = inspect.signature(loop_module.loop_tree).parameters
-    loop_parameters = {
-        key: value for key, value in loop_parameters.items() if key in accepted
-    }
-    sample_data = SamplesReader(str(samples)).read()
+    loop_tree = _load_loop(loop_method)
     load_delphes()
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = Path(output_dir).resolve()
 
-    merge_inputs = {}
-    temporary_root = Path(tempfile.mkdtemp(prefix="make_dataset_", dir=output_dir))
-    try:
-        for category, processes in sample_data.items():
-            for process_name, metadata in processes.items():
-                input_files = metadata.get("files", [])
-                if not input_files:
-                    continue
+    for category, processes in Data.items():
+        prefix = resolve_category_name(category)
 
-                total_events = sum(count_entries(path) for path in input_files)
-                if total_events == 0:
-                    continue
-                event_weight = (
-                    float(metadata.get("cross_section", 1.0))
-                    * 1000.0
-                    * luminosity
-                    / total_events
+        for proc_name, proc_meta in processes.items():
+            proc_RootFiles      = proc_meta["files"]
+            proc_NbRootFiles    = len(proc_RootFiles)
+            proc_totalNbEvents  = proc_meta["nb_events"]
+            proc_CrossSection   = proc_meta["cross_section"] * 1000
+
+            if not proc_RootFiles or not proc_totalNbEvents:
+                continue
+
+            proc_eventWeight = proc_CrossSection * working_luminosity / proc_totalNbEvents
+            proc_treeName    = f"{prefix}_{proc_name}"
+
+            print("-" * 80)
+            print(f"Processing : {proc_name} ({prefix})")
+            print(f" Cross section                  : {proc_CrossSection} fb")
+            print(f" Total number of .root files:   : {proc_NbRootFiles}")
+            print(f" Total number of events         : {proc_totalNbEvents}")
+            print(f" Average weight per event       : {proc_eventWeight} (at {working_luminosity} fb^-1)")
+            print("-" * 80)
+
+            proc_paths = {}
+            all_objSel, all_evtSel = [], []
+            for i, sampleRootFile in enumerate(proc_RootFiles):
+                if i > 0: print("-"*80)
+                print(f"Sample {i+1}/{proc_NbRootFiles}")   
+                print("-"*80)
+
+                sample_treeName = f"{proc_treeName}_sample{i}"
+                sample_fileName = f"{proc_treeName}_sample{i}.root"
+
+                result = run_in_parallel(
+                    loop_tree,
+                    max_workers=max_workers,
+                    n_chunks=n_chunks,
+                    merge_method=1,
+                    inputRootFile=str(sampleRootFile),
+                    treeName=proc_treeName,               # <-- same tree name for every sample
+                    eventWeight=proc_eventWeight,
+                    output_dir=str(output_dir),
+                    output_file_name=sample_fileName,
+                    overwrite=True,
+                    show_progress=show_progress,
+                    branches_config_path = branches_config_file
                 )
 
-                for index, input_file in enumerate(input_files):
-                    tree_name = _sample_name(category, process_name, index)
-                    sample_temp = temporary_root / tree_name
-                    result = run_in_parallel(
-                        loop_module.loop_tree,
-                        max_workers=max_workers,
-                        n_chunk=n_chunks,
-                        merge_method=1,
-                        inputRootFile=input_file,
-                        treeName=tree_name,
-                        eventWeight=event_weight,
-                        output_dir=str(sample_temp),
-                        show_progress=show_progress,
-                        debug_loop=debug_loop,
-                        **loop_parameters,
-                    )
-                    sample_paths = _sample_output_paths(
-                        result, tree_name, output_dir
-                    )
-                    if merge:
-                        for key, sample_path in sample_paths.items():
-                            if key is None:
-                                merge_path = output_dir / "events.root"
-                            else:
-                                channel, region = key.split("_", 1)
-                                merge_path = output_dir / channel / region / "events.root"
-                            merge_inputs.setdefault(merge_path, []).append(sample_path)
+                all_objSel.append(result["ObjectSelector"])
+                all_evtSel.append(result["EventSelector"])
 
-        if merge:
-            for target_path, source_paths in merge_inputs.items():
-                target_path.parent.mkdir(parents=True, exist_ok=True)
-                if not hadd_files(str(target_path), [str(path) for path in source_paths]):
-                    raise RuntimeError(f"hadd failed for {target_path}")
-                for source_path in source_paths:
-                    Path(source_path).unlink()
-    finally:
-        shutil.rmtree(temporary_root, ignore_errors=True)
+                for key, path in result["root_paths"].items():
+                    proc_paths.setdefault(key, []).append(path)
+
+            # Merge per-sample files with hadd 
+            if merge_proc_samples:
+                for key, paths in proc_paths.items():
+                    if key is None:
+                        ac, ac_r = "", ""
+                    else:
+                        ac, _, ac_r = key.rpartition("_")
+                    target = output_dir / ac / ac_r / f"{proc_treeName}.root"
+                    target.parent.mkdir(parents=True, exist_ok=True)
+
+                    if hadd_files(str(target), paths, max_workers=max_workers):
+                        for p in paths:
+                            try:
+                                os.remove(p)
+                            except OSError:
+                                pass
+
+            # Merge the selectors across samples and print 
+            if all_objSel and all_evtSel:
+                merged_objSel = ObjectSelector.Merge(all_objSel)
+                merged_evtSel = EventSelector.Merge(all_evtSel)
+                merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)
+                merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=working_luminosity)
+                obj_dir = output_dir / "ObjectSelection" / proc_treeName
+                obj_dir.mkdir(parents=True, exist_ok=True)
+                merged_objSel.DrawObjectSelectionHistograms(output_dir=str(obj_dir))
+            
+            print(f"Finished working on {proc_name}.\n")
 
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(
-        description="Process every ROOT file in a samples YAML card."
-    )
-    parser.add_argument("samples", help="Samples YAML file.")
-    parser.add_argument("branches_config", help="Branches configuration YAML file.")
-    parser.add_argument("output_dir", help="Directory for per-sample ROOT files.")
-    parser.add_argument(
-        "--luminosity", type=float, default=400.0, metavar="FB_INV",
-        help="Integrated luminosity used for event weights (default: 400).",
-    )
-    parser.add_argument(
-        "--loop-file", default="adaptive_delphes", metavar="MODULE",
-        help="Loop module in src/loops (default: adaptive_delphes).",
-    )
-    parser.add_argument(
-        "--merge", action="store_true",
-        help="Create events.root with hadd in every channel/region directory.",
-    )
-    parser.add_argument(
-        "--max-workers", type=int, default=None, metavar="N",
-        help="Maximum number of loop worker processes running simultaneously.",
-    )
-    parser.add_argument(
-        "--n-chunks", type=int, default=None, metavar="N",
-        help="Total number of event-range jobs created for each sample file.",
-    )
-    parser.add_argument(
-        "--show-progress", action="store_true",
-        help="Show progress and loop summaries while processing samples.",
-    )
-    parser.add_argument(
-        "--debug", action="store_true", dest="debug_loop",
-        help="Print debug information from the selected loop.",
-    )
-    args = parser.parse_args(argv)
-    make_dataset(
-        samples=args.samples,
-        branches_config=args.branches_config,
-        output_dir=args.output_dir,
-        luminosity=args.luminosity,
-        loop_file=args.loop_file,
-        merge=args.merge,
-        max_workers=args.max_workers,
-        n_chunks=args.n_chunks,
-        show_progress=args.show_progress,
-        debug_loop=args.debug_loop,
-    )
+def run_in_background(log_file):
+    import subprocess
+    log_path = Path(log_file).resolve()
+    log_path.parent.mkdir(parents=True, exist_ok=True)
 
+    filtered = [a for a in sys.argv[1:] if a not in ("-b", "--background")]
+    # The -u flag means "unbuffered", so every print shows up in the log the moment it happens.
+    if __package__:
+        # We were imported as part of a package (the normal `hepdataset` CLI path),
+        # so re-launch as a module: `python -u -m hepdataset.make_dataset ...`
+        # This preserves __package__ in the child, so relative imports keep working.
+        module_name = f"{__package__}.{Path(__file__).stem}"
+        argv = [sys.executable, "-u", "-m", module_name] + filtered
+    else:
+        # Fallback: we were genuinely run as a bare script (e.g. `python make_dataset.py`),
+        # so re-exec the file as-is.
+        argv = [sys.executable, "-u", os.path.abspath(__file__)] + filtered
+
+    with open(log_path, "w") as log:
+        proc = subprocess.Popen(
+            argv,
+            stdin=subprocess.DEVNULL,
+            stdout=log,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,  
+            close_fds=True, 
+        )
+    print(f"Started PID {proc.pid}; logs -> {log_path}")
+    print(f"If you wish to kill this process, use: kill -TERM -- -{proc.pid}")
+
+
+def main():
+    import argparse
+    from datetime import datetime
+    from pprint import pprint
+
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("samples_file", help="Samples YAML file.")
+    p.add_argument("--branches-config-file", default=None)
+    p.add_argument("--output-dir", default = "HEPDataset", help="Output directory.")
+    p.add_argument("--working-luminosity", type=float, default=400.0)
+    p.add_argument("--loop-method", default="adaptive_delphes")
+    p.add_argument("--merge-proc-samples", action="store_true")
+    p.add_argument("--max-workers", type=int, default=None)
+    p.add_argument("--n-chunks", type=int, default=None)
+    p.add_argument("--show-progress", action="store_true")
+    p.add_argument("-b", "--background", action="store_true",  help="Run in background")
+    p.add_argument("--log-file", default="hepdataset.log", help="Log file used in background mode (default: hepdataset.log).")
+    args = p.parse_args()
+
+    if args.background:
+        # Parent: spawn the detached child and exit. Nothing else is printed here —
+        # the header belongs to the child, whose stdout is the log file.
+        run_in_background(args.log_file)
+        return
+
+    # Foreground run OR the detached child (whose argv no longer contains -b).
+    # Only this branch's stdout is the log file (in background mode) or the terminal.
+    started = datetime.now()
+    print(f"=== Started at {started.isoformat(timespec='seconds')} ===", flush=True)
+    print(f"Args: {vars(args)}", flush=True)
+
+    kwargs = vars(args).copy()
+    kwargs.pop("background", None)
+    kwargs.pop("log_file", None)
+
+    try:
+        make_dataset(**kwargs)
+    except BaseException:
+        finished = datetime.now()
+        print(f"=== CRASHED at {finished.isoformat(timespec='seconds')} "
+              f"(after {finished - started}) ===", flush=True)
+        raise
+    else:
+        finished = datetime.now()
+        print(f"=== Finished at {finished.isoformat(timespec='seconds')} "
+              f"(total {finished - started}) ===", flush=True)
 
 if __name__ == "__main__":
     main()

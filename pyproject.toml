@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hepdataset"
-version = "4.0.0"
+version = "5.0.0"
 description = "Software for making ML-ready datasets from Delphes ROOT files for HEP studies"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -47,6 +47,7 @@ dependencies = [
     "numba",
     "mt2",
     "uproot",
+    "importlib-resources; python_version < '3.9'",
 ]
 
 [project.urls]
@@ -67,20 +68,25 @@ dev = [
 ]
 
 [project.scripts]
-hepdataset = "hepdataset.make_dataset:main"
-hepdataset-make = "hepdataset.make_dataset:main"
+hepdataset = "hepdataset.cli:main"
 
 [tool.setuptools]
 packages = [
     "hepdataset",
+    "hepdataset.core",
     "hepdataset.loops",
-    "hepdataset.parallelization",
     "hepdataset.utils",
 ]
-package-dir = {"hepdataset" = "src", "hepdataset.loops" = "src/loops", "hepdataset.parallelization" = "src/parallelization", "hepdataset.utils" = "src/utils"}
+
+[tool.setuptools.package-dir]
+hepdataset = "src"
+"hepdataset.core" = "src/core"
+"hepdataset.loops" = "src/loops"
+"hepdataset.utils" = "src/utils"
+
 [tool.setuptools.package-data]
 hepdataset = [
-    "cpp_loop/**/*",
+    "defaults/*.yml",
 ]
 
 [tool.setuptools.exclude-package-data]

@@ -1,41 +1,49 @@
 #!/usr/bin/env python3
-
-"""
-Supports reading of one Delphes root file at a time, and writing a flat tree with selected events to a new root file.
-Requires an event to contain exactly one lepton and at least one fatjet to be selected.
-More branches are supported compared to basic1_delphes.py, including pairwise kinematic variables and global event variables.
-"""
-
 import os
 import ROOT
-import math
-import argparse
 import numpy as np
 from tqdm import tqdm
-from delphes import load_delphes, build_chain
-from kinematics import DeltaR, DeltaPhi, DeltaEta
-from object_selection import select_objects
 from itertools import combinations
-from parallelization.parallel_loop import add_parallel_arguments, run_in_parallel
+from ..core.delphes_utilis   import build_chain
+from ..core.object_selection import ObjectSelector
+from ..core.event_selection  import EventSelector
+from .loop_utilis            import check_loop_args
 
-def loop_tree(
-    inputRootFile,
-    treeName = "Delphes",
-    eventWeight = None,
-    cross_section = None,
-    luminosity = None,
-    start_entry = 0,
-    end_entry = None,
-    show_progress = True,
-    debug_loop = False,
-    output_dir = None,
-    output_file_name = "events.root",
-):
+
+def loop_tree(**loop_args):
+    loop_args = apply_loop_defaults(loop_args)
+
+    inputRootFile = loop_args["inputRootFile"]
+    treeName      = loop_args["treeName"]
+    show_progress = loop_args["show_progress"]
+    debug_loop    = loop_args["debug_loop"]
+    output_dir    = loop_args["output_dir"]
+    output_file_name = loop_args["output_file_name"]
 
     # Read the input file
     Chain = build_chain(inputRootFile)
     TreeReader = ROOT.ExRootTreeReader(Chain)
 
+    # basic checks
+    numberOfEntries = TreeReader.GetEntries()
+    start_entry, end_entry = check_start_end_entries(numberOfEntries, loop_args["start_entry"], loop_args["end_entry"])
+    numberOfProcessedEntries = end_entry - start_entry
+    eventWeight = get_event_weight(
+        loop_args["eventWeight"],
+        loop_args["cross_section"],
+        loop_args["luminosity"],
+        numberOfProcessedEntries,
+        numberOfEntries,
+    )
+    output_dir = prepare_output_dir(output_dir, loop_args["overwrite"])
+    if output_dir is not None and not output_file_name.endswith(".root"):
+        raise ValueError("output_file_name must end with .root!")
+    if show_progress:
+        print(f"Reading ROOT file: {inputRootFile}")
+        print(f"Total events in file: {numberOfEntries}")
+        print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
+        print(f"Event weight: {eventWeight}")
+    
     # Branches to read
     Electron_branch  = TreeReader.UseBranch("Electron")
     Muon_branch      = TreeReader.UseBranch("Muon")
@@ -62,19 +70,7 @@ def loop_tree(
         b[name] = np.zeros(1, dtype=np.float64)
         tree.Branch(name, b[name], f"{name}/D")
 
-    # Prepare count dict to count number of events going to each analysis channel:
-    # Also prepare some dictonaries to loging object selection cutflow
-    counts = {k: 0 for k in ac_keys}
-    objSel_cutflow = {
-        "lepton" : {"initial" : 0},
-        "fatjet" : {"initial" : 0}
-    }
-
     # Event loop
-    numberOfEntries = TreeReader.GetEntries()
-    if end_entry is None or end_entry > numberOfEntries:
-        end_entry = numberOfEntries
-
     rng = range(start_entry, end_entry)
     for entry in (tqdm(rng) if show_progress else rng):
         
@@ -156,54 +152,6 @@ def loop_tree(
         return tree
 
 if __name__ == "__main__":
-
-    from pprint import pprint
-    load_delphes()  
-    
-    parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
-    parser.add_argument("input_root_file",  type=str, help="Path to the input Delphes ROOT file.")
-    parser.add_argument("--tree-name", type=str, default="Delphes", metavar="", help="Name of the output TTree (default: Delphes).")
-    parser.add_argument("--event-weight", type=float, default=None, metavar="", help="Weight to apply to each event. If omitted, calculate it from cross section and luminosity.")
-    parser.add_argument("--cross-section", type=float, default=None, metavar="", help="Cross section for the process in fb. Used with --luminosity when --event-weight is omitted.")
-    parser.add_argument("--luminosity", type=float, default=None, metavar="", help="Target integrated luminosity in fb^-1. Used with --cross_section when --event-weight is omitted.")
-    parser.add_argument("--start-entry", type=int, default=0, metavar="", help="Entry to start processing from (default: 0).")
-    parser.add_argument("--end-entry", type=int, default=None, metavar="", help="Entry to stop processing at (default: None, meaning process all entries).")
-    parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
-    parser.add_argument("--output-file-name", default="events.root", metavar="", help="Name of the output ROOT file.")
-    parser.add_argument("--debug", action="store_true", help="Show debug information during processing.")
-    parser.add_argument("--output-dir", type=str, default=".", metavar="", help="Directory where the output ROOT file will be written (default: current directory).")
-    add_parallel_arguments(parser)
-
-    args = parser.parse_args()
-
-    # Ensure output directory exists
-    os.makedirs(args.output_dir, exist_ok=True)
-
-    loop_kwargs = {
-        "inputRootFile" : args.input_root_file,
-        "treeName" : args.tree_name,
-        "eventWeight" : args.event_weight,
-        "cross_section" : args.cross_section,
-        "luminosity" : args.luminosity,
-        "start_entry" : args.start_entry,
-        "end_entry" : args.end_entry,
-        "show_progress" : args.show_progress,
-        "debug_loop" : args.debug,
-        "output_dir" : args.output_dir,
-        "output_file_name" : args.output_file_name,
-    }
-
-    if args.parallel:
-        out_path = run_in_parallel(
-            loop_tree_method=loop_tree,
-            max_workers=args.max_workers,
-            n_chunk=args.n_chunks,
-            merge_method=args.merge_method,
-            temp_dir=args.temp_dir,
-            **loop_kwargs
-        )
-    else:
-        out_path = loop_tree(**loop_kwargs)
-
-    print(f"\nOutput written to:")
-    pprint(out_path)
+    from loop_utilis import run_loop_cli
+    load_delphes()
+    run_loop_cli(loop_tree)

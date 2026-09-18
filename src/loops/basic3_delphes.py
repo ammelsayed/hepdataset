@@ -1,46 +1,33 @@
 #!/usr/bin/env python3
-
-"""
-Supports reading of one Delphes root file at a time.
-Events are selected based on the number of leptons and fatjets, and written to separate flat trees for each analysis channel.
-Each tree is then written into a different root file.
-More branches are supported compared to basic1_delphes.py, including pairwise kinematic variables and global event variables.
-"""
-
 import os
 import ROOT
-import math
-import argparse
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
-from delphes import load_delphes, build_chain
-from kinematics import DeltaR, DeltaPhi, DeltaEta
-from object_selection import select_objects
-from object_selection import PrintObjectSelectionSummary
-from object_selection import BookObjectSelectionHistograms, DrawObjectSelectionHistograms
-from analysis_channels import get_analysis_channel_keys, classify_analysis_channel
 from itertools import combinations
-from tabulate import tabulate
+from ..core.delphes_utilis   import build_chain
+from ..core.object_selection import ObjectSelector
+from ..core.event_selection  import EventSelector
+from .loop_utilis            import check_loop_args
 
-def loop_tree(
-    inputRootFile,
-    treeName = "Delphes",
-    eventWeight = None,
-    cross_section = None,
-    luminosity = None,
-    start_entry = 0,
-    end_entry = None,
-    show_progress = True,
-    debug_loop = False,
-    output_dir = None,
-    output_file_name = "events.root",
-):
+def loop_tree(**loop_args):
+    inputRootFile = loop_args["inputRootFile"]
+    collect_summary = loop_args.pop("collect_summary", False)
 
     # Read the input file
     Chain = build_chain(inputRootFile)
     TreeReader = ROOT.ExRootTreeReader(Chain)
 
+    # Fill defaults, validate entries, compute weight, prepare output dir, print summary
+    loop_args = check_loop_args(loop_args, TreeReader.GetEntries())
+    start_entry, end_entry = loop_args["start_entry"], loop_args["end_entry"]
+    eventWeight = loop_args["eventWeight"]
+    treeName = loop_args["treeName"]
+    show_progress = loop_args["show_progress"]
+    debug_loop = loop_args["debug_loop"]
+    output_dir = loop_args["output_dir"]
+    output_file_name = loop_args["output_file_name"]
+    luminosity = loop_args["luminosity"]
+    
     # Branches to read
     Electron_branch  = TreeReader.UseBranch("Electron")
     Muon_branch      = TreeReader.UseBranch("Muon")
@@ -59,8 +46,12 @@ def loop_tree(
     branch_names += ["MET", "HT", "LT", "ST", "Meff"]
     branch_names += ["weight", "gen_weight"]
 
-    # get the analysis channels keys and definitions
-    ac_keys, ac_dict = get_analysis_channel_keys(splitByFlavour=False)
+    # Analysis channel bookkeeping
+    eventSel = EventSelector()
+    ac_keys, ac_dict = eventSel.ac_keys, eventSel.ac_dict
+
+    # Initialize object selector
+    objSel = ObjectSelector()
 
     # book the trees and create the branch buffers
     trees, buffers = {}, {}
@@ -77,49 +68,14 @@ def loop_tree(
 
         trees[ac_key] = tree
 
-    # Prepare count dict to count number of events going to each analysis channel:
-    # Also prepare some dictonaries to loging object selection cutflow
-    ac_counts = dict.fromkeys(["initial", *ac_keys, "dropped"], 0)
-
-    objSel_h = BookObjectSelectionHistograms()
-    objSel_cutflow = {
-        "lepton" : {"initial" : 0},
-        "fatjet" : {"initial" : 0}
-    }
-
     # Event loop
-    numberOfEntries = TreeReader.GetEntries()
-    if start_entry < 0 or start_entry > numberOfEntries:
-        raise ValueError(f"start_entry must be between 0 and {numberOfEntries}")
-    if end_entry is None or end_entry > numberOfEntries:
-        end_entry = numberOfEntries
-    if end_entry < start_entry:
-        raise ValueError("end_entry must be greater than or equal to start_entry")
-
-    numberOfProcessedEntries = end_entry - start_entry
-    if eventWeight is None:
-        if (cross_section is None) != (luminosity is None):
-            raise ValueError("cross section and luminosity must be provided together")
-        if cross_section is not None and luminosity is not None:
-            if numberOfEntries == 0:
-                raise ValueError("Cannot calculate an event weight for an empty ROOT file")
-            eventWeight = cross_section * luminosity / numberOfProcessedEntries
-        else:
-            eventWeight = 1.0
-
-    if show_progress:
-        print(f"Reading ROOT file: {inputRootFile}")
-        print(f"Total events in file: {numberOfEntries}")
-        print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
-        print(f"Event weight: {eventWeight}")
-
     rng = range(start_entry, end_entry)
     for entry in (tqdm(rng) if show_progress else rng):
         
         TreeReader.ReadEntry(entry)
 
         # Object selection
-        selected_objects = select_objects(Muon_branch, Electron_branch, FatJet_branch, Jet_branch, objSel_cutflow, objSel_h, event_weight = eventWeight)
+        selected_objects = objSel.Select(Muon_branch, Electron_branch, FatJet_branch, Jet_branch, event_weight = eventWeight)
         goodFatJets = selected_objects["goodFatJets"]
         goodLeptons = selected_objects["goodLeptons"]
         goodJets = selected_objects["goodJets"]
@@ -127,14 +83,11 @@ def loop_tree(
         goodTauJets = selected_objects["goodTauJets"]
 
         # Identify the analysis channel key
-        ac_key = classify_analysis_channel(goodLeptons, goodFatJets, splitByFlavour=False)
+        ac_key = eventSel.Select(goodLeptons, goodFatJets, valid_keys = trees.keys())
 
         # Skip events that don't match any analysis channel
-        ac_counts["initial"] += 1
-        if ac_key is None or ac_key not in trees.keys():
-            ac_counts["dropped"] += 1
-            continue  
-        ac_counts[ac_key] += 1
+        if ac_key is None:
+            continue
 
         # Reset all branches of this tree to NaN
         b = buffers[ac_key]
@@ -192,26 +145,17 @@ def loop_tree(
 
         trees[ac_key].Fill()
 
-    # Print object selection cutflow
+    # Print object selection cutflow & analysis channels yeilds
     if show_progress:
-        PrintObjectSelectionSummary(objSel_cutflow, lum = luminosity, event_weight = eventWeight)
-
-    # Print analysis channels yeilds
-    if show_progress:
-        total_events = ac_counts["initial"]
-        df = pd.DataFrame(ac_counts.items(), columns=[" Analysis Channel/Region", "Events"])
-        if (eventWeight != None) and (luminosity != None): 
-            df[f"Yield ({int(luminosity)} fb^-1)"] = df["Events"] * eventWeight
-            df[f"Cross Section (fb)"] = df[f"Yield ({int(luminosity)} fb^-1)"] / luminosity
-        df["Fraction"] = df["Events"] / total_events
-        df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
-        print(f"\n*** Analysis channels yields for {treeName} ***")
-        print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * 4))
+        objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=eventWeight)
+        eventSel.PrintEventSelectionSummary(treeName, event_weight = eventWeight, lum = luminosity)
         
     # if output_dir is given, then write the trees into root files.
+    root_paths = {}
     if output_dir is not None:
-        os.makedirs(output_dir, exist_ok=True)
-        paths = {}
+        
+        # Write the trees into .root files at:
+        # <output_dir>/<analysis_channel_name>/<analysis_region_name>/<output_root_file_name>.root
         for ac, ac_rgs in ac_dict.items():
             for ac_r in ac_rgs:
                 ac_key = f"{ac}_{ac_r}"
@@ -222,69 +166,42 @@ def loop_tree(
                 trees[ac_key].Write()
                 # trees[ac_key].Delete()
                 f_out.Close()
-                paths[ac_key] = path
+                root_paths[ac_key] = path
         
-        # Draw the object selection histograms
+        # Write object-selection histograms + cutflow into a dedicated root file at:
+        # <output_dir>/ObjectSelection/<treeName>.root
+        out_objsel = os.path.join(output_dir, "ObjectSelection")
+        os.makedirs(out_objsel, exist_ok=True)
+        f_objsel = ROOT.TFile.Open(os.path.join(out_objsel, f"{treeName}.root"), "RECREATE")
+        objSel.WriteObjectSelectionHistograms(f_objsel)
+        objSel.WriteObjectSelectionSummary(f_objsel)
+        f_objsel.Close()
+        # Draw the object selection histograms (PNGs go in the same directory)
         if show_progress:
-            out_path = os.path.join(output_dir, "ObjectSelection", treeName)
-            os.makedirs(out_path, exist_ok=True)
-            DrawObjectSelectionHistograms(objSel_h, output_dir = out_path)
-        
-        return paths
+            objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
 
-    else:
-        return trees
+        # Write event-selection cutflow into a dedicated root file at:
+        # <output_dir>/EventSelection/<treeName>.root
+        out_evtsel = os.path.join(output_dir, "EventSelection")
+        os.makedirs(out_evtsel, exist_ok=True)
+        f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, f"{treeName}.root"), "RECREATE")
+        eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
+        f_evtsel.Close()
+        
+    return {
+        "trees" : trees,
+        "root_paths" : root_paths,
+        "ObjectSelector": objSel,
+        "EventSelector": eventSel
+    }
+
+
+def main():
+    from ..core.delphes_utilis import load_delphes
+    from .loop_utilis          import run_loop_cli
+    load_delphes()
+    return run_loop_cli(loop_tree)
 
 if __name__ == "__main__":
 
-    from pprint import pprint
-    from parallelization.parallel_loop import add_parallel_arguments, run_in_parallel
-    load_delphes()  
-    
-    parser = argparse.ArgumentParser(description="Process a Delphes ROOT file and write a flat tree with selected events.")
-    parser.add_argument("input_root_file",  type=str, help="Path to the input Delphes ROOT file.")
-    parser.add_argument("--tree-name", type=str, default="Delphes", metavar="", help="Name of the output TTree (default: Delphes).")
-    parser.add_argument("--event-weight", type=float, default=None, metavar="", help="Weight to apply to each event. If omitted, calculate it from cross section and luminosity.")
-    parser.add_argument("--cross-section", type=float, default=None, metavar="", help="Cross section for the process in fb. Used with --luminosity when --event-weight is omitted.")
-    parser.add_argument("--luminosity", type=float, default=None, metavar="", help="Target integrated luminosity in fb^-1. Used with --cross_section when --event-weight is omitted.")
-    parser.add_argument("--start-entry", type=int, default=0, metavar="", help="Entry to start processing from (default: 0).")
-    parser.add_argument("--end-entry", type=int, default=None, metavar="", help="Entry to stop processing at (default: None, meaning process all entries).")
-    parser.add_argument("--show-progress", action="store_true", help="Show a progress bar during processing.")
-    parser.add_argument("--output-file-name", default="events.root", metavar="", help="Name of the output ROOT file.")
-    parser.add_argument("--debug", action="store_true", help="Show debug information during processing.")
-    parser.add_argument("--output-dir", type=str, default=".", metavar="", help="Directory where the output ROOT file will be written (default: current directory).")
-    add_parallel_arguments(parser)
-
-    args = parser.parse_args()
-
-    # Ensure output directory exists
-    os.makedirs(args.output_dir, exist_ok=True)
-
-    loop_kwargs = {
-        "inputRootFile" : args.input_root_file,
-        "treeName" : args.tree_name,
-        "eventWeight" : args.event_weight,
-        "cross_section" : args.cross_section,
-        "luminosity" : args.luminosity,
-        "start_entry" : args.start_entry,
-        "end_entry" : args.end_entry,
-        "show_progress" : args.show_progress,
-        "debug_loop" : args.debug,
-        "output_dir" : args.output_dir,
-        "output_file_name" : args.output_file_name,
-    }
-
-    if args.parallel:
-        out_path = run_in_parallel(
-            loop_tree_method=loop_tree,
-            max_workers=args.max_workers,
-            n_chunk=args.n_chunks,
-            merge_method=args.merge_method,
-            temp_dir=args.temp_dir,
-            **loop_kwargs
-        )
-    else:
-        out_path = loop_tree(**loop_kwargs)
-
-    print(f"\nOutput written to:")
-    pprint(out_path)
+    main()
