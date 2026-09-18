@@ -5,7 +5,7 @@ import time
 import subprocess
 from multiprocessing import get_context
 from concurrent.futures import ProcessPoolExecutor, FIRST_COMPLETED, wait
-
+from tqdm import tqdm
 from ..core.delphes_utilis   import build_chain, count_entries
 from ..core.object_selection import ObjectSelector
 from ..core.event_selection  import EventSelector
@@ -138,7 +138,7 @@ def merge_trees(results, treeName):
 
     ac_keys = list(results[0].keys())  # learn structure from first worker
     merged_trees = {}
-    for ac_key in ac_keys:
+    for ac_key in tqdm(ac_keys):
         tl = ROOT.TList()
         for trees in results:
             tl.Add(trees[ac_key])
