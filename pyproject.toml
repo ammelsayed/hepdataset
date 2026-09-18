@@ -76,12 +76,6 @@ packages = [
     "hepdataset.core",
     "hepdataset.loops",
     "hepdataset.utils",
-[tool.setuptools]
-packages = [
-    "hepdataset",
-    "hepdataset.core",
-    "hepdataset.loops",
-    "hepdataset.utils",
 ]
 
 [tool.setuptools.package-dir]
