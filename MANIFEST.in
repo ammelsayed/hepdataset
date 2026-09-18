@@ -2,9 +2,7 @@ include README.md
 include LICENSE
 include pyproject.toml
 
-recursive-include hepdataset *.py
-recursive-include hepdataset/cpp_loop *.h *.cc *.cpp *.hh *.c *.txt *.cmake CMakeLists.txt
-prune hepdataset/cpp_loop/external/fastjet
+recursive-include src *.py *.yml
 
 global-exclude *.pyc
 global-exclude *.so

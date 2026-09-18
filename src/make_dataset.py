@@ -4,6 +4,10 @@
 import os
 import sys
 import importlib
+try:
+    from importlib.resources import files as resource_files
+except ImportError:  # pragma: no cover - only used on Python 3.8
+    from importlib_resources import files as resource_files
 from pathlib import Path
 
 def resolve_category_name(category):
@@ -41,8 +45,10 @@ def make_dataset(
 
     # Read the branches configuration file.
     if branches_config_file is None:
-        branches_config_file = "./default_branches_config.yml"
-        print(f"Using default branches configuration file at: {branches_config_file}")
+        branches_config_file = str(
+            resource_files("hepdataset").joinpath("defaults/branches_config.yml")
+        )
+        print(f"Using packaged default branches configuration file at: {branches_config_file}")
     else:
         print("Checking the given branches configuration file ...")
 
@@ -172,7 +178,7 @@ def main():
 
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("samples_file", help="Samples YAML file.")
-    p.add_argument("--branches-config-file", default="defaults/branches_config.yml")
+    p.add_argument("--branches-config-file", default=None)
     p.add_argument("--output-dir", default = "HEPDataset", help="Output directory.")
     p.add_argument("--working-luminosity", type=float, default=400.0)
     p.add_argument("--loop-method", default="adaptive_delphes")
