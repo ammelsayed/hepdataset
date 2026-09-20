@@ -1,9 +1,9 @@
-src/__pycache__/
-src/loops/__pycache__/
-src/core/__pycache__/
-src/utils/__pycache__/
-src/cpp/__pycache__/
+__pycache__/
+*.py[cod]
 hepdataset.egg-info/
 build/
+.pytest_cache/
+dist/
+
 HEPDataset/
 hepdataset.log
