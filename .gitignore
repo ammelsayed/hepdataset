@@ -5,4 +5,5 @@ src/utils/__pycache__/
 src/cpp/__pycache__/
 hepdataset.egg-info/
 build/
-
+HEPDataset/
+hepdataset.log

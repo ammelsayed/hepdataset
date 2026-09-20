@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 """
-make_dataset.py
-
 Build ML-ready tabular datasets from Delphes ROOT files.
-
 Author : A.M.M. Elsayed (University of Science and Technology of China)
 Email  : ammelsayed@mail.ustc.edu.cn / ahmedphysica@outlook.com
 """
 
 import os
 import ROOT
+import time
+import argparse
+import subprocess
 import numpy as np
 from tqdm import tqdm
 from mt2 import mt2
+from datetime import datetime
+from samples_reader   import SamplesReader
 from object_selection import ObjectSelector
 from event_selection  import EventSelector
 from branches_reader  import BranchesHandler
 from kinematics       import EventShapes, Centrality, MtW
+from parallelization  import parallel_runs, format_time
 DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_5_15/Delphes")
 ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
 ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
@@ -27,6 +30,7 @@ ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
 ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.SetStyle("ATLAS")
+ROOT.DisableImplicitMT() 
 print("Using ROOT version:", ROOT.__version__)
 print("Using Delphes libraries found at:", DELPHES_PATH)
 
@@ -44,16 +48,6 @@ def build_chain(inputRootFile):
 def count_entries(inputRootFile):
     return build_chain(inputRootFile).GetEntries()
 
-def split_range(total, n):
-    n = max(1, min(n, total))
-    base, rem = divmod(total, n)
-    out, start = [], 0
-    for i in range(n):
-        size = base + (1 if i < rem else 0)
-        out.append((start, start + size))
-        start += size
-    return out
-
 def loop_tree(
     inputRootFile , 
     treeName = "Delphes", 
@@ -62,7 +56,8 @@ def loop_tree(
     luminosity = None,
     start_entry = 0, 
     end_entry = None, 
-    show_progress = False, 
+    show_progress = False,
+    debug_loop = False,
     output_dir = "HepDataset", 
     output_file_name = "events.root", 
     overwrite_output_dir = False,
@@ -74,7 +69,8 @@ def loop_tree(
     TreeReader = ROOT.ExRootTreeReader(Chain)
 
     # Check start and end entries
-    if start_entry < 0 or start_entry > numberOfEntries:
+    numberOfEntries = TreeReader.GetEntries()
+    if start_entry < 0 or start_entry >= numberOfEntries:
         raise ValueError(f"start_entry must be between 0 and {numberOfEntries}")
     if end_entry is None or end_entry > numberOfEntries:
         end_entry = numberOfEntries
@@ -105,14 +101,15 @@ def loop_tree(
                     f"Output directory already exists, cannot write there: {output_dir}"
                 )
         else:
-            print(f"Creating output directory : {output_dir}")
             os.makedirs(output_dir)
+            if show_progress:
+                print(f"Created output directory : {output_dir}")
 
     if show_progress:
         print(f"Reading ROOT file: {inputRootFile}")
-        print(f"Total number of events: {numberOfEntries}")
-        print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
-        print(f"Weight per-event: {eventWeight}")
+        print(f"Total number of events: {numberOfEntries:,}")
+        print(f"Processing events: {start_entry:,} to {end_entry - 1:,} ({numberOfProcessedEntries:,} events)")
+        print(f"Weight per-event: {eventWeight:.3f}")
     
     # Branches to read
     Electron_branch  = TreeReader.UseBranch("Electron")
@@ -591,14 +588,14 @@ def check_process_pool_executor_results(results):
 
 def hadd_files(out_RootFile, in_RootFilesList, max_workers=None):
     j = str(max_workers or os.cpu_count())
-    cmd = ["hadd", "-f", "-j", j, target_path] + list(source_paths)
+    cmd = ["hadd", "-f", "-j", j, out_RootFile] + list(in_RootFilesList)
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"hadd FAILED (rc={result.returncode}):\n{result.stderr}")
         return False
     return True
 
-def hadd_chunks(chunk_results):
+def hadd_chunks(results, max_workers, output_file_name):
     print("Merging chunks with hadd ..")
     start = time.perf_counter()
 
@@ -635,6 +632,16 @@ def hadd_chunks(chunk_results):
     print(f"Merged {len(results)} chunks x {len(merged)} SR(s) in {format_time(time.perf_counter() - start)}")
     return merged
 
+def split_range(total, n):
+    n = max(1, min(n, total))
+    base, rem = divmod(total, n)
+    out, start = [], 0
+    for i in range(n):
+        size = base + (1 if i < rem else 0)
+        out.append((start, start + size))
+        start += size
+    return out
+
 
 def loop_tree_parallel(
     inputRootFile , 
@@ -645,6 +652,7 @@ def loop_tree_parallel(
     start_entry = 0, 
     end_entry = None, 
     show_progress = False, 
+    debug_loop = False,
     output_dir = "HepDataset", 
     output_file_name = "events.root", 
     overwrite_output_dir = False,
@@ -655,31 +663,28 @@ def loop_tree_parallel(
 
     total = count_entries(inputRootFile)
     n_chunks = n_chunks or (max_workers or os.cpu_count())
-
-    chunk_dirs = []
-    chunks = []
+    
+    split_args = []
     for i, (s, e) in enumerate(split_range(total, n_chunks)):
-        chunk_dir = os.path.join(sample_temp_dir, f"chunk_{i}")
-        os.makedirs(chunk_dir, exist_ok=True)
-        chunk_dirs.append(chunk_dir)
-        chunks.append((
+        split_args.append((
             inputRootFile, 
             treeName, 
             eventWeight, 
             None,  # cross_section
             None,  # luminosity
-            s      # start_entry
-            e      # end_entry
-            False  # show_progress
-            "HepDataset",  # output_dir
-            f"tmp_{treeName}_split{i}.root", 
-            False, # overwrite_output_dir
-            "/data/ammelsayed/hepdataset/src/defaults/branches_config.yml",
+            s,     # start_entry
+            e,     # end_entry
+            False, # show_progress
+            False, # debug loop
+            output_dir,  # output_dir
+            f"tmp_split{i}_{output_file_name}", 
+            True, # overwrite_output_dir
+            branches_config_path,
         ))
     
     results = parallel_runs(
         loop_tree, 
-        chunks, 
+        split_args, 
         max_workers = max_workers, 
         info="", 
         mpContext="fork"
@@ -687,7 +692,7 @@ def loop_tree_parallel(
     check_process_pool_executor_results(results)
 
     merged_trees  = None
-    merged_paths  = hadd_chunks(results)
+    merged_paths = hadd_chunks([r["root_paths"] for r in results], max_workers = max_workers, output_file_name = output_file_name)
     merged_objSel = ObjectSelector.Merge([r["ObjectSelector"] for r in results])
     merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results])
         
@@ -698,92 +703,154 @@ def loop_tree_parallel(
         "EventSelector": merged_evtSel,
     }
 
+def resolve_category_name(category):
+    cat = str(category).lower()
+    return "bkg" if cat == "background" else "sig" if cat == "signal" else "Unknown"
 
-def read(processes, signal_regions, signal_regions_keys):
+def make_dataset(
+    samples_file,
+    branches_config_file = "/data/ammelsayed/hepdataset/src/defaults/branches_config.yml", 
+    run_in_parallel = False,
+    output_dir = "HEPDataset", 
+    working_luminosity = 400.0,
+    max_workers = None, 
+    n_chunks = None,
+    merge_proc_samples = True,
+    ):
 
-    print("\n")
-    
-    # output root files paths (final destination)
-    paths = {}
-    for channelName, regionNamesList in signal_regions.items():
-        for regionName in regionNamesList:
-            key = f"{channelName}_{regionName}"
-            paths[key] = os.path.join(baseDir, channelName, regionName, outputRootFileName)
+    for category, processes in SamplesReader(str(samples_file)).read().items():
+        
+        prefix = resolve_category_name(category)
 
-    # Ensure TempReaderOutput exists
-    os.makedirs(tempReaderDir, exist_ok=True)
+        for proc_name, proc_meta in processes.items():
+            proc_RootFiles      = proc_meta["files"]
+            proc_NbRootFiles    = len(proc_RootFiles)
+            proc_totalNbEvents  = proc_meta["nb_events"]
+            proc_CrossSection   = proc_meta["cross_section"] * 1000
 
-    # Collect per-sample merged files for each SR, then hadd into final output
-    # sample_files[sr_key] = list of per-sample ROOT file paths in TempReaderOutput
-    sample_files = {sr_key: [] for sr_key in signal_regions_keys}
-    
-    for proc, metadata in processes.items():
-        inputRootFilesList = metadata['dir']
-        TotalCrossSection = metadata['cross_section_[pb]']
+            if not proc_RootFiles or not proc_totalNbEvents:
+                continue
 
-        if not inputRootFilesList:
-            print(f"Skipping {proc}: no input files.")
-            continue
+            proc_eventWeight = proc_CrossSection * working_luminosity / proc_totalNbEvents
+            proc_treeName    = f"{prefix}_{proc_name}"
 
-        print(f"Processing {proc}: {len(inputRootFilesList)} sample root files.")
-        numEvents = count_entries(inputRootFilesList)
-        if numEvents == 0:
-            print(f"Skipping {proc}: zero events.")
-            continue
-        perEventWeight = TotalCrossSection * 1000 * 400 / numEvents
-        print(f"    > Total number of events : {numEvents}")
-        print(f"    > Per-event weight : {perEventWeight}")
+            print("-" * 80)
+            print(f"Processing : {proc_name} ({prefix})")
+            print(f" Cross section                  : {proc_CrossSection:.3f} fb")
+            print(f" Total number of .root files:   : {proc_NbRootFiles}")
+            print(f" Total number of events         : {proc_totalNbEvents:,}")
+            print(f" Average weight per event       : {proc_eventWeight:.3f} (at {working_luminosity} fb^-1)")
+            print("-" * 80)
 
-        for idx, inputRootFile in enumerate(inputRootFilesList, start = 1):
-            treeName = f"{proc}_sample{idx}"
-            merged_sample = loop_tree_advanced(inputRootFile, treeName, sampleWeight=perEventWeight, signal_regions_keys=signal_regions_keys)
-            for sr_key, sample_path in merged_sample.items():
-                sample_files[sr_key].append(sample_path)
-                print(f"  {treeName}: merged {sample_path} -> will go into {paths[sr_key]}")
-            print("\n")
+            proc_paths = {}
+            proc_objSel, proc_evtSel = [], []
+            for i, sampleRootFile in enumerate(proc_RootFiles):
+                if i > 0: print("-"*80)
+                print(f"Sample {i+1}/{proc_NbRootFiles}")   
+                print("-"*80)
 
-    # Final merge: hadd all per-sample files for each SR into the final output
-    print("Final merge into ReaderOutput ..")
-    for sr_key in signal_regions_keys:
-        if not sample_files[sr_key]:
-            continue
-        final_path = paths[sr_key]
-        os.makedirs(os.path.dirname(final_path), exist_ok=True)
-        ok = hadd_files(final_path, sample_files[sr_key])
-        if ok:
-            n_samples = len(sample_files[sr_key])
-            print(f"  Final: {n_samples} sample files -> {final_path}")
-        else:
-            print(f"  WARNING: final hadd failed for {sr_key}")
+                sample_treeName = f"{proc_treeName}_sample{i}"
+                sample_fileName = f"{proc_treeName}_sample{i}.root"
+            
 
-    # Clean up TempReaderOutput
-    if os.path.isdir(tempReaderDir):
-        shutil.rmtree(tempReaderDir, ignore_errors=True)
-        print(f"Cleaned up {tempReaderDir}")
+                if run_in_parallel:
+                    result = loop_tree_parallel(
+                        inputRootFile = str(sampleRootFile), 
+                        treeName = proc_treeName,  # <-- same tree name for every sample
+                        eventWeight = proc_eventWeight, 
+                        cross_section = None, 
+                        luminosity = None,
+                        start_entry = 0, 
+                        end_entry = None, 
+                        show_progress = False, 
+                        output_dir = str(output_dir), 
+                        output_file_name = sample_fileName, 
+                        overwrite_output_dir = True,
+                        branches_config_path = branches_config_file,
+                        n_chunks = n_chunks, 
+                        max_workers = max_workers
+                    )
 
-
-def make_datasets():
-
-    signal_regions, signal_regions_keys = get_signal_regions(isLoose = LooseSR)
-    print("Signal regions:")
-    for key, values in signal_regions.items():
-        print(f"{key:<5} : {values}")
-
-    read(get_processes(), signal_regions, signal_regions_keys)
-
-def test():
-    proc = {
-    "test1_s": {
-        "dir": clean(testSamplePaths), "cross_section_[pb]": 1,
-    }}
-    read(proc, {"test" : ["test1"]}, ["test_test1"])
+                # Serial mode
+                else:
+                    result =  loop_tree(
+                        inputRootFile = str(sampleRootFile), 
+                        treeName = proc_treeName,  # <-- same tree name for every sample
+                        eventWeight = proc_eventWeight, 
+                        cross_section = None, 
+                        luminosity = None,
+                        start_entry = 0, 
+                        end_entry = None, 
+                        show_progress = True, 
+                        output_dir = str(output_dir), 
+                        output_file_name = sample_fileName, 
+                        overwrite_output_dir = True,
+                        branches_config_path = branches_config_file,
+                    )
 
 
-if __name__ == '__main__':
+                proc_objSel.append(result["ObjectSelector"])
+                proc_evtSel.append(result["EventSelector"])
+                for key, path in result["root_paths"].items():
+                    proc_paths.setdefault(key, []).append(path)
 
-    if testCode:
-        test()
+            # Merge per-sample files with hadd 
+            if merge_proc_samples:
+                print("Merging sample .root files with hadd ..")
+                start = time.perf_counter()
+                for key, paths in proc_paths.items():
+                    if key is None:
+                        ac, ac_r = "", ""
+                    else:
+                        ac, _, ac_r = key.rpartition("_")
+                    target = os.path.join(output_dir , ac , ac_r , f"{proc_treeName}.root")
+
+                    ok = hadd_files(str(target), paths, max_workers=max_workers)
+                    if ok:
+                        for p in paths:
+                            try:
+                                os.remove(p)
+                            except OSError:
+                                pass
+                print(f"Finished merged in {format_time(time.perf_counter() - start)}")
+
+            # Merge the selectors across samples and print 
+            if proc_objSel and proc_evtSel:
+                merged_objSel = ObjectSelector.Merge(proc_objSel)
+                merged_evtSel = EventSelector.Merge(proc_evtSel)
+                merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)
+                merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=working_luminosity)
+                obj_dir = os.path.join(output_dir , "ObjectSelection" , proc_treeName)
+                os.makedirs(os.path.dirname(obj_dir), exist_ok=True)
+                merged_objSel.DrawObjectSelectionHistograms(output_dir=str(obj_dir))
+            
+            print(f"Finished working on {proc_name}.\n")
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("samples_file", help="Samples YAML file.")
+    # p.add_argument("branches_config_file", help="Branch configuration (YAML) file describing which objects/variables to extract.")
+    # p.add_argument("--output-dir", default = "HEPDataset", help="Output directory.")
+    # p.add_argument("--working-luminosity", type=float, default=400.0)
+    # p.add_argument("--max-workers", type=int, default=None)
+    # p.add_argument("--n-chunks", type=int, default=None)
+    # p.add_argument("--show-progress", action="store_true")
+    # p.add_argument("--merge-proc-samples", action="store_true")
+    args = p.parse_args()
+
+    started = datetime.now()
+    print(f"=== Started at {started.isoformat(timespec='seconds')} ===")
+    kwargs = vars(args).copy()
+
+    try:
+        make_dataset(**kwargs)
+    except BaseException:
+        finished = datetime.now()
+        print(f"=== CRASHED at {finished.isoformat(timespec='seconds')} (after {finished - started}) ===")
+        raise
     else:
-        make_datasets()
+        finished = datetime.now()
+        print(f"=== Finished at {finished.isoformat(timespec='seconds')} (total {finished - started}) ===")
 
-
+if __name__ == "__main__":
+    main()

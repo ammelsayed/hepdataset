@@ -4,7 +4,7 @@ import pandas as pd
 from math import fabs
 from itertools import combinations, product
 from tabulate import tabulate
-from .kinematics import Tau21, Tau32
+from kinematics import Tau21, Tau32
 
 
 class ObjectSelector:

@@ -39,7 +39,7 @@ class EventSelector:
             ac_dict = {
                 "0L"   : ["Nothing", "J", "JJ", "JJJ"],
                 "1L"   : ["e", "mu", "eJ", "muJ", "eJJ", "muJJ"],
-                "2OSL ": ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
+                "2OSL": ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
                 "2SSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
                 "3L"   : ["eee", "eemu", "emumu", "mumumu"],
                 # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         sel = EventSelector()
         rows = []
         for leps, jets in samples:
-            tag = f"{' '.join([l.ClassName()[0].lower().replace("m", "mu") + ('+' if l.Charge > 0 else '-') for l in leps])}"
+            tag = f"{' '.join([l.ClassName()[0].lower() + ('+' if l.Charge > 0 else '-') for l in leps])}".replace("m", "mu")
             seperator = "" if tag == "" else ", "
             tag += f"{seperator}{len(jets)}J" if len(jets) > 0 else ""
             sel.splitByFlavour = False
