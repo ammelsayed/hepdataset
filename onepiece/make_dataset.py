@@ -479,7 +479,6 @@ def loop_tree(
         objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=eventWeight)
         eventSel.PrintEventSelectionSummary(treeName, event_weight = eventWeight, lum = luminosity)
     
-    print(f"Finished filling trees for {output_file_name}")
 
     # if output_dir is given, then write the trees into root files.
     root_paths = {}
@@ -497,8 +496,6 @@ def loop_tree(
                 # trees[ac_key].Delete()
                 f_out.Close()
                 root_paths[ac_key] = path
-
-        print(f"Finished writing all data into {output_file_name}")
 
         # Write object-selection histograms + cutflow into a dedicated root
         if write_metadata:
