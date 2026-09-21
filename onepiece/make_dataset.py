@@ -15,12 +15,13 @@ from tqdm import tqdm
 from mt2 import mt2
 from datetime import datetime
 from pathlib import Path
-from samples_reader   import SamplesReader
-from object_selection import ObjectSelector
-from event_selection  import EventSelector
-from branches_reader  import BranchesHandler
-from kinematics       import EventShapes, Centrality, MtW, SphericityAplanarity, Circularity, dR, dPhi, dEta
-from parallelization  import parallel_runs, format_time
+from samples_reader     import SamplesReader
+from object_selection   import ObjectSelector
+from event_selection    import EventSelector
+from branches_reader    import BranchesHandler
+from kinematics         import EventShapes, Centrality, MtW, SphericityAplanarity, Circularity, dR, dPhi, dEta
+from parallelization    import parallel_runs, format_time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Load delphes libraries
 DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_5_15/Delphes")
@@ -537,34 +538,63 @@ def hadd_files(out_RootFile, in_RootFilesList, max_workers=None):
         return False
     return True
 
-def hadd_chunks(results, max_workers, output_file_name):
-    print("Merging chunks with hadd ..")
-    start = time.perf_counter()
-    ac_keys = list(results[0]["root_paths"].keys()) 
+def parallel_hadd(tasks, max_workers, desc="Merging with hadd"):
+    """
+    Run multiple hadd subprocesses in parallel using ThreadPoolExecutor.
+    tasks: list of tuples (out_path, in_files_list)
+    """
+    total_cores = max_workers or os.cpu_count() or 1
+    n_parallel = min(len(tasks), total_cores)
+    # Distribute threads among the parallel processes
+    threads_per_process = max(1, total_cores // n_parallel)
 
-    # learn structure from first worker
-    ac_files = {ac_key: [] for ac_key in ac_keys}
-
-    # Group chunk files by ac_key
-    for chunk_result in results:
-        for ac_key, path in chunk_result["root_paths"].items():
-            if ac_key in ac_files and path is not None:
-                ac_files[ac_key].append(path)
-
-    merged = {}
-    for ac_key, files in tqdm(ac_files.items()):
-        if not files: continue
-        out_path = os.path.join(os.path.dirname(files[0]), output_file_name)
-        ok = hadd_files(out_path, files, max_workers=max_workers)
+    def run_single_hadd(task):
+        out_path, in_files = task
+        ok = hadd_files(out_path, in_files, max_workers=threads_per_process)
         if ok:
-            merged[ac_key] = out_path
-            for f in files:
+            for f in in_files:
                 try:
                     os.remove(f)
                 except OSError as exc:
                     print(f"  WARNING: could not remove chunk {f}: {exc}")
         else:
-            print(f"  WARNING: hadd failed for {ac_key}")
+            print(f"  WARNING: hadd failed for {out_path}")
+        return out_path, ok
+
+    merged = {}
+    with ThreadPoolExecutor(max_workers=n_parallel) as executor:
+        futures = [executor.submit(run_single_hadd, task) for task in tasks]
+        for future in tqdm(as_completed(futures), total=len(tasks), desc=desc):
+            out_path, ok = future.result()
+            if ok:
+                merged[out_path] = True
+    return merged
+
+def hadd_chunks(results, max_workers, output_file_name):
+    print("Merging chunks with hadd ..")
+    start = time.perf_counter()
+    
+    # learn structure from first worker
+    ac_keys = list(results[0]["root_paths"].keys()) 
+
+    ac_files = {ac_key: [] for ac_key in ac_keys}
+    for chunk_result in results:
+        for ac_key, path in chunk_result["root_paths"].items():
+            if ac_key in ac_files and path is not None:
+                ac_files[ac_key].append(path)
+
+    tasks = []
+    for ac_key, files in ac_files.items():
+        if not files: continue
+        out_path = os.path.join(os.path.dirname(files[0]), output_file_name)
+        tasks.append((out_path, files))
+
+    parallel_hadd(tasks, max_workers, desc="Merging chunks")
+
+    merged = {}
+    for ac_key, files in ac_files.items():
+        if files:
+            merged[ac_key] = os.path.join(os.path.dirname(files[0]), output_file_name)
 
     print(f"Merged {len(results)} chunks x {len(merged)} SR(s) in {format_time(time.perf_counter() - start)}")
     return merged
@@ -793,7 +823,7 @@ def main():
     args = p.parse_args()
 
     started = datetime.now()
-    print(f"=== Started at {started.isoformat(timespec='seconds')} ===")
+    print(f"=== Started at {started.isoformat(timespec='seconds')} ===")s
     kwargs = vars(args).copy()
 
     try:
