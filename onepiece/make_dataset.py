@@ -519,7 +519,7 @@ def loop_tree(
         
     # Only return TTree objects if explicitly requested (for standalone execution)
     # When running in parallel workers, return_trees is False to prevent PyROOT pickling crashes!
-    return {s
+    return {
         "trees" : trees if return_trees else None,
         "root_paths" : root_paths,
         "ObjectSelector": objSel,
