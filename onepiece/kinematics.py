@@ -30,6 +30,14 @@ def dPhi(phi1, phi2):
     return delta
 
 @njit(cache=True, fastmath=True)
+def dEta(eta1, eta2):
+    return eta1 - eta2
+
+@njit(cache=True, fastmath=True)
+def dR(eta1, phi1, eta2, phi2):
+    return (dPhi(phi1, phi2) ** 2 + (eta1 - eta2) ** 2) ** 0.5
+
+@njit(cache=True, fastmath=True)
 def MtW(pt1, phi1, pt2, phi2):
     """
     Standard W-type transverse mass:
