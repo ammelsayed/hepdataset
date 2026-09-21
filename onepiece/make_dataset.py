@@ -538,43 +538,6 @@ def hadd_files(out_RootFile, in_RootFilesList, max_workers=None):
 def hadd_chunks(results, max_workers, output_file_name):
     print("Merging chunks with hadd ..")
     start = time.perf_counter()
-
-    
-    ac_keys = list(results[0].keys()) 
-
-    
-    ac_files = {ac_key: [] for ac_key in ac_keys}
-    for chunk_paths in results:
-        for ac_key, path in chunk_paths.items():
-            if ac_key in ac_files and path is not None:
-                ac_files[ac_key].append(path)
-
-    merged = {}
-    for ac_key, files in tqdm(ac_files.items()):
-        if not files:
-            continue
-
-        # Chunk files already live in the destination directory, e.g.
-        # <output_dir>/<ac>/<ac_r>/<treeName>_split_<i>_events_<s>_<e>.root.
-        out_path = os.path.join(os.path.dirname(files[0]), output_file_name)
-        ok = hadd_files(out_path, files, max_workers=max_workers)
-        if ok:
-            merged[ac_key] = out_path
-            # hadd never deletes its inputs; clean them up ourselves.
-            for f in files:
-                try:
-                    os.remove(f)
-                except OSError as exc:
-                    print(f"  WARNING: could not remove chunk {f}: {exc}")
-        else:
-            print(f"  WARNING: hadd failed for {ac_key}")
-
-    print(f"Merged {len(results)} chunks x {len(merged)} SR(s) in {format_time(time.perf_counter() - start)}")
-    return merged
-
-def hadd_chunks(results, max_workers, output_file_name):
-    print("Merging chunks with hadd ..")
-    start = time.perf_counter()
     ac_keys = list(results[0]["root_paths"].keys()) 
 
     # learn structure from first worker
@@ -684,12 +647,13 @@ def resolve_category_name(category):
 def make_dataset(
     samples_file,
     branches_config_file = None, 
-    output_dir = "HEPDataset", 
+    output_dir = "HepDataset", 
     working_luminosity = 400.0,
     max_workers = None, 
     n_chunks = None,
     show_progress=False,
     merge_proc_samples = True,
+    run_in_parallel = True
     ):
 
     precompile_numba()
@@ -823,6 +787,7 @@ def main():
     p.add_argument("--n-chunks", type=int, default=os.cpu_count())
     p.add_argument("--show-progress", action="store_true")
     p.add_argument("--no-merge-proc-samples", dest="merge_proc_samples", action="store_false", default=True)
+    p.add_argument("--run-in-parallel", dest="run_in_parallel", action="store_false", default=True)
     args = p.parse_args()
 
     started = datetime.now()
