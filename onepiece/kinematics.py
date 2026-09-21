@@ -22,21 +22,12 @@ def Tau32(fj):
     tau2, tau3 = fj.Tau[1], fj.Tau[2]
     return tau3 / tau2 if tau2 > 0 else 1.0
 
-
-@njit(cache=True, fastmath=True)
-def dR(eta1, phi1, eta2, phi2):
-    return (dPhi(phi1, phi2) ** 2 + (eta1 - eta2) ** 2) ** 0.5
-
 @njit(cache=True, fastmath=True)
 def dPhi(phi1, phi2):
     delta = phi1 - phi2
     while delta > math.pi:    delta -= 2 * math.pi
     while delta < -math.pi:   delta += 2 * math.pi
     return delta
-
-@njit(cache=True, fastmath=True)
-def dEta(eta1, eta2):
-    return eta1 - eta2
 
 @njit(cache=True, fastmath=True)
 def MtW(pt1, phi1, pt2, phi2):
