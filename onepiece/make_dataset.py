@@ -478,7 +478,8 @@ def loop_tree(
     if show_progress:
         objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=eventWeight)
         eventSel.PrintEventSelectionSummary(treeName, event_weight = eventWeight, lum = luminosity)
-        
+    
+    print(f"Finished filling trees for {output_file_name}")
 
     # if output_dir is given, then write the trees into root files.
     root_paths = {}
@@ -497,6 +498,8 @@ def loop_tree(
                 f_out.Close()
                 root_paths[ac_key] = path
 
+        print(f"Finished writing all data into {output_file_name}")
+
         # Write object-selection histograms + cutflow into a dedicated root
         if write_metadata:
             out_objsel = os.path.join(output_dir, "ObjectSelection")
@@ -514,8 +517,10 @@ def loop_tree(
             eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
             f_evtsel.Close()
         
-    return {
-        "trees" : trees,
+    # Only return TTree objects if explicitly requested (for standalone execution)
+    # When running in parallel workers, return_trees is False to prevent PyROOT pickling crashes!
+    return {s
+        "trees" : trees if return_trees else None,
         "root_paths" : root_paths,
         "ObjectSelector": objSel,
         "EventSelector": eventSel
