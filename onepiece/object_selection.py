@@ -17,6 +17,23 @@ class ObjectSelector:
         }
         self.hist = self.BookObjectSelectionHistograms()
 
+    def __getstate__(self):
+        # Prevent ROOT histograms from crashing the Pickler
+        state = self.__dict__.copy()
+        state['hist'] = self.SerializeObjectSelectionHistograms()
+        return state
+
+    def __setstate__(self, state):
+        # Reconstruct histograms from plain lists
+        serialized = state.pop('hist')
+        self.__dict__.update(state)
+        self.hist = self.BookObjectSelectionHistograms()
+        for name, h in self.hist.items():
+            c_arr, w_arr = serialized[name]
+            for i in range(h.GetNbinsX()):
+                h.SetBinContent(i + 1, c_arr[i])
+                h.SetBinError  (i + 1, w_arr[i] ** 0.5)
+
     @classmethod
     def Merge(cls, selectors):
         """Return a new ObjectSelector with the cutflows and histograms of `selectors` summed."""
