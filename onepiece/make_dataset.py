@@ -14,12 +14,15 @@ import numpy as np
 from tqdm import tqdm
 from mt2 import mt2
 from datetime import datetime
+from pathlib import Path
 from samples_reader   import SamplesReader
 from object_selection import ObjectSelector
 from event_selection  import EventSelector
 from branches_reader  import BranchesHandler
-from kinematics       import EventShapes, Centrality, MtW
+from kinematics       import EventShapes, Centrality, MtW, SphericityAplanarity, Circularity, dR, dPhi, dEta
 from parallelization  import parallel_runs, format_time
+
+# Load delphes libraries
 DELPHES_PATH = os.environ.get("DELPHES_HOME", "/home/ammelsayed/softwares/MG5_aMC_v3_5_15/Delphes")
 ROOT.gInterpreter.AddIncludePath(DELPHES_PATH)
 ROOT.gInterpreter.AddIncludePath(f"{DELPHES_PATH}/classes")
@@ -33,6 +36,21 @@ ROOT.gROOT.SetStyle("ATLAS")
 ROOT.DisableImplicitMT() 
 print("Using ROOT version:", ROOT.__version__)
 print("Using Delphes libraries found at:", DELPHES_PATH)
+
+def precompile_numba():
+    """Pre-compile numba functions in parent process to prevent cache race conditions in forked workers."""
+    px = np.array([1.0, 2.0], dtype=np.float64)
+    py = np.array([1.0, 2.0], dtype=np.float64)
+    pz = np.array([1.0, 2.0], dtype=np.float64)
+    e  = np.array([1.0, 2.0], dtype=np.float64)
+    EventShapes(px, py, pz)
+    Centrality(px, py, pz, e)
+    MtW(1.0, 1.0, 1.0, 1.0)
+    dR(1.0, 1.0, 1.0, 1.0)
+    dPhi(1.0, 1.0)
+    dEta(1.0, 1.0)
+    SphericityAplanarity(px, py, pz)
+    Circularity(px, py)
 
 def build_chain(inputRootFile):
     chain = ROOT.TChain("Delphes")
@@ -62,6 +80,8 @@ def loop_tree(
     output_file_name = "events.root", 
     overwrite_output_dir = False,
     branches_config_path = None,
+    write_metadata = True,
+    return_trees = True
     ):
 
     # Read the input file
@@ -196,17 +216,11 @@ def loop_tree(
         nPreQS_Lepton = nPreQS_Muon + nPreQS_Electron
         nPreQS_FatJet = FatJet_branch.GetEntries()
         nPreQS_Jet = Jet_branch.GetEntries()
-
         b["nPreQS_Muon"][0] = nPreQS_Muon
         b["nPreQS_Electron"][0] = nPreQS_Electron
         b["nPreQS_Lepton"][0] = nPreQS_Lepton
         b["nPreQS_FatJet"][0] = nPreQS_FatJet
         b["nPreQS_Jet"][0] = nPreQS_Jet
-
-        if debug_loop:
-            print(f"Number of objects before quality selections:")
-            print(f" mu = {nPreQS_Muon}, e = {nPreQS_Electron}, J = {nPreQS_FatJet}, j = {nPreQS_Jet}")
-
        
         # ----------------------------------------------------------------
         # Fill leptons kinematics
@@ -216,147 +230,93 @@ def loop_tree(
         electronMass = 0.511E-3
 
         for lep_idx, lepton in enumerate(goodLeptons[:BR.get_obj_count("Lepton")]):
-
             mainClassNames = ["Lepton"] # branches including these class names will be filled
-
             lepClassName = lepton.ClassName()
             if lepClassName in BR.get_obj_repr("Lepton"):
                 mainClassNames.append(lepClassName)
 
             for lepType in mainClassNames:
-
                 inst = f"{lepType}{lep_idx}"
 
                 # Correct P4 object with mass
-                if debug_loop:
-                    print(inst)
-                    print(f"> Before p4 correction: pt = {lepton.P4().Pt()}, eta = {lepton.P4().Eta()}, phi = {lepton.P4().Phi()}, m = {lepton.P4().M()}.")
-
                 if lepClassName == 'Muon':
                     p4 = ROOT.TLorentzVector()
                     p4.SetPtEtaPhiM(lepton.PT, lepton.Eta, lepton.Phi, muonMass)
                     P4s[inst] = p4
-                    if debug_loop:
-                        print(f"> After p4 correction: pt = {p4.Pt()}, eta = {p4.Eta()}, phi = {p4.Phi()}, m = {p4.M()}.")
-
                 elif lepClassName == 'Electron':
                     p4 = ROOT.TLorentzVector()
                     p4.SetPtEtaPhiM(lepton.PT, lepton.Eta, lepton.Phi, electronMass)
                     P4s[inst] = p4
-                    if debug_loop:
-                        print(f"> After p4 correction: pt = {p4.Pt()}, eta = {p4.Eta()}, phi = {p4.Phi()}, m = {p4.M()}.")
-                else:
-                    continue 
+                else: continue 
 
                 # Fill kinematics asked for
                 for k in BR.get_obj_kinematics("Lepton"):
-
                     branch_name = f"{k}_{inst}"
-
                     try:
                         b[branch_name][0] = getattr(lepton, k) # example: lep.PT 
                     except AttributeError:
                         try:
                             b[branch_name][0] = getattr(p4, k)() # example: lep.P4().Px() 
                         except AttributeError as e:
-                            # leave as NaN (already set at reset time)
-                            if debug_loop:
-                                print(f"> Skipping {branch_name}: not available on {lepClassName} or its TLorentzVector.")
-                            continue
+                            continue # leave as NaN (already set at reset time)
 
         # ----------------------------------------------------------------
         # Fill Large-R (FatJets) kinematics
         # ---------------------------------------------------------------
 
         for fj_idx, fatjet in enumerate(goodFatJets[:BR.get_obj_count("FatJet")]):
-            
             classname = fatjet.ClassName()
-
             p4_fj = fatjet.P4()
             P4s[f"FatJet{fj_idx}"] = p4_fj
 
-            # Log softdropped large-R jet four-momenta
-            # Required only if softdropped fatjets are configured as a representaion of large-R jets.
+            # Log softdropped/trimmed/pruned large-R jet four-momenta
+            # Required only if softdropped/trimmed/prune fatjets are configured as a representaion of large-R jets.
             if hasattr(fatjet, 'SoftDroppedP4') and ("SoftDroppedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_sd = fatjet.SoftDroppedP4[0]
                 P4s[f"SoftDroppedFatJet{fj_idx}"] = p4_sd
-
-            # Log trimmed large-R jet four-momenta
             if hasattr(fatjet, 'TrimmedP4') and ("TrimmedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_tr = fatjet.TrimmedP4[0]            
                 P4s[f"TrimmedFatJet{fj_idx}"] = p4_tr
-
-            # Log pruned large-R jet four-momenta
             if hasattr(fatjet, 'PrunedP4') and ("PrunedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_pr = fatjet.PrunedP4[0]
                 P4s[f"PrunedFatJet{fj_idx}"] = p4_pr
 
             # Fill kinematics asked for
-            for k in BR.get_obj_kinematics("FatJet"):
-
-                # n-subjetness variables are handeled seperatly
-                if k in ["Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]: 
-                    continue
-                
-                # Fill basic kinematics of the fatjet
+            for k in BR.get_obj_kinematics("FatJet"):                
+                if k in ["Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]: continue # n-subjetness variables are handeled seperatly
                 branch_name = f"{k}_FatJet{fj_idx}"
-
                 try:
                     b[branch_name][0] = getattr(fatjet, k)  
                 except AttributeError:
                     try:
                         b[branch_name][0] = getattr(p4_fj, k)()  
                     except AttributeError as e:
-                        if debug_loop:
-                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                         continue
 
-                # Fill same kinematics for the softdropped jet
-                # grooming variants do not have direct methods
-                # so we just use one layer of reading 
+                # grooming variants do not have direct methods so we just use one layer of reading 
                 if hasattr(fatjet, 'SoftDroppedP4') and ("SoftDroppedFatJet" in BR.get_obj_repr("FatJet")):
-
                     branch_name = f"{k}_SoftDroppedFatJet{fj_idx}"
-
                     try:
                         b[branch_name][0] = getattr(p4_sd, k)()  
                     except AttributeError as e:
-                        if debug_loop:
-                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                         continue
-
-                # Fill same kinematics for the trimmed jet
                 if hasattr(fatjet, 'TrimmedP4') and ("TrimmedFatJet" in BR.get_obj_repr("FatJet")):
-
                     branch_name = f"{k}_TrimmedFatJet{fj_idx}"
-
                     try:
                         b[branch_name][0] = getattr(p4_tr, k)()  
                     except AttributeError as e:
-                        if debug_loop:
-                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                         continue
-
-                # Fill same kinematics for the pruned jet
                 if hasattr(fatjet, 'PrunedP4') and ("PrunedFatJet" in BR.get_obj_repr("FatJet")):
-
                     branch_name = f"{k}_PrunedFatJet{fj_idx}"
-
                     try:
                         b[branch_name][0] = getattr(p4_pr, k)()  
                     except AttributeError as e:
-                        if debug_loop:
-                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                         continue
 
             # Fill n-subjetness substructure variables
-            # Those are only filled for FatJet
-            # The groomed variants do not carry these methods
+            # Those are only filled for FatJet, t groomed variants do not carry these methods
             for t_idx in [1, 2, 3]:
                 b[f"Tau{t_idx}_FatJet{fj_idx}"][0] = fatjet.Tau[t_idx - 1]
-
-                if debug_loop:
-                    print(f"> Filled branch Tau{t_idx}_FatJet{fj_idx}: value = {fatjet.Tau[t_idx - 1]}.")
 
             t1, t2, t3 = fatjet.Tau[0], fatjet.Tau[1], fatjet.Tau[2]
             b[f"Tau21_FatJet{fj_idx}"][0] = t2 / t1 if t1 > 0 else 1.0
@@ -367,28 +327,20 @@ def loop_tree(
         # ----------------------------------------------------------------
 
         for goodJetsList, prefix in zip([goodJets, goodBJets, goodTauJets], ["Jet", "BJet", "TauJet"]):
-
-            if prefix not in BR.get_obj_repr("Jet"):
-                continue
-
+            if prefix not in BR.get_obj_repr("Jet"): continue
             for jet_idx, jet in enumerate(goodJetsList[:BR.get_obj_count("Jet")]):
                 classname = jet.ClassName()
                 inst = f"{prefix}{jet_idx}"
                 p4 = jet.P4()
                 P4s[inst] = p4
-
                 for k in BR.get_obj_kinematics("Jet"):
-
                     branch_name = f"{k}_{inst}"
-
                     try:
                         b[branch_name][0] = getattr(jet, k)  
                     except AttributeError:
                         try:
                             b[branch_name][0] = getattr(p4, k)()  
                         except AttributeError as e:
-                            if debug_loop:
-                                print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                             continue
 
         # ----------------------------------------------------------------
@@ -407,8 +359,6 @@ def loop_tree(
                 try:
                     b[branch_name][0] = getattr(p4_met, k)()  
                 except AttributeError as e:
-                    if debug_loop:
-                        print(f"> Skipping {branch_name}: not available on {met.ClassName()} or its TLorentzVector.")
                     continue
 
         # Fill other global scalars        
@@ -451,15 +401,10 @@ def loop_tree(
         # ----------------------------------------------------------------
 
         if BR.multiObjects_Nmax >= 2:
-
             for N in range(2, BR.multiObjects_Nmax + 1, 1):
-
                 for p_names in BR.get_nbody_combinations(N):
-
                     p4_list = [P4s.get(n) for n in p_names]
-
                     if all(p4_list):
-
                         sufx = '_'.join(p_names)
 
                         # Without start, sum() defaults to  0 (integer), 
@@ -473,8 +418,6 @@ def loop_tree(
                                 try:
                                     b[branch_name][0] = getattr(total_p4, k)()  
                                 except AttributeError as e:
-                                    if debug_loop:
-                                        print(f"Skipping {k}: not available for {sufx}.")
                                     continue
 
                         # by default 2body kinematics should be included for any 2-body objects
@@ -536,10 +479,10 @@ def loop_tree(
         objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=eventWeight)
         eventSel.PrintEventSelectionSummary(treeName, event_weight = eventWeight, lum = luminosity)
         
+
     # if output_dir is given, then write the trees into root files.
     root_paths = {}
     if output_dir is not None:
-        
         # Write the trees into .root files at:
         # <output_dir>/<analysis_channel_name>/<analysis_region_name>/<output_root_file_name>.root
         for ac, ac_rgs in ac_dict.items():
@@ -553,26 +496,23 @@ def loop_tree(
                 # trees[ac_key].Delete()
                 f_out.Close()
                 root_paths[ac_key] = path
-        
-        # Write object-selection histograms + cutflow into a dedicated root file at:
-        # <output_dir>/ObjectSelection/<treeName>.root
-        out_objsel = os.path.join(output_dir, "ObjectSelection")
-        os.makedirs(out_objsel, exist_ok=True)
-        f_objsel = ROOT.TFile.Open(os.path.join(out_objsel, f"{treeName}.root"), "RECREATE")
-        objSel.WriteObjectSelectionHistograms(f_objsel)
-        objSel.WriteObjectSelectionSummary(f_objsel)
-        f_objsel.Close()
-        # Draw the object selection histograms (PNGs go in the same directory)
-        if show_progress:
-            objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
 
-        # Write event-selection cutflow into a dedicated root file at:
-        # <output_dir>/EventSelection/<treeName>.root
-        out_evtsel = os.path.join(output_dir, "EventSelection")
-        os.makedirs(out_evtsel, exist_ok=True)
-        f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, f"{treeName}.root"), "RECREATE")
-        eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
-        f_evtsel.Close()
+        # Write object-selection histograms + cutflow into a dedicated root
+        if write_metadata:
+            out_objsel = os.path.join(output_dir, "ObjectSelection")
+            os.makedirs(out_objsel, exist_ok=True)
+            f_objsel = ROOT.TFile.Open(os.path.join(out_objsel, output_file_name), "RECREATE")
+            objSel.WriteObjectSelectionHistograms(f_objsel)
+            objSel.WriteObjectSelectionSummary(f_objsel)
+            f_objsel.Close()
+            if show_progress:
+                objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
+
+            out_evtsel = os.path.join(output_dir, "EventSelection")
+            os.makedirs(out_evtsel, exist_ok=True)
+            f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, output_file_name), "RECREATE")
+            eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
+            f_evtsel.Close()
         
     return {
         "trees" : trees,
@@ -599,10 +539,10 @@ def hadd_chunks(results, max_workers, output_file_name):
     print("Merging chunks with hadd ..")
     start = time.perf_counter()
 
-    # learn structure from first worker
+    
     ac_keys = list(results[0].keys()) 
 
-    # Group chunk files by ac_key
+    
     ac_files = {ac_key: [] for ac_key in ac_keys}
     for chunk_paths in results:
         for ac_key, path in chunk_paths.items():
@@ -621,6 +561,38 @@ def hadd_chunks(results, max_workers, output_file_name):
         if ok:
             merged[ac_key] = out_path
             # hadd never deletes its inputs; clean them up ourselves.
+            for f in files:
+                try:
+                    os.remove(f)
+                except OSError as exc:
+                    print(f"  WARNING: could not remove chunk {f}: {exc}")
+        else:
+            print(f"  WARNING: hadd failed for {ac_key}")
+
+    print(f"Merged {len(results)} chunks x {len(merged)} SR(s) in {format_time(time.perf_counter() - start)}")
+    return merged
+
+def hadd_chunks(results, max_workers, output_file_name):
+    print("Merging chunks with hadd ..")
+    start = time.perf_counter()
+    ac_keys = list(results[0]["root_paths"].keys()) 
+
+    # learn structure from first worker
+    ac_files = {ac_key: [] for ac_key in ac_keys}
+
+    # Group chunk files by ac_key
+    for chunk_result in results:
+        for ac_key, path in chunk_result["root_paths"].items():
+            if ac_key in ac_files and path is not None:
+                ac_files[ac_key].append(path)
+
+    merged = {}
+    for ac_key, files in tqdm(ac_files.items()):
+        if not files: continue
+        out_path = os.path.join(os.path.dirname(files[0]), output_file_name)
+        ok = hadd_files(out_path, files, max_workers=max_workers)
+        if ok:
+            merged[ac_key] = out_path
             for f in files:
                 try:
                     os.remove(f)
@@ -680,6 +652,8 @@ def loop_tree_parallel(
             f"tmp_split{i}_{output_file_name}", 
             True, # overwrite_output_dir
             branches_config_path,
+            False, # write_metadata
+            False  # return_trees
         ))
     
     results = parallel_runs(
@@ -692,7 +666,7 @@ def loop_tree_parallel(
     check_process_pool_executor_results(results)
 
     merged_trees  = None
-    merged_paths = hadd_chunks([r["root_paths"] for r in results], max_workers = max_workers, output_file_name = output_file_name)
+    merged_paths  = hadd_chunks(results, max_workers, output_file_name)
     merged_objSel = ObjectSelector.Merge([r["ObjectSelector"] for r in results])
     merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results])
         
@@ -709,14 +683,17 @@ def resolve_category_name(category):
 
 def make_dataset(
     samples_file,
-    branches_config_file = "/data/ammelsayed/hepdataset/src/defaults/branches_config.yml", 
-    run_in_parallel = False,
+    branches_config_file = None, 
     output_dir = "HEPDataset", 
     working_luminosity = 400.0,
     max_workers = None, 
     n_chunks = None,
+    show_progress=False,
     merge_proc_samples = True,
     ):
+
+    precompile_numba()
+    output_dir = Path(output_dir)
 
     for category, processes in SamplesReader(str(samples_file)).read().items():
         
@@ -756,7 +733,7 @@ def make_dataset(
                 if run_in_parallel:
                     result = loop_tree_parallel(
                         inputRootFile = str(sampleRootFile), 
-                        treeName = proc_treeName,  # <-- same tree name for every sample
+                        treeName = proc_treeName,
                         eventWeight = proc_eventWeight, 
                         cross_section = None, 
                         luminosity = None,
@@ -775,7 +752,7 @@ def make_dataset(
                 else:
                     result =  loop_tree(
                         inputRootFile = str(sampleRootFile), 
-                        treeName = proc_treeName,  # <-- same tree name for every sample
+                        treeName = proc_treeName, 
                         eventWeight = proc_eventWeight, 
                         cross_section = None, 
                         luminosity = None,
@@ -786,33 +763,32 @@ def make_dataset(
                         output_file_name = sample_fileName, 
                         overwrite_output_dir = True,
                         branches_config_path = branches_config_file,
+                        write_metadata = True,
+                        return_trees = True
                     )
-
 
                 proc_objSel.append(result["ObjectSelector"])
                 proc_evtSel.append(result["EventSelector"])
+
                 for key, path in result["root_paths"].items():
                     proc_paths.setdefault(key, []).append(path)
 
             # Merge per-sample files with hadd 
             if merge_proc_samples:
-                print("Merging sample .root files with hadd ..")
-                start = time.perf_counter()
                 for key, paths in proc_paths.items():
                     if key is None:
                         ac, ac_r = "", ""
                     else:
                         ac, _, ac_r = key.rpartition("_")
-                    target = os.path.join(output_dir , ac , ac_r , f"{proc_treeName}.root")
+                    target = output_dir / ac / ac_r / f"{proc_treeName}.root"
+                    target.parent.mkdir(parents=True, exist_ok=True)
 
-                    ok = hadd_files(str(target), paths, max_workers=max_workers)
-                    if ok:
+                    if hadd_files(str(target), paths, max_workers=max_workers):
                         for p in paths:
                             try:
                                 os.remove(p)
                             except OSError:
                                 pass
-                print(f"Finished merged in {format_time(time.perf_counter() - start)}")
 
             # Merge the selectors across samples and print 
             if proc_objSel and proc_evtSel:
@@ -820,22 +796,33 @@ def make_dataset(
                 merged_evtSel = EventSelector.Merge(proc_evtSel)
                 merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)
                 merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=working_luminosity)
-                obj_dir = os.path.join(output_dir , "ObjectSelection" , proc_treeName)
-                os.makedirs(os.path.dirname(obj_dir), exist_ok=True)
+                
+                obj_dir = output_dir / "ObjectSelection" / proc_treeName
+                obj_dir.mkdir(parents=True, exist_ok=True)
+                f_obj = ROOT.TFile.Open(str(obj_dir / f"{proc_treeName}.root"), "RECREATE")
+                merged_objSel.WriteObjectSelectionHistograms(f_obj)
+                merged_objSel.WriteObjectSelectionSummary(f_obj)
+                f_obj.Close()
                 merged_objSel.DrawObjectSelectionHistograms(output_dir=str(obj_dir))
+
+                evt_dir = output_dir / "EventSelection" / proc_treeName
+                evt_dir.mkdir(parents=True, exist_ok=True)
+                f_evt = ROOT.TFile.Open(str(evt_dir / f"{proc_treeName}.root"), "RECREATE")
+                merged_evtSel.WriteEventSelectionSummary(f_evt, proc_treeName)
+                f_evt.Close()
             
             print(f"Finished working on {proc_name}.\n")
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("samples_file", help="Samples YAML file.")
-    # p.add_argument("branches_config_file", help="Branch configuration (YAML) file describing which objects/variables to extract.")
-    # p.add_argument("--output-dir", default = "HEPDataset", help="Output directory.")
-    # p.add_argument("--working-luminosity", type=float, default=400.0)
-    # p.add_argument("--max-workers", type=int, default=None)
-    # p.add_argument("--n-chunks", type=int, default=None)
-    # p.add_argument("--show-progress", action="store_true")
-    # p.add_argument("--merge-proc-samples", action="store_true")
+    p.add_argument("--branches-config-file", default="/data/ammelsayed/hepdataset/src/defaults/branches_config.yml", help="Branch configuration YAML file.")
+    p.add_argument("--output-dir", default="HepDataset", help="Output directory.")
+    p.add_argument("--working-luminosity", type=float, default=400.0)
+    p.add_argument("--max-workers", type=int, default=os.cpu_count())
+    p.add_argument("--n-chunks", type=int, default=os.cpu_count())
+    p.add_argument("--show-progress", action="store_true")
+    p.add_argument("--no-merge-proc-samples", dest="merge_proc_samples", action="store_false", default=True)
     args = p.parse_args()
 
     started = datetime.now()
