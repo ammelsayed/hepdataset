@@ -564,10 +564,11 @@ def parallel_hadd(tasks, max_workers, desc="Merging with hadd"):
     merged = {}
     with ThreadPoolExecutor(max_workers=n_parallel) as executor:
         futures = [executor.submit(run_single_hadd, task) for task in tasks]
-        for future in tqdm(as_completed(futures), total=len(tasks), desc=desc):
+        for idx, future in enumerate(as_completed(futures), start=1):
             out_path, ok = future.result()
             if ok:
                 merged[out_path] = True
+                print(f"\rMerging analysis channels in parallel ... {idx}/{len(tasks)}", end="", flush=True)
     return merged
 
 def hadd_chunks(results, max_workers, output_file_name):
@@ -823,7 +824,7 @@ def main():
     args = p.parse_args()
 
     started = datetime.now()
-    print(f"=== Started at {started.isoformat(timespec='seconds')} ===")s
+    print(f"=== Started at {started.isoformat(timespec='seconds')} ===")
     kwargs = vars(args).copy()
 
     try:
