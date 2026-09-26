@@ -211,6 +211,8 @@ def loop_tree(
 
         # A dictonary to hold the selected objects' four-momenta for easier access
         P4s = {}
+        Charges = {}
+        Flavours = {}
 
         # Count number of objects before quality selections AND store them locally
         nPreQS_Muon = Muon_branch.GetEntries()
@@ -237,6 +239,18 @@ def loop_tree(
             if lepClassName in BR.get_obj_repr("Lepton"):
                 mainClassNames.append(lepClassName)
 
+            # Store charge and flavour for N-body combinations
+            if lepClassName == 'Muon':
+                Charges[f"Lepton{lep_idx}"] = int(lepton.Charge)
+                Flavours[f"Lepton{lep_idx}"] = 2
+                Charges[f"Muon{lep_idx}"] = int(lepton.Charge)
+                Flavours[f"Muon{lep_idx}"] = 2
+            elif lepClassName == 'Electron':
+                Charges[f"Lepton{lep_idx}"] = int(lepton.Charge)
+                Flavours[f"Lepton{lep_idx}"] = 1
+                Charges[f"Electron{lep_idx}"] = int(lepton.Charge)
+                Flavours[f"Electron{lep_idx}"] = 1
+
             for lepType in mainClassNames:
                 inst = f"{lepType}{lep_idx}"
 
@@ -254,8 +268,10 @@ def loop_tree(
                 # Fill kinematics asked for
                 for k in BR.get_obj_kinematics("Lepton"):
                     branch_name = f"{k}_{inst}"
-                    if k == "Flavour":
-                        b[branch_name][0] = 2 if lepClassName == "Muon" else 1
+                    if k == "ElectronTag":
+                        b[branch_name][0] = 1 if lepClassName == "Electron" else 0
+                    elif k == "MuonTag":
+                        b[branch_name][0] = 1 if lepClassName == "Muon" else 0
                     else:
                         try:
                             b[branch_name][0] = getattr(lepton, k) # example: lep.PT 
@@ -319,7 +335,7 @@ def loop_tree(
                         continue
 
             # Fill n-subjetness substructure variables
-            # Those are only filled for FatJet, the groomed variants do not carry these methods
+            # Those are only filled for FatJet, t groomed variants do not carry these methods
             ntaus_available = min(len(fatjet.Tau), 5)
             tau_values = {}
             for t_idx in range(1, ntaus_available + 1):
@@ -434,7 +450,7 @@ def loop_tree(
                                     continue
 
                         # by default 2body kinematics should be included for any 2-body objects
-                        # those are just ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+                        # those are just ["DeltaR", "DeltaPhi", "DeltaEta", "MtW", "isOSSF", "isOSOF", "isSSOF", "isSSSF"]
                         # we fill them manullay
                         if N == 2:
                             p1 = p4_list[0]; p2 = p4_list[1]
@@ -446,7 +462,36 @@ def loop_tree(
                                 b[f"DeltaEta_{sufx}"][0] = p1.Eta() - p2.Eta()
                             if "MtW" in BR.multiObject_2body_kinematics:
                                 b[f"MtW_{sufx}"][0] = MtW(p1.Pt(), p1.Phi(), p2.Pt(), p2.Phi())
-                        
+                            
+                            # Fill OS/SS and SF/OF tags for lepton pairs
+                            p1_name = p_names[0]; p2_name = p_names[1]
+                            if (p1_name in Flavours) and (p2_name in Flavours):
+                                q1 = Charges[p1_name]; q2 = Charges[p2_name]
+                                f1 = Flavours[p1_name]; f2 = Flavours[p2_name]
+                                
+                                os_flag = (q1 * q2 == -1)
+                                ss_flag = (q1 * q2 == 1)
+                                sf_flag = (f1 == f2)
+                                of_flag = (f1 != f2)
+                                
+                                if "isOSSF" in BR.multiObject_2body_kinematics:
+                                    b[f"isOSSF_{sufx}"][0] = 1 if (os_flag and sf_flag) else 0
+                                if "isOSOF" in BR.multiObject_2body_kinematics:
+                                    b[f"isOSOF_{sufx}"][0] = 1 if (os_flag and of_flag) else 0
+                                if "isSSOF" in BR.multiObject_2body_kinematics:
+                                    b[f"isSSOF_{sufx}"][0] = 1 if (ss_flag and of_flag) else 0
+                                if "isSSSF" in BR.multiObject_2body_kinematics:
+                                    b[f"isSSSF_{sufx}"][0] = 1 if (ss_flag and sf_flag) else 0
+                            else:
+                                # Not a lepton pair
+                                if "isOSSF" in BR.multiObject_2body_kinematics:
+                                    b[f"isOSSF_{sufx}"][0] = 0
+                                if "isOSOF" in BR.multiObject_2body_kinematics:
+                                    b[f"isOSOF_{sufx}"][0] = 0
+                                if "isSSOF" in BR.multiObject_2body_kinematics:
+                                    b[f"isSSOF_{sufx}"][0] = 0
+                                if "isSSSF" in BR.multiObject_2body_kinematics:
+                                    b[f"isSSSF_{sufx}"][0] = 0
 
                         # Here we wish to calculate the stransverse mass
                         # We just calclate it for 2 body objects, 
@@ -472,7 +517,7 @@ def loop_tree(
                             pz_arr = np.array([p.Pz() for p in p4_list], dtype=np.float64)
                             e_arr  = np.array([p.Energy() for p in p4_list], dtype=np.float64)
 
-                            if "Sphericity" in tk or "Aplanarity" in tk or "Circularity" in tk:
+                            if "Sphericity" in tk or "Aplanarity" in tk:
                                 S, A, C = EventShapes(px_arr, py_arr, pz_arr)
                             if "Sphericity" in tk: b[f"Sphericity_{sufx}"][0] = S
                             if "Aplanarity" in tk: b[f"Aplanarity_{sufx}"][0] = A

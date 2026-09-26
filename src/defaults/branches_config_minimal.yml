@@ -41,13 +41,12 @@ objects:
 #   "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et",
 #   "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta",
 #   "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"
-# TLorentzVector Methods are avaliable for all objects.
 # [1] https://root.cern.ch/doc/master/classTLorentzVector.html (Legacy)
 # [2] https://root.cern.ch/doc/master/classROOT_1_1Math_1_1LorentzVector.html
 #----------------------------------------------------------------
 # Avaliable direct methods kinematics for leptons: 
 # Examples: MuonBranch.At(0).PT , MuonBranch.At(0).Eta, ..., etc.
-#   "Flavour", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar", 
+#   "ElectronTag", "MuonTag", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar", 
 #   "IsolationVarRhoCorr", "SumPtCharged", "SumPtNeutral", 
 #   "SumPtChargedPU", "SumPt", "D0", "DZ", "ErrorD0", "ErrorDZ"
 # Avaliable representations for leptons : ["Lepton", "Muon", "Electron"]
@@ -55,7 +54,7 @@ objects:
   Lepton:
     count: 4
     representations: ["Lepton", "Muon", "Electron"]           
-    kinematics: ["Flavour", "Pt", "Eta", "Phi", "M", "Charge", "IsolationVar"]
+    kinematics: ["ElectronTag", "MuonTag", "Pt", "Eta", "Phi", "M", "Charge", "IsolationVar"]
 #----------------------------------------------------------------
 # Avaliable direct methods kinematics for jets & Fatjets
 # Examples: JetBranch.At(0).PT , JetBranch.At(0).Eta, ..., etc.
@@ -197,14 +196,18 @@ multi-objects:
 
   # kinematics that will be calculated for 2-body objects only
   # the mt2 are calculated for any 2 bodies from the combo_set along with the Px and Py components of MET.
-  # Allowed values: ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+  # Allowed values: ["DeltaR", "DeltaPhi", "DeltaEta", "MtW", "isOSSF", "isOSOF", "isSSOF", "isSSSF"]
   #   DeltaR    : ΔR(η,φ)  between the two particles
   #   DeltaPhi  : Δφ        between the two particles
   #   DeltaEta  : Δη        between the two particles
   #   MtW       : W-type transverse mass = sqrt(2 pT1 pT2 (1-cosΔφ))
+  #   isOSSF    : 1 if pair is opposite sign, same flavour (leptons only)
+  #   isOSOF    : 1 if pair is opposite sign, opposite flavour (leptons only)
+  #   isSSOF    : 1 if pair is same sign, opposite flavour (leptons only)
+  #   isSSSF    : 1 if pair is same sign, same flavour (leptons only)
   # These are filled manually in make_dataset.py — anything else listed
   # here is silently removed.
-  2body_kinematics  : ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+  2body_kinematics  : ["DeltaR", "DeltaPhi", "DeltaEta", "MtW", "isOSSF", "isSSSF"]
 
   # include_mt2 adds the "MT2" branch for every 2-body combination
   # drawn from (Lepton ∪ FatJet) together with MET. MT2 is computed

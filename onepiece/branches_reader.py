@@ -46,7 +46,7 @@ class BranchesHandler:
 
     # Direct Delphes attributes for leptons (Muon / Electron / Lepton)
     _LEPTON_DIRECT_METHODS = [
-        "Flavour", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar",
+        "ElectronTag", "MuonTag", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar",
         "IsolationVarRhoCorr", "SumPtCharged", "SumPtNeutral",
         "SumPtChargedPU", "SumPt", "D0", "DZ", "ErrorD0", "ErrorDZ",
     ]
@@ -97,7 +97,7 @@ class BranchesHandler:
 
     # Multi-object kinematics allowed lists
     _ALLOWED_MULTIOBJ_BASIC_KIN  = _TLORENTZVECTOR_METHODS
-    _ALLOWED_MULTIOBJ_2BODY_KIN  = ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+    _ALLOWED_MULTIOBJ_2BODY_KIN  = ["DeltaR", "DeltaPhi", "DeltaEta", "MtW", "isOSSF", "isOSOF", "isSSOF", "isSSSF"]
     _ALLOWED_MULTIOBJ_TRIVAL_KIN = ["Sphericity", "Aplanarity", "Circularity",
                                     "Centrality", "ScalarSumPT", "VectorSumPT"]
 
