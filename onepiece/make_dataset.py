@@ -877,7 +877,7 @@ def make_dataset(
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("samples_file", help="Samples YAML file.")
-    p.add_argument("--branches-config-file", default="/data/ammelsayed/hepdataset/src/defaults/branches_config.yml", help="Branch configuration YAML file.")
+    p.add_argument("--branches-config-file", default="/data/ammelsayed/hepdataset/src/defaults/branches_config_minimal.yml", help="Branch configuration YAML file.")
     p.add_argument("--output-dir", default="HepDataset", help="Output directory.")
     p.add_argument("--working-luminosity", type=float, default=400.0)
     p.add_argument("--max-workers", type=int, default=os.cpu_count())
