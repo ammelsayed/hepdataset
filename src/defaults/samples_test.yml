@@ -1,0 +1,19 @@
+Background:
+
+  tW_1L:
+    cross_section: 0.1103           
+    cross_section_err_high: 0.0
+    cross_section_err_low: 0.0
+    k_factor : 1.0
+    files:
+      - /data/ammelsayed/new_stuff/tw_1L/Events/run_01_01/tag_1_delphes_events.root
+      - /data/ammelsayed/new_stuff/tw_1L/Events/run_01_02/tag_1_delphes_events.root
+
+Signal:
+  M1000:
+    cross_section: 0.0023793        
+    k_factor : 1.0
+    cross_section_err_high: 0.000332031
+    cross_section_err_low: 0.000331945
+    files:
+      - /data/ammelsayed/Samples/signal/FDM/Events/sig1000/tag_1_delphes_events.root

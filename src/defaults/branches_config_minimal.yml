@@ -53,7 +53,7 @@ objects:
 # ----------------------------------------------------------------
   Lepton:
     count: 4
-    representations: ["Lepton", "Muon", "Electron"]           
+    representations: ["Lepton"]           
     kinematics: ["ElectronTag", "MuonTag", "Pt", "Eta", "Phi", "M", "Charge", "IsolationVar"]
 #----------------------------------------------------------------
 # Avaliable direct methods kinematics for jets & Fatjets
@@ -137,7 +137,7 @@ event-variables:
 #   "ScalarSumPT_SoftDroppedFatJets" : sum pT of soft-dropped fatjets
 #   "ScalarSumPT_Hadronic"     : ScalarSumPT_Jets + ScalarSumPT_SoftDroppedFatJets
 #
- global_scalars: ["HT", "LT", "ST", "Meff", "Significance_MET"]
+  global_scalars: ["HT", "LT", "ST", "Meff", "Significance_MET"]
 #
 # The available event_shapes are computed by kinematics.EventShapes():
 #   "Sphericity"   : (3/2)(λ2 + λ3) ∈ [0,1]    ; 0 = pencil-like
@@ -192,7 +192,7 @@ multi-objects:
   # Allowed values: TLorentzVector methods only (Pt, Eta, Phi, M, Px, Py,
   # Pz, Energy, ...). These are applied to the SUMMED 4-vector of the
   # combination. Invalid entries are silently removed with a warning.
-  basic_kinematics  : ["Pt", "Eta", "Phi", "M"] 
+  basic_kinematics  : ["Pt", "M"] 
 
   # kinematics that will be calculated for 2-body objects only
   # the mt2 are calculated for any 2 bodies from the combo_set along with the Px and Py components of MET.

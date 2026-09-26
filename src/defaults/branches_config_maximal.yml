@@ -138,7 +138,7 @@ event-variables:
 #   "ScalarSumPT_SoftDroppedFatJets" : sum pT of soft-dropped fatjets
 #   "ScalarSumPT_Hadronic"     : ScalarSumPT_Jets + ScalarSumPT_SoftDroppedFatJets
 #
- global_scalars: ["ScalarSumPT_Jets", "ScalarSumPT_FatJets", "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic", "HT", "LT", "ST", "Meff", "Significance_MET"]
+  global_scalars: ["ScalarSumPT_Jets", "ScalarSumPT_FatJets", "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic", "HT", "LT", "ST", "Meff", "Significance_MET"]
 #
 # The available event_shapes are computed by kinematics.EventShapes():
 #   "Sphericity"   : (3/2)(λ2 + λ3) ∈ [0,1]    ; 0 = pencil-like
