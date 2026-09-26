@@ -14,15 +14,15 @@ def MergeEventSelectors():
 
 class EventSelector:
 
-    def __init__(self):
-        self.splitByFlavour = False
+    def __init__(self, splitByFlavour=False):
+        self.splitByFlavour = splitByFlavour
         self.ac_keys, self.ac_dict = self.GetChannelKeys()
         self.ac_counts = dict.fromkeys(["initial", *self.ac_keys, "dropped"], 0)
     
     @classmethod
-    def Merge(cls, selectors):
+    def Merge(cls, selectors, splitByFlavour=False):
         """Return a new EventSelector with the ac_counts of `selectors` summed."""
-        merged = cls()
+        merged = cls(splitByFlavour=splitByFlavour)
         for sel in selectors:
             for k, v in sel.ac_counts.items():
                 merged.ac_counts[k] = merged.ac_counts.get(k, 0) + v
@@ -39,7 +39,7 @@ class EventSelector:
             ac_dict = {
                 "0L"   : ["Nothing", "J", "JJ", "JJJ"],
                 "1L"   : ["e", "mu", "eJ", "muJ", "eJJ", "muJJ"],
-                "2OSL": ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
+                "2OSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
                 "2SSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
                 "3L"   : ["eee", "eemu", "emumu", "mumumu"],
                 # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
@@ -137,7 +137,7 @@ class EventSelector:
         df["Fraction"] = df["Events"] / total_events
         df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
         print(f"\n*** Analysis channels yields for {treeName} ***")
-        print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * 4))
+        print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * len(df.columns)))
 
 if __name__ == "__main__":
 
@@ -162,14 +162,14 @@ if __name__ == "__main__":
         rows = []
         sel = EventSelector()
         rows = []
+        sel_false = EventSelector(splitByFlavour=False)
+        sel_true  = EventSelector(splitByFlavour=True)
         for leps, jets in samples:
             tag = f"{' '.join([l.ClassName()[0].lower() + ('+' if l.Charge > 0 else '-') for l in leps])}".replace("m", "mu")
             seperator = "" if tag == "" else ", "
             tag += f"{seperator}{len(jets)}J" if len(jets) > 0 else ""
-            sel.splitByFlavour = False
-            r_false = sel.ClassifyChannelKey(leps, jets)
-            sel.splitByFlavour = True
-            r_true  = sel.ClassifyChannelKey(leps, jets)
+            r_false = sel_false.ClassifyChannelKey(leps, jets)
+            r_true  = sel_true .ClassifyChannelKey(leps, jets)
             rows.append([tag, r_false, r_true])
         
         print(tabulate(rows, headers, tablefmt="github", colalign=("left",)*3))

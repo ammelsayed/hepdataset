@@ -28,6 +28,75 @@ class BranchesHandler:
     # Kinematics that only exist on the main (ungroomed) FatJet
     _TAU_SUBSTRUCTURE_KINEMATICS = {"Tau1", "Tau2", "Tau3", "Tau21", "Tau32"}
 
+    # ------------------------------------------------------------------ #
+    # Allowed representations / kinematics (parsed from branches_config)  #
+    # ------------------------------------------------------------------ #
+    # Common TLorentzVector methods that every object with a .P4() exposes.
+    # These are documented at the top of the "objects:" block of the card.
+    _TLORENTZVECTOR_METHODS = [
+        "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy",
+        "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et",
+        "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta",
+        "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity",
+    ]
+
+    # Direct Delphes attributes for leptons (Muon / Electron / Lepton)
+    _LEPTON_DIRECT_METHODS = [
+        "Flavour", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar",
+        "IsolationVarRhoCorr", "SumPtCharged", "SumPtNeutral",
+        "SumPtChargedPU", "SumPt", "D0", "DZ", "ErrorD0", "ErrorDZ",
+    ]
+
+    # Direct Delphes attributes for jets & FatJets
+    _JET_DIRECT_METHODS = [
+        "PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi",
+        "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag",
+        "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge",
+        "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction",
+        "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed",
+        "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12",
+        "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56",
+    ]
+
+    # HepDataset-computed n-subjettiness variables (only valid for FatJet)
+    _FATJET_HEPDATASET_TAUS = [
+        "Tau1", "Tau2", "Tau3", "Tau4", "Tau5",
+        "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43",
+        "Tau51", "Tau52", "Tau53", "Tau54",
+    ]
+
+    # Multivariate tagging methods documented as "available soon" for FatJets
+    _FATJET_MVA_TAGS = ["WTag", "ZTag", "HTag", "TopTag"]
+
+    # Direct attributes for MissingET and ScalarHT
+    _MET_DIRECT_METHODS      = ["MET", "Eta", "Phi"]
+    _SCALARHT_DIRECT_METHODS = ["HT"]
+
+    # Per-object allowed representations (mirrors the YAML card comments)
+    _ALLOWED_REPRESENTATIONS = {
+        "Lepton":   ["Lepton", "Muon", "Electron"],
+        "FatJet":   ["FatJet", "SoftDroppedFatJet", "TrimmedFatJet", "PrunedFatJet"],
+        "Jet":      ["Jet", "BJet", "TauJet"],
+        "MET":      ["MET"],
+        "ScalarHT": ["ScalarHT"],
+    }
+
+    # Per-object allowed kinematics (TLorentzVector methods + object-specific direct attrs)
+    _ALLOWED_KINEMATICS = {
+        "Lepton":   _TLORENTZVECTOR_METHODS + _LEPTON_DIRECT_METHODS,
+        "FatJet":   _TLORENTZVECTOR_METHODS + _JET_DIRECT_METHODS
+                    + _FATJET_HEPDATASET_TAUS + _FATJET_MVA_TAGS,
+        "Jet":      _TLORENTZVECTOR_METHODS + _JET_DIRECT_METHODS,
+        "MET":      _TLORENTZVECTOR_METHODS + _MET_DIRECT_METHODS,
+        "ScalarHT": _TLORENTZVECTOR_METHODS + _SCALARHT_DIRECT_METHODS,
+    }
+
+    # Multi-object kinematics allowed lists
+    _ALLOWED_MULTIOBJ_BASIC_KIN  = _TLORENTZVECTOR_METHODS
+    _ALLOWED_MULTIOBJ_2BODY_KIN  = ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+    _ALLOWED_MULTIOBJ_TRIVAL_KIN = ["Sphericity", "Aplanarity", "Circularity",
+                                    "Centrality", "ScalarSumPT", "VectorSumPT"]
+
     def __init__(self, config_path=None):
         self.config_path = config_path
         self.objects = {}
@@ -203,9 +272,115 @@ class BranchesHandler:
             self._warnings.append(
                 "include_trival_kinematics is True but trival_kinematics list is empty."
             )
-        
-        # Validate kinematics and representations
-        
+
+        # ----------------------------------------------------------------
+        # Validate kinematics and representations against the allowed lists
+        # documented in branches_config.yml. Invalid entries are removed
+        # from the in-memory config so that downstream consumers
+        # (make_dataset.py) never see them. A warning is emitted per
+        # removal so the user knows exactly what was dropped.
+        # ----------------------------------------------------------------
+        self._validate_allowed_representations_and_kinematics()
+
+    def _validate_allowed_representations_and_kinematics(self):
+        """
+        Check every object's `representations` and `kinematics` (and the
+        multi-object kinematics lists) against the allowed lists that are
+        documented as comments in branches_config.yml.
+
+        For every invalid entry:
+            - a warning is appended to self._warnings
+            - the entry is removed from the in-memory configuration
+              (self.objects[...] / self.multiObject_*).
+
+        After cleaning, if a list becomes empty, an error is raised so the
+        user is forced to fix the YAML card.
+        """
+
+        # ---------- per-object representations / kinematics ----------
+        for obj_name, obj_def in self.objects.items():
+            if not isinstance(obj_def, dict):
+                continue  # structural error already recorded
+
+            # --- representations ---
+            reprs = obj_def.get("representations")
+            if isinstance(reprs, list) and all(isinstance(r, str) for r in reprs):
+                allowed_r = self._ALLOWED_REPRESENTATIONS.get(obj_name)
+                if allowed_r is not None:
+                    invalid_reprs = [r for r in reprs if r not in allowed_r]
+                    if invalid_reprs:
+                        self._warnings.append(
+                            f"Object '{obj_name}': removing invalid representation(s) "
+                            f"{invalid_reprs}. Allowed: {allowed_r}."
+                        )
+                        obj_def["representations"] = [r for r in reprs if r in allowed_r]
+                        if not obj_def["representations"]:
+                            self._errors.append(
+                                f"Object '{obj_name}': all representations were invalid; "
+                                f"the cleaned list is empty. Please fix branches_config.yml."
+                            )
+
+            # --- kinematics ---
+            kins = obj_def.get("kinematics")
+            if isinstance(kins, list) and all(isinstance(k, str) for k in kins):
+                allowed_k = self._ALLOWED_KINEMATICS.get(obj_name)
+                if allowed_k is not None:
+                    invalid_kins = [k for k in kins if k not in allowed_k]
+                    if invalid_kins:
+                        self._warnings.append(
+                            f"Object '{obj_name}': removing invalid kinematic(s) "
+                            f"{invalid_kins}. Allowed kinematics are the documented "
+                            f"TLorentzVector methods plus object-specific direct "
+                            f"attributes (see branches_config.yml comments)."
+                        )
+                        obj_def["kinematics"] = [k for k in kins if k in allowed_k]
+                        if not obj_def["kinematics"]:
+                            self._errors.append(
+                                f"Object '{obj_name}': all kinematics were invalid; "
+                                f"the cleaned list is empty. Please fix branches_config.yml."
+                            )
+
+        # ---------- multi-object kinematics ----------
+        # basic_kinematics: must be TLorentzVector methods (applied to the
+        # summed 4-vector of the N-body combination)
+        if isinstance(self.multiObject_basic_kinematics, list) and \
+           all(isinstance(k, str) for k in self.multiObject_basic_kinematics):
+            invalid = [k for k in self.multiObject_basic_kinematics
+                       if k not in self._ALLOWED_MULTIOBJ_BASIC_KIN]
+            if invalid:
+                self._warnings.append(
+                    f"multi-objects.basic_kinematics: removing invalid entries {invalid}. "
+                    f"Allowed: TLorentzVector methods only "
+                    f"({self._ALLOWED_MULTIOBJ_BASIC_KIN})."
+                )
+                self.multiObject_basic_kinematics = [k for k in self.multiObject_basic_kinematics
+                                                     if k in self._ALLOWED_MULTIOBJ_BASIC_KIN]
+
+        # 2body_kinematics: must be one of DeltaR / DeltaPhi / DeltaEta / MtW
+        if isinstance(self.multiObject_2body_kinematics, list) and \
+           all(isinstance(k, str) for k in self.multiObject_2body_kinematics):
+            invalid = [k for k in self.multiObject_2body_kinematics
+                       if k not in self._ALLOWED_MULTIOBJ_2BODY_KIN]
+            if invalid:
+                self._warnings.append(
+                    f"multi-objects.2body_kinematics: removing invalid entries {invalid}. "
+                    f"Allowed: {self._ALLOWED_MULTIOBJ_2BODY_KIN}."
+                )
+                self.multiObject_2body_kinematics = [k for k in self.multiObject_2body_kinematics
+                                                     if k in self._ALLOWED_MULTIOBJ_2BODY_KIN]
+
+        # trival_kinematics: must be one of the event-shape / sum-PT variables
+        if isinstance(self.multiObject_trival_kinematics, list) and \
+           all(isinstance(k, str) for k in self.multiObject_trival_kinematics):
+            invalid = [k for k in self.multiObject_trival_kinematics
+                       if k not in self._ALLOWED_MULTIOBJ_TRIVAL_KIN]
+            if invalid:
+                self._warnings.append(
+                    f"multi-objects.trival_kinematics: removing invalid entries {invalid}. "
+                    f"Allowed: {self._ALLOWED_MULTIOBJ_TRIVAL_KIN}."
+                )
+                self.multiObject_trival_kinematics = [k for k in self.multiObject_trival_kinematics
+                                                      if k in self._ALLOWED_MULTIOBJ_TRIVAL_KIN]
 
     def _count_combo_particles(self):
         """Count total available particles from combo_set objects."""

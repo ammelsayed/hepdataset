@@ -1,5 +1,4 @@
 __pycache__/
-onepiece/__pycache__/
 *.py[cod]
 hepdataset.egg-info/
 build/
@@ -9,3 +8,8 @@ HEPDataset/
 hepdataset.log
 HepDataset/
 HepDataset.log
+HepDatasetNoFS.log
+HepDatasetFS.log
+onepiece/HepDatasetNoFS/
+onepiece/HepDatasetFS/
+onepiece/__pycache__/

@@ -1,0 +1,224 @@
+##################################################################
+## 
+## After editing this card, please run the follwoing
+## command to verify your settings:
+## 
+##  python3 src/branches_reader.py branch_config.yml --inspect
+##
+## Reading large amounts of branches can slow down the computations
+## and most of them could be empty depending on your analysis channels
+## definitions. Hence, if used for analysis purposes, please consider
+## chosing only the branches that you will need in order to avoid 
+## wasting of computational reasources.
+##
+## ----------------------------------------------------------------------
+## AUTO-VALIDATION BEHAVIOUR
+## ----------------------------------------------------------------------
+## When branches_reader.py loads this card, it cross-checks every
+## `representations` and `kinematics` entry against the allowed lists
+## documented below in this same file
+##
+##  * If an entry is NOT in the allowed list, a warning is printed and
+##    the entry is silently removed from the in-memory configuration.
+##  * If, after this cleaning, a list becomes empty, an error is raised
+##    and the program exits — you must fix the card before proceeding.
+##  * The same kind of check is applied to the multi-objects kinematics
+##    lists (basic_kinematics, 2body_kinematics, trival_kinematics).
+##
+##################################################################
+
+#================================================================#
+#================================================================#
+objects:
+#================================================================#
+#================================================================#
+# Avaliable TLorentzVector Methods for any object:
+# Examples: MuonBranch.At(0).P4().Pt(), JetBranch.At(0).P4().Pt(),
+# MissingEt.At(0).P4().Pt(), ScalarHT.At(0).P4().Pt(),
+# FatJetBranch.At(0).P4().M(), FatJetBranch.At(0).SoftDroppedP4[0].M(), 
+# FatJetBranch.At(0).TrimmedP4[0].M(), FatJetBranch.At(0).PrunedP4[0].M() , ..., etc.
+#   "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy",
+#   "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et",
+#   "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta",
+#   "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"
+# TLorentzVector Methods are avaliable for all objects
+#----------------------------------------------------------------
+# Avaliable direct methods kinematics for leptons: 
+# Examples: MuonBranch.At(0).PT , MuonBranch.At(0).Eta, ..., etc.
+#   "Flavour", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar", 
+#   "IsolationVarRhoCorr", "SumPtCharged", "SumPtNeutral", 
+#   "SumPtChargedPU", "SumPt", "D0", "DZ", "ErrorD0", "ErrorDZ"
+# Avaliable representations for leptons : ["Lepton", "Muon", "Electron"]
+# ----------------------------------------------------------------
+  Lepton:
+    count: 4
+    representations: ["Lepton", "Muon", "Electron"]           
+    kinematics: ["Flavour", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar", "IsolationVarRhoCorr", "SumPtCharged", "SumPtNeutral", "SumPtChargedPU", "SumPt", "D0", "DZ", "ErrorD0", "ErrorDZ", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
+#----------------------------------------------------------------
+# Avaliable direct methods kinematics for jets & Fatjets
+# Examples: JetBranch.At(0).PT , JetBranch.At(0).Eta, ..., etc.
+#   "PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi", 
+#   "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag",
+#   "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge", 
+#   "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction",
+#   "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed", 
+#   "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12", 
+#   "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56",
+# Kinematics computed by HepDataset (provided by Delphes):
+#   "Tau1", "Tau2", "Tau3", "Tau4", "Tau5", "Tau21",
+#   "Tau31", "Tau32", "Tau41", "Tau42", "Tau43", 
+#   "Tau51", "Tau52", "Tau53", "Tau54"
+# Multivirtate tagging methods avalibale soon for fatjets:
+#   "WTag", "ZTag", "HTag", "TopTag"
+# Avaliable representations for fatjets : ["FatJet", "SoftDroppedFatJet", 
+# "TrimmedFatJet", "PrunedFatJet"]
+# NOTE that the representations "SoftDroppedFatJet", "TrimmedFatJet" and
+# "PrunedFatJet" only have the TLorentzVector methods. Therefore, if you
+# will need, for example, the mass of the softdropped fatjet, you will
+# need to include "M" in the kinematics list, which is equivilant
+# to calling FatJetBranch.At(0).SoftDroppedP4[0].M().
+#----------------------------------------------------------------
+  FatJet:
+    count: 2
+    representations: ["FatJet", "SoftDroppedFatJet", "TrimmedFatJet", "PrunedFatJet"]
+    kinematics: ["PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi", "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag", "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge", "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction", "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed", "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12", "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56", "Tau1", "Tau2", "Tau3", "Tau4", "Tau5", "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43", "Tau51", "Tau52", "Tau53", "Tau54", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
+#----------------------------------------------------------------
+# Avaliable representations for jets : ["Jet", "BJet", "TauJet"]
+# Note: For small-R jets, only the direct attributes and TLorentzVector
+# methods listed above are allowed. n-subjettiness variables (Tau1, Tau2,
+# Tau21, ...) are FatJet-specific and are silently removed if listed
+# here by mistake.
+#----------------------------------------------------------------
+  Jet:
+    count: 4
+    representations: ["Jet", "BJet", "TauJet"]                
+    kinematics: ["PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi", "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag", "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge", "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction", "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed", "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12", "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
+#----------------------------------------------------------------
+# Avaliable direct methods kinematics for MissingET
+# Examples: MissingETtBranch.At(0).MET , MissingETtBranch.At(0).Eta, ..., etc.
+#   "MET", "Eta", "Phi"
+# Avaliable representations for MissingET : ["MET"]
+# MET is treated as a singleton: count must be 1 and representations
+# must be ["MET"]. The branch name has no index (e.g. "MET_MET").
+#----------------------------------------------------------------
+  MET:
+    count: 1
+    representations: ["MET"]
+    kinematics: ["MET", "Eta", "Phi", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
+#----------------------------------------------------------------
+# Avaliable direct methods kinematics for ScalarHT
+# Examples: ScalarHTtBranch.At(0).HT
+#   "HT"
+# No object considered as HT so far. 
+
+
+#================================================================#
+#================================================================#
+event-variables:
+#================================================================#
+#================================================================#
+# This block configures event-level variables that do NOT depend on a
+# specific object instance. They are computed once per event and stored
+# as scalar branches. Two flavours are supported:
+#
+#   global_scalars : per-event scalar quantities (numbers).
+#   event_shapes   : per-event shape quantities derived from the
+#                     momentum tensor of all visible particles.
+#
+# The available global_scalars are filled inside make_dataset.py and are:
+#   "HT"                       : scalar HT from Delphes ScalarHT branch
+#   "LT"                       : scalar sum of lepton pT
+#   "ST"                       : LT + HT
+#   "Meff"                     : ST + MET
+#   "Significance_MET"         : MET / sqrt(HT)
+#   "ScalarSumPT_Jets"         : sum pT of small-R jets
+#   "ScalarSumPT_FatJets"      : sum pT of large-R jets (ungroomed)
+#   "ScalarSumPT_SoftDroppedFatJets" : sum pT of soft-dropped fatjets
+#   "ScalarSumPT_Hadronic"     : ScalarSumPT_Jets + ScalarSumPT_SoftDroppedFatJets
+#
+ global_scalars: ["ScalarSumPT_Jets", "ScalarSumPT_FatJets", "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic", "HT", "LT", "ST", "Meff", "Significance_MET"]
+#
+# The available event_shapes are computed by kinematics.EventShapes():
+#   "Sphericity"   : (3/2)(λ2 + λ3) ∈ [0,1]    ; 0 = pencil-like
+#   "Aplanarity"   : (3/2) λ3       ∈ [0,1/2]  ; 0 = planar
+#   "Circularity"  : 2 μ2 / (μ1+μ2) ∈ [0,1]    ; 0 = back-to-back
+#   "Centrality"   : Σ pT / Σ E     ∈ [0,1]    ; 1 = fully soft
+#
+# These lists are NOT validated by branches_reader.py — they are read
+# as-is and forwarded to make_dataset.py. If you mistype a name here,
+# the corresponding branch will simply stay NaN in the output tree.
+  event_shapes: ["Sphericity", "Aplanarity", "Circularity", "Centrality"]
+
+
+#================================================================#
+#================================================================#
+multi-objects:
+#================================================================#
+#================================================================#
+# This block configures N-body (combinatoric) branches. For every
+# N-tuple of distinct particles drawn from `combo_set`, the listed
+# kinematics are computed on the summed 4-vector (or on the pair, for
+# 2-body-specific kinematics). The resulting branch name pattern is:
+#
+#   <kinematic>_<p1>_<p2>_..._<pN>
+#
+# Example: M_Lepton0_FatJet0  -> invariant mass of Lepton0 + FatJet0.
+#
+# All kinematic strings listed below are validated against allowed
+# lists. Anything not in the allowed list is silently removed and a
+# warning is emitted.
+
+  # Maximum number of objects to be considered
+  # N-body branches are produced for every N in [2, Nmax].
+  # Nmax must be >= 2, otherwise an error is raised.
+  Nmax: 3
+
+  # Objects that will enter the N-body combinations (None these objects have to be included in the objects defintion)
+  # Every entry here MUST also be declared in the `objects:` block above,
+  # otherwise an error is raised. MET is a special case: it contributes
+  # its single instance to every combination and is required for MT2.
+  combo_set: ["Lepton", "FatJet", "Jet", "MET"]
+
+  # Do you want to include same representations of one object? i.e. Electron0_Muon1 etc .. ?
+  # If False, all N particles in a combination must come from DIFFERENT
+  # object types (e.g. Lepton-FatJet-MET is OK, Lepton0-Lepton1-FatJet0
+  # is NOT).
+  # If True, combinations like Lepton0-Lepton1-FatJet0 are also allowed,
+  # as long as the (object, slot) pairs are distinct.
+  include_same_represenations: True
+
+  # kinematics that will be calculated for an N-body objects 
+  # Allowed values: TLorentzVector methods only (Pt, Eta, Phi, M, Px, Py,
+  # Pz, Energy, ...). These are applied to the SUMMED 4-vector of the
+  # combination. Invalid entries are silently removed with a warning.
+  basic_kinematics  : ["X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"] 
+
+  # kinematics that will be calculated for 2-body objects only
+  # the mt2 are calculated for any 2 bodies from the combo_set along with the Px and Py components of MET.
+  # Allowed values: ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+  #   DeltaR    : ΔR(η,φ)  between the two particles
+  #   DeltaPhi  : Δφ        between the two particles
+  #   DeltaEta  : Δη        between the two particles
+  #   MtW       : W-type transverse mass = sqrt(2 pT1 pT2 (1-cosΔφ))
+  # These are filled manually in make_dataset.py — anything else listed
+  # here is silently removed.
+  2body_kinematics  : ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+
+  # include_mt2 adds the "MT2" branch for every 2-body combination
+  # drawn from (Lepton ∪ FatJet) together with MET. MT2 is computed
+  # using the mt2 library and the Px,Py components of MET; the two
+  # invisible particles are assumed massless.
+  # If MET is not in combo_set, a warning is printed.
+  include_mt2: True 
+  
+  # trival kinematics are kinematics that you chose to include or not by the boolean flag below
+  # Allowed values (all computed per N-body combination):
+  #   "Sphericity"  : (3/2)(λ2+λ3) of the N-particle momentum tensor
+  #   "Aplanarity"  : (3/2) λ3     of the N-particle momentum tensor
+  #   "Circularity" : 2D circularity in the transverse plane
+  #   "Centrality"  : Σ pT / Σ E    of the N particles
+  #   "ScalarSumPT" : Σ pT          of the N particles
+  #   "VectorSumPT" : |Σ pT_vec|    of the N particles
+  # Anything else listed here is silently removed.
+  include_trival_kinematics: True
+  trival_kinematics : ["Sphericity", "Aplanarity", "Circularity", "Centrality", "ScalarSumPT"]

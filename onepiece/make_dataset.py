@@ -81,8 +81,9 @@ def loop_tree(
     output_file_name = "events.root", 
     overwrite_output_dir = False,
     branches_config_path = None,
+    split_by_flavour = False,
     write_metadata = True,
-    return_trees = True
+    return_trees = True,
     ):
 
     # Read the input file
@@ -150,7 +151,7 @@ def loop_tree(
     int_branch_names = BR.get_int_branch_names()
 
     # Analysis channel bookkeeping
-    eventSel = EventSelector()
+    eventSel = EventSelector(splitByFlavour=split_by_flavour)
     ac_keys, ac_dict = eventSel.ac_keys, eventSel.ac_dict
 
     # Initialize object selector
@@ -253,13 +254,16 @@ def loop_tree(
                 # Fill kinematics asked for
                 for k in BR.get_obj_kinematics("Lepton"):
                     branch_name = f"{k}_{inst}"
-                    try:
-                        b[branch_name][0] = getattr(lepton, k) # example: lep.PT 
-                    except AttributeError:
+                    if k == "Flavour":
+                        b[branch_name][0] = 2 if lepClassName == "Muon" else 1
+                    else:
                         try:
-                            b[branch_name][0] = getattr(p4, k)() # example: lep.P4().Px() 
-                        except AttributeError as e:
-                            continue # leave as NaN (already set at reset time)
+                            b[branch_name][0] = getattr(lepton, k) # example: lep.PT 
+                        except AttributeError:
+                            try:
+                                b[branch_name][0] = getattr(p4, k)() # example: lep.P4().Px() 
+                            except AttributeError as e:
+                                continue # leave as NaN (already set at reset time)
 
         # ----------------------------------------------------------------
         # Fill Large-R (FatJets) kinematics
@@ -625,6 +629,7 @@ def loop_tree_parallel(
     output_file_name = "events.root", 
     overwrite_output_dir = False,
     branches_config_path = None,
+    split_by_flavour = False,
     n_chunks = None, 
     max_workers = None
     ):
@@ -648,6 +653,7 @@ def loop_tree_parallel(
             f"tmp_split{i}_{output_file_name}", 
             True, # overwrite_output_dir
             branches_config_path,
+            split_by_flavour,
             False, # write_metadata
             False  # return_trees
         ))
@@ -664,7 +670,7 @@ def loop_tree_parallel(
     merged_trees  = None
     merged_paths  = hadd_chunks(results, max_workers, output_file_name)
     merged_objSel = ObjectSelector.Merge([r["ObjectSelector"] for r in results])
-    merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results])
+    merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results],splitByFlavour=split_by_flavour)
         
     return {
         "trees": merged_trees,
@@ -686,7 +692,8 @@ def make_dataset(
     n_chunks = None,
     show_progress=False,
     merge_proc_samples = True,
-    run_in_parallel = True
+    run_in_parallel = True,
+    split_by_flavour = False,
     ):
 
     precompile_numba()
@@ -741,6 +748,7 @@ def make_dataset(
                         output_file_name = sample_fileName, 
                         overwrite_output_dir = True,
                         branches_config_path = branches_config_file,
+                        split_by_flavour = split_by_flavour,
                         n_chunks = n_chunks, 
                         max_workers = max_workers
                     )
@@ -760,6 +768,7 @@ def make_dataset(
                         output_file_name = sample_fileName, 
                         overwrite_output_dir = True,
                         branches_config_path = branches_config_file,
+                        split_by_flavour = split_by_flavour,
                         write_metadata = True,
                         return_trees = True
                     )
@@ -790,7 +799,7 @@ def make_dataset(
             # Merge the selectors across samples and print 
             if proc_objSel and proc_evtSel:
                 merged_objSel = ObjectSelector.Merge(proc_objSel)
-                merged_evtSel = EventSelector.Merge(proc_evtSel)
+                merged_evtSel = EventSelector.Merge(proc_evtSel, splitByFlavour=split_by_flavour)
                 merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)
                 merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=working_luminosity)
                 
@@ -821,6 +830,7 @@ def main():
     p.add_argument("--show-progress", action="store_true")
     p.add_argument("--no-merge-proc-samples", dest="merge_proc_samples", action="store_false", default=True)
     p.add_argument("--run-in-parallel", dest="run_in_parallel", action="store_false", default=True)
+    p.add_argument("--split-by-flavour", action="store_true",  help="Split analysis channels by lepton flavour (e/mu) instead of merging them into a single 'lep'.")
     args = p.parse_args()
 
     started = datetime.now()
