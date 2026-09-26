@@ -288,7 +288,7 @@ def loop_tree(
 
             # Fill kinematics asked for
             for k in BR.get_obj_kinematics("FatJet"):                
-                if k in ["Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]: continue # n-subjetness variables are handeled seperatly
+                if k in ["Tau1", "Tau2", "Tau3", "Tau4", "Tau5", "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43", "Tau51", "Tau52", "Tau53", "Tau54"]: continue # n-subjetness variables are handeled seperatly
                 branch_name = f"{k}_FatJet{fj_idx}"
                 try:
                     b[branch_name][0] = getattr(fatjet, k)  
@@ -319,13 +319,21 @@ def loop_tree(
                         continue
 
             # Fill n-subjetness substructure variables
-            # Those are only filled for FatJet, t groomed variants do not carry these methods
-            for t_idx in [1, 2, 3]:
-                b[f"Tau{t_idx}_FatJet{fj_idx}"][0] = fatjet.Tau[t_idx - 1]
+            # Those are only filled for FatJet, the groomed variants do not carry these methods
+            ntaus_available = min(len(fatjet.Tau), 5)
+            tau_values = {}
+            for t_idx in range(1, ntaus_available + 1):
+                tau_values[t_idx] = fatjet.Tau[t_idx - 1]
+                b[f"Tau{t_idx}_FatJet{fj_idx}"][0] = tau_values[t_idx]
 
-            t1, t2, t3 = fatjet.Tau[0], fatjet.Tau[1], fatjet.Tau[2]
-            b[f"Tau21_FatJet{fj_idx}"][0] = t2 / t1 if t1 > 0 else 1.0
-            b[f"Tau32_FatJet{fj_idx}"][0] = t3 / t2 if t2 > 0 else 1.0
+            requested_taus = BR.get_obj_kinematics("FatJet")
+            for k in requested_taus:
+                if k.startswith("Tau") and len(k) == 5 and k[3].isdigit() and k[4].isdigit():
+                    i, j = int(k[3]), int(k[4])
+                    if i <= ntaus_available and j <= ntaus_available and i > j:
+                        ti = tau_values.get(i, 0.0)
+                        tj = tau_values.get(j, 0.0)
+                        b[f"Tau{i}{j}_FatJet{fj_idx}"][0] = ti / tj if tj > 0 else 1.0
 
         # ----------------------------------------------------------------
         # Fill Small-R Jets kinematics
@@ -458,17 +466,19 @@ def loop_tree(
                         
                         # only fill the event shapes if they are asked for
                         if BR.multiObjects_include_trival_kinematics:
+                            tk = set(BR.multiObject_trival_kinematics)
                             px_arr = np.array([p.Px() for p in p4_list], dtype=np.float64)
                             py_arr = np.array([p.Py() for p in p4_list], dtype=np.float64)
                             pz_arr = np.array([p.Pz() for p in p4_list], dtype=np.float64)
                             e_arr  = np.array([p.Energy() for p in p4_list], dtype=np.float64)
-                            S, A, C = EventShapes(px_arr, py_arr, pz_arr)
-                            b[f"Sphericity_{sufx}"][0] = S
-                            b[f"Aplanarity_{sufx}"][0] = A
-                            b[f"Circularity_{sufx}"][0] = C
-                            b[f"Centrality_{sufx}"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
-                            b[f"ScalarSumPT_{sufx}"][0] = sum([p.Pt() for p in p4_list])
-                            b[f"VectorSumPT_{sufx}"][0] = total_p4.Pt()
+
+                            if "Sphericity" in tk or "Aplanarity" in tk or "Circularity" in tk:
+                                S, A, C = EventShapes(px_arr, py_arr, pz_arr)
+                            if "Sphericity" in tk: b[f"Sphericity_{sufx}"][0] = S
+                            if "Aplanarity" in tk: b[f"Aplanarity_{sufx}"][0] = A
+                            if "Circularity" in tk: b[f"Circularity_{sufx}"][0] = C
+                            if "Centrality" in tk: b[f"Centrality_{sufx}"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
+                            if "ScalarSumPT" in tk: b[f"ScalarSumPT_{sufx}"][0] = sum([p.Pt() for p in p4_list])
 
 
         # fill weight branches 

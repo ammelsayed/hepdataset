@@ -38,10 +38,12 @@ objects:
 # FatJetBranch.At(0).P4().M(), FatJetBranch.At(0).SoftDroppedP4[0].M(), 
 # FatJetBranch.At(0).TrimmedP4[0].M(), FatJetBranch.At(0).PrunedP4[0].M() , ..., etc.
 #   "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy",
-#   "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et",
+#   "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et",
 #   "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta",
 #   "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"
-# TLorentzVector Methods are avaliable for all objects
+# TLorentzVector Methods are avaliable for all objects.
+# [1] https://root.cern.ch/doc/master/classTLorentzVector.html (Legacy)
+# [2] https://root.cern.ch/doc/master/classROOT_1_1Math_1_1LorentzVector.html
 #----------------------------------------------------------------
 # Avaliable direct methods kinematics for leptons: 
 # Examples: MuonBranch.At(0).PT , MuonBranch.At(0).Eta, ..., etc.
@@ -53,7 +55,7 @@ objects:
   Lepton:
     count: 4
     representations: ["Lepton", "Muon", "Electron"]           
-    kinematics: ["Flavour", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar", "IsolationVarRhoCorr", "SumPtCharged", "SumPtNeutral", "SumPtChargedPU", "SumPt", "D0", "DZ", "ErrorD0", "ErrorDZ", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
+    kinematics: ["Flavour", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar", "IsolationVarRhoCorr", "SumPtCharged", "SumPtNeutral", "SumPtChargedPU", "SumPt", "D0", "DZ", "ErrorD0", "ErrorDZ", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
 #----------------------------------------------------------------
 # Avaliable direct methods kinematics for jets & Fatjets
 # Examples: JetBranch.At(0).PT , JetBranch.At(0).Eta, ..., etc.
@@ -81,7 +83,7 @@ objects:
   FatJet:
     count: 2
     representations: ["FatJet", "SoftDroppedFatJet", "TrimmedFatJet", "PrunedFatJet"]
-    kinematics: ["PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi", "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag", "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge", "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction", "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed", "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12", "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56", "Tau1", "Tau2", "Tau3", "Tau4", "Tau5", "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43", "Tau51", "Tau52", "Tau53", "Tau54", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
+    kinematics: ["PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi", "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag", "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge", "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction", "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed", "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12", "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56", "Tau1", "Tau2", "Tau3", "Tau4", "Tau5", "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43", "Tau51", "Tau52", "Tau53", "Tau54", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
 #----------------------------------------------------------------
 # Avaliable representations for jets : ["Jet", "BJet", "TauJet"]
 # Note: For small-R jets, only the direct attributes and TLorentzVector
@@ -92,7 +94,7 @@ objects:
   Jet:
     count: 4
     representations: ["Jet", "BJet", "TauJet"]                
-    kinematics: ["PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi", "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag", "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge", "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction", "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed", "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12", "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
+    kinematics: ["PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi", "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag", "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge", "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction", "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed", "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12", "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
 #----------------------------------------------------------------
 # Avaliable direct methods kinematics for MissingET
 # Examples: MissingETtBranch.At(0).MET , MissingETtBranch.At(0).Eta, ..., etc.
@@ -104,7 +106,7 @@ objects:
   MET:
     count: 1
     representations: ["MET"]
-    kinematics: ["MET", "Eta", "Phi", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
+    kinematics: ["MET", "Eta", "Phi", "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"]
 #----------------------------------------------------------------
 # Avaliable direct methods kinematics for ScalarHT
 # Examples: ScalarHTtBranch.At(0).HT
@@ -191,7 +193,7 @@ multi-objects:
   # Allowed values: TLorentzVector methods only (Pt, Eta, Phi, M, Px, Py,
   # Pz, Energy, ...). These are applied to the SUMMED 4-vector of the
   # combination. Invalid entries are silently removed with a warning.
-  basic_kinematics  : ["X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"] 
+  basic_kinematics  : ["X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"] 
 
   # kinematics that will be calculated for 2-body objects only
   # the mt2 are calculated for any 2 bodies from the combo_set along with the Px and Py components of MET.
@@ -221,4 +223,4 @@ multi-objects:
   #   "VectorSumPT" : |Σ pT_vec|    of the N particles
   # Anything else listed here is silently removed.
   include_trival_kinematics: True
-  trival_kinematics : ["Sphericity", "Aplanarity", "Circularity", "Centrality", "ScalarSumPT"]
+  trival_kinematics : ["Sphericity", "Aplanarity", "Circularity", "Centrality", "ScalarSumPT"]=

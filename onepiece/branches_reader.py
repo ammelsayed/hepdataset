@@ -26,7 +26,11 @@ class BranchesHandler:
     _GROOMED_REPRESENTATIONS = {"SoftDroppedFatJet", "TrimmedFatJet", "PrunedFatJet"}
 
     # Kinematics that only exist on the main (ungroomed) FatJet
-    _TAU_SUBSTRUCTURE_KINEMATICS = {"Tau1", "Tau2", "Tau3", "Tau21", "Tau32"}
+    _TAU_SUBSTRUCTURE_KINEMATICS = {
+        "Tau1", "Tau2", "Tau3", "Tau4", "Tau5",
+        "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43",
+        "Tau51", "Tau52", "Tau53", "Tau54",
+    }
 
     # ------------------------------------------------------------------ #
     # Allowed representations / kinematics (parsed from branches_config)  #
@@ -96,6 +100,12 @@ class BranchesHandler:
     _ALLOWED_MULTIOBJ_2BODY_KIN  = ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
     _ALLOWED_MULTIOBJ_TRIVAL_KIN = ["Sphericity", "Aplanarity", "Circularity",
                                     "Centrality", "ScalarSumPT", "VectorSumPT"]
+
+    _ALLOWED_COMBO_OBJECTS = {"Lepton", "FatJet", "Jet", "MET"}
+    _ALLOWED_GLOBAL_SCALARS = {"HT", "LT", "ST", "Meff", "Significance_MET",
+                               "ScalarSumPT_Jets", "ScalarSumPT_FatJets",
+                               "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic"}
+    _ALLOWED_EVENT_SHAPES = {"Sphericity", "Aplanarity", "Circularity", "Centrality"}
 
     def __init__(self, config_path=None):
         self.config_path = config_path
@@ -229,6 +239,11 @@ class BranchesHandler:
                 self._errors.append(
                     f"Object '{obj}' in combo_set is not defined in 'objects'."
                 )
+            elif obj not in self._ALLOWED_COMBO_OBJECTS:
+                self._errors.append(
+                    f"Object '{obj}' in combo_set is not supported for N-body combinations. "
+                    f"Allowed: {sorted(self._ALLOWED_COMBO_OBJECTS)}."
+                )
 
         # --- Validate Nmax ---
         if not isinstance(self.multiObjects_Nmax, int) or self.multiObjects_Nmax < 2:
@@ -247,8 +262,19 @@ class BranchesHandler:
         # --- Validate global_scalars and event_shapes ---
         if not isinstance(self.global_scalars, list):
             self._errors.append("global_scalars must be a list.")
+        else:
+            invalid_gs = [g for g in self.global_scalars if g not in self._ALLOWED_GLOBAL_SCALARS]
+            if invalid_gs:
+                self._warnings.append(f"global_scalars: removing invalid entries {invalid_gs}.")
+                self.global_scalars = [g for g in self.global_scalars if g in self._ALLOWED_GLOBAL_SCALARS]
+
         if not isinstance(self.event_shapes, list):
             self._errors.append("event_shapes must be a list.")
+        else:
+            invalid_es = [e for e in self.event_shapes if e not in self._ALLOWED_EVENT_SHAPES]
+            if invalid_es:
+                self._warnings.append(f"event_shapes: removing invalid entries {invalid_es}.")
+                self.event_shapes = [e for e in self.event_shapes if e in self._ALLOWED_EVENT_SHAPES]
 
         # --- Validate kinematics lists ---
         for name, val in [
@@ -339,6 +365,12 @@ class BranchesHandler:
                                 f"Object '{obj_name}': all kinematics were invalid; "
                                 f"the cleaned list is empty. Please fix branches_config.yml."
                             )
+                    future_only = [k for k in obj_def.get("kinematics", []) if k in self._FATJET_MVA_TAGS]
+                    if future_only:
+                        self._warnings.append(
+                            f"Object 'FatJet': kinematics {future_only} are documented as "
+                            f"'available soon' and will remain NaN in the output."
+                        )
 
         # ---------- multi-object kinematics ----------
         # basic_kinematics: must be TLorentzVector methods (applied to the
@@ -355,6 +387,11 @@ class BranchesHandler:
                 )
                 self.multiObject_basic_kinematics = [k for k in self.multiObject_basic_kinematics
                                                      if k in self._ALLOWED_MULTIOBJ_BASIC_KIN]
+                if not self.multiObject_basic_kinematics:
+                    self._errors.append(
+                        "multi-objects.basic_kinematics: all entries were invalid; "
+                        "the cleaned list is empty. Please fix branches_config.yml."
+                    )
 
         # 2body_kinematics: must be one of DeltaR / DeltaPhi / DeltaEta / MtW
         if isinstance(self.multiObject_2body_kinematics, list) and \
@@ -368,6 +405,11 @@ class BranchesHandler:
                 )
                 self.multiObject_2body_kinematics = [k for k in self.multiObject_2body_kinematics
                                                      if k in self._ALLOWED_MULTIOBJ_2BODY_KIN]
+                if not self.multiObject_2body_kinematics and self.multiObjects_Nmax >= 2:
+                    self._errors.append(
+                        "multi-objects.2body_kinematics: all entries were invalid; "
+                        "the cleaned list is empty. Please fix branches_config.yml."
+                    )
 
         # trival_kinematics: must be one of the event-shape / sum-PT variables
         if isinstance(self.multiObject_trival_kinematics, list) and \
@@ -381,6 +423,11 @@ class BranchesHandler:
                 )
                 self.multiObject_trival_kinematics = [k for k in self.multiObject_trival_kinematics
                                                       if k in self._ALLOWED_MULTIOBJ_TRIVAL_KIN]
+                if self.multiObjects_include_trival_kinematics and not self.multiObject_trival_kinematics:
+                    self._errors.append(
+                        "multi-objects.trival_kinematics: include_trival_kinematics is True "
+                        "but the cleaned list is empty. Please fix branches_config.yml."
+                    )
 
     def _count_combo_particles(self):
         """Count total available particles from combo_set objects."""
@@ -463,6 +510,9 @@ class BranchesHandler:
                 inst = f"{rep}{i}"
                 for k in kinematics:
                     if skip_tau and k in self._TAU_SUBSTRUCTURE_KINEMATICS:
+                        continue
+                    # Groomed representations only have TLorentzVector methods
+                    if skip_tau and k not in self._TLORENTZVECTOR_METHODS:
                         continue
                     out.append(f"{k}_{inst}")
         return out

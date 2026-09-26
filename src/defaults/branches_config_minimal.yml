@@ -38,10 +38,12 @@ objects:
 # FatJetBranch.At(0).P4().M(), FatJetBranch.At(0).SoftDroppedP4[0].M(), 
 # FatJetBranch.At(0).TrimmedP4[0].M(), FatJetBranch.At(0).PrunedP4[0].M() , ..., etc.
 #   "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy",
-#   "Theta", "CosTheta", "Phi", "Rho", "Prep", "Prep2", "Et",
+#   "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et",
 #   "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta",
 #   "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"
-# TLorentzVector Methods are avaliable for all objects
+# TLorentzVector Methods are avaliable for all objects.
+# [1] https://root.cern.ch/doc/master/classTLorentzVector.html (Legacy)
+# [2] https://root.cern.ch/doc/master/classROOT_1_1Math_1_1LorentzVector.html
 #----------------------------------------------------------------
 # Avaliable direct methods kinematics for leptons: 
 # Examples: MuonBranch.At(0).PT , MuonBranch.At(0).Eta, ..., etc.
