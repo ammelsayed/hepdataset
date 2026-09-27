@@ -13,8 +13,8 @@ define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
 generate p p > w+ z QCD=0 QED=2, w+ > l+ vl, z > l+ l-
 add process p p > w- z QCD=0 QED=2, w- > l- vl~, z > l+ l-
-output wz_3L_SmallSample --f
-launch wz_3L_SmallSample
+output wz_3L --f
+launch wz_3L
 shower = Pythia8
 detector = Delphes
 analysis = OFF
@@ -22,8 +22,8 @@ madspin = OFF
 reweight = OFF
 done
 set ebeam 6800
-./pythia8_card_TuneA14.dat
-./delphes_card_ATLAS_FatJetPTMin50.tcl
+../Cards/pythia8_card_TuneA14.dat
+../Cards/delphes_card_ATLAS_FatJetPTMin50.tcl
 set pdlabel lhapdf
 set lhaid 331900
 set use_syst False
