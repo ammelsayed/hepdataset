@@ -590,9 +590,20 @@ class BranchesHandler:
         combos = self.get_nbody_combinations(N)
         kinematics = self.get_nbody_kinematics(N)
         branch_names = []
+        lepton_instances = set(self.get_obj_instances("Lepton"))
+        
         for combo in combos:
             combo_str = "_".join(combo)
             for kin in kinematics:
+                # MtW is only meaningful for an object and MET
+                if kin == "MtW" and "MET" not in combo:
+                    continue
+                # OS/SS and SF/OF tags only make sense for two leptons
+                if kin in ["isOSSF", "isOSOF", "isSSOF", "isSSSF"]:
+                    if N != 2:
+                        continue
+                    if combo[0] not in lepton_instances or combo[1] not in lepton_instances:
+                        continue
                 branch_names.append(f"{kin}_{combo_str}")
         return branch_names
 

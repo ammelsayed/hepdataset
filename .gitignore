@@ -5,11 +5,5 @@ build/
 .pytest_cache/
 dist/
 HEPDataset/
-hepdataset.log
 HepDataset/
-HepDataset.log
-HepDatasetNoFS.log
-HepDatasetFS.log
-onepiece/HepDatasetNoFS/
-onepiece/HepDatasetFS/
-onepiece/__pycache__/
+HepDatasetSplitFlavour/

@@ -34,7 +34,7 @@ ROOT.gInterpreter.Declare('#include "classes/SortableObject.h"')
 ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.SetStyle("ATLAS")
-ROOT.DisableImplicitMT() 
+# ROOT.EnableImplicitMT() 
 print("Using ROOT version:", ROOT.__version__)
 print("Using Delphes libraries found at:", DELPHES_PATH)
 
@@ -337,18 +337,27 @@ def loop_tree(
             # Fill n-subjetness substructure variables
             # Those are only filled for FatJet, t groomed variants do not carry these methods
             ntaus_available = min(len(fatjet.Tau), 5)
-            tau_values = {}
-            for t_idx in range(1, ntaus_available + 1):
-                tau_values[t_idx] = fatjet.Tau[t_idx - 1]
-                b[f"Tau{t_idx}_FatJet{fj_idx}"][0] = tau_values[t_idx]
-
             requested_taus = BR.get_obj_kinematics("FatJet")
+            tau_values = {}
+
+            for t_idx in range(1, ntaus_available + 1):
+                tau_name = f"Tau{t_idx}"
+                if tau_name in requested_taus:
+                    tau_values[t_idx] = fatjet.Tau[t_idx - 1]
+                    b[f"{tau_name}_FatJet{fj_idx}"][0] = tau_values[t_idx]
+
             for k in requested_taus:
                 if k.startswith("Tau") and len(k) == 5 and k[3].isdigit() and k[4].isdigit():
                     i, j = int(k[3]), int(k[4])
                     if i <= ntaus_available and j <= ntaus_available and i > j:
-                        ti = tau_values.get(i, 0.0)
-                        tj = tau_values.get(j, 0.0)
+                        ti = tau_values.get(i)
+                        if ti is None:
+                            ti = fatjet.Tau[i - 1]
+                            tau_values[i] = ti
+                        tj = tau_values.get(j)
+                        if tj is None:
+                            tj = fatjet.Tau[j - 1]
+                            tau_values[j] = tj
                         b[f"Tau{i}{j}_FatJet{fj_idx}"][0] = ti / tj if tj > 0 else 1.0
 
         # ----------------------------------------------------------------
@@ -392,38 +401,40 @@ def loop_tree(
 
         # Fill other global scalars        
         ht = ScalarHT_branch.At(0).HT
-        b["HT"][0] = ht
+        if "HT" in BR.global_scalars: b["HT"][0] = ht
         
         lt = sum([lep.PT for lep in goodLeptons])
         st = lt + ht
         meff = st + met.MET
         sig_met = ( met.MET / np.sqrt(ht) ) if ht > 0 else np.nan
-        b["LT"][0] = lt
-        b["ST"][0] = st
-        b["Significance_MET"][0] = sig_met
-        b["Meff"][0] = meff
+        if "LT" in BR.global_scalars: b["LT"][0] = lt
+        if "ST" in BR.global_scalars: b["ST"][0] = st
+        if "Significance_MET" in BR.global_scalars: b["Significance_MET"][0] = sig_met
+        if "Meff" in BR.global_scalars: b["Meff"][0] = meff
 
         sumPT_jets = sum([jet.PT for jet in goodJets])
         sumPT_fjs = sum([fj.PT for fj in goodFatJets])
         sumPT_sdfjs = sum([fj.SoftDroppedP4[0].Pt() for fj in goodFatJets])
 
-        b["ScalarSumPT_Jets"][0] = sumPT_jets
-        b["ScalarSumPT_FatJets"][0] = sumPT_fjs
-        b["ScalarSumPT_SoftDroppedFatJets"][0] = sumPT_sdfjs
-        b["ScalarSumPT_Hadronic"][0] = sumPT_jets + sumPT_sdfjs # should equal HT
+        if "ScalarSumPT_Jets" in BR.global_scalars: b["ScalarSumPT_Jets"][0] = sumPT_jets
+        if "ScalarSumPT_FatJets" in BR.global_scalars: b["ScalarSumPT_FatJets"][0] = sumPT_fjs
+        if "ScalarSumPT_SoftDroppedFatJets" in BR.global_scalars: b["ScalarSumPT_SoftDroppedFatJets"][0] = sumPT_sdfjs
+        if "ScalarSumPT_Hadronic" in BR.global_scalars: b["ScalarSumPT_Hadronic"][0] = sumPT_jets + sumPT_sdfjs # should equal HT
         
         # Fill event shapes
-        vis_p4s = [lep.P4() for lep in goodLeptons] + [fj.P4() for fj in goodFatJets] + [jet.P4() for jet in goodJets] + [met.P4()]
-        px_arr = np.array([p.Px() for p in vis_p4s], dtype=np.float64)
-        py_arr = np.array([p.Py() for p in vis_p4s], dtype=np.float64)
-        pz_arr = np.array([p.Pz() for p in vis_p4s], dtype=np.float64)
-        e_arr  = np.array([p.Energy() for p in vis_p4s], dtype=np.float64)
-    
-        S, A, C = EventShapes(px_arr, py_arr, pz_arr)
-        b["Sphericity"][0] = S
-        b["Aplanarity"][0] = A
-        b["Circularity"][0] = C
-        b["Centrality"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
+        if BR.event_shapes:
+            vis_p4s = [lep.P4() for lep in goodLeptons] + [fj.P4() for fj in goodFatJets] + [jet.P4() for jet in goodJets] + [met.P4()]
+            px_arr = np.array([p.Px() for p in vis_p4s], dtype=np.float64)
+            py_arr = np.array([p.Py() for p in vis_p4s], dtype=np.float64)
+            pz_arr = np.array([p.Pz() for p in vis_p4s], dtype=np.float64)
+            e_arr  = np.array([p.Energy() for p in vis_p4s], dtype=np.float64)
+        
+            if "Sphericity" in BR.event_shapes or "Aplanarity" in BR.event_shapes or "Circularity" in BR.event_shapes:
+                S, A, C = EventShapes(px_arr, py_arr, pz_arr)
+                if "Sphericity" in BR.event_shapes: b["Sphericity"][0] = S
+                if "Aplanarity" in BR.event_shapes: b["Aplanarity"][0] = A
+                if "Circularity" in BR.event_shapes: b["Circularity"][0] = C
+            if "Centrality" in BR.event_shapes: b["Centrality"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
 
         # ----------------------------------------------------------------
         # Fill N-body relations
@@ -460,7 +471,7 @@ def loop_tree(
                                 b[f"DeltaPhi_{sufx}"][0] = p1.DeltaPhi(p2)
                             if "DeltaEta" in BR.multiObject_2body_kinematics:
                                 b[f"DeltaEta_{sufx}"][0] = p1.Eta() - p2.Eta()
-                            if "MtW" in BR.multiObject_2body_kinematics:
+                            if "MtW" in BR.multiObject_2body_kinematics and "MET" in p_names:
                                 b[f"MtW_{sufx}"][0] = MtW(p1.Pt(), p1.Phi(), p2.Pt(), p2.Phi())
                             
                             # Fill OS/SS and SF/OF tags for lepton pairs
@@ -482,16 +493,6 @@ def loop_tree(
                                     b[f"isSSOF_{sufx}"][0] = 1 if (ss_flag and of_flag) else 0
                                 if "isSSSF" in BR.multiObject_2body_kinematics:
                                     b[f"isSSSF_{sufx}"][0] = 1 if (ss_flag and sf_flag) else 0
-                            else:
-                                # Not a lepton pair
-                                if "isOSSF" in BR.multiObject_2body_kinematics:
-                                    b[f"isOSSF_{sufx}"][0] = 0
-                                if "isOSOF" in BR.multiObject_2body_kinematics:
-                                    b[f"isOSOF_{sufx}"][0] = 0
-                                if "isSSOF" in BR.multiObject_2body_kinematics:
-                                    b[f"isSSOF_{sufx}"][0] = 0
-                                if "isSSSF" in BR.multiObject_2body_kinematics:
-                                    b[f"isSSSF_{sufx}"][0] = 0
 
                         # Here we wish to calculate the stransverse mass
                         # We just calclate it for 2 body objects, 
@@ -517,11 +518,11 @@ def loop_tree(
                             pz_arr = np.array([p.Pz() for p in p4_list], dtype=np.float64)
                             e_arr  = np.array([p.Energy() for p in p4_list], dtype=np.float64)
 
-                            if "Sphericity" in tk or "Aplanarity" in tk:
+                            if "Sphericity" in tk or "Aplanarity" in tk or "Circularity" in tk:
                                 S, A, C = EventShapes(px_arr, py_arr, pz_arr)
-                            if "Sphericity" in tk: b[f"Sphericity_{sufx}"][0] = S
-                            if "Aplanarity" in tk: b[f"Aplanarity_{sufx}"][0] = A
-                            if "Circularity" in tk: b[f"Circularity_{sufx}"][0] = C
+                                if "Sphericity" in tk: b[f"Sphericity_{sufx}"][0] = S
+                                if "Aplanarity" in tk: b[f"Aplanarity_{sufx}"][0] = A
+                                if "Circularity" in tk: b[f"Circularity_{sufx}"][0] = C
                             if "Centrality" in tk: b[f"Centrality_{sufx}"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
                             if "ScalarSumPT" in tk: b[f"ScalarSumPT_{sufx}"][0] = sum([p.Pt() for p in p4_list])
 
