@@ -119,6 +119,7 @@ class BranchesHandler:
         self.multiObjects_include_same_represenations = False
         self.multiObjects_include_trival_kinematics = False
         self.multiObjects_include_mt2 = False
+        self.multiObjects_mt2_object_types = ["Lepton", "FatJet"]
         self.multiObject_basic_kinematics = []
         self.multiObject_2body_kinematics = []
         self.multiObject_trival_kinematics = []
@@ -163,6 +164,11 @@ class BranchesHandler:
         self.multiObjects_include_same_represenations = mo.get("include_same_represenations", False)
         self.multiObjects_include_trival_kinematics = mo.get("include_trival_kinematics", False)
         self.multiObjects_include_mt2 = mo.get("include_mt2", False)
+        self.multiObjects_mt2_object_types = mo.get(
+            "mt2_object_types",
+            [obj for obj in ("Lepton", "FatJet")
+             if obj in self.objects and obj in self.multiObjects_combo_objects_set],
+        )
         self.multiObject_basic_kinematics = mo.get("basic_kinematics", [])
         self.multiObject_2body_kinematics = mo.get("2body_kinematics", [])
         self.multiObject_trival_kinematics = mo.get("trival_kinematics", [])
@@ -281,6 +287,7 @@ class BranchesHandler:
             ("basic_kinematics", self.multiObject_basic_kinematics),
             ("2body_kinematics", self.multiObject_2body_kinematics),
             ("trival_kinematics", self.multiObject_trival_kinematics),
+            ("mt2_object_types", self.multiObjects_mt2_object_types),
         ]:
             if not isinstance(val, list):
                 self._errors.append(f"{name} must be a list, got {type(val).__name__}.")
@@ -288,6 +295,24 @@ class BranchesHandler:
                 self._errors.append(f"{name} must contain only strings. Check YAML for unquoted values.")
 
         # --- Cross-checks ---
+        if isinstance(self.multiObjects_mt2_object_types, list) and all(
+            isinstance(obj, str) for obj in self.multiObjects_mt2_object_types
+        ):
+            invalid_mt2_objects = [
+                obj for obj in self.multiObjects_mt2_object_types
+                if obj == "MET" or obj not in self._ALLOWED_COMBO_OBJECTS
+                or obj not in self.objects or obj not in self.multiObjects_combo_objects_set
+            ]
+            if invalid_mt2_objects:
+                self._errors.append(
+                    "mt2_object_types must contain only declared visible-object types "
+                    f"from combo_set (MET is not a visible MT2 leg); invalid: {invalid_mt2_objects}."
+                )
+        if self.multiObjects_include_mt2 and not self.multiObjects_mt2_object_types:
+            self._warnings.append(
+                "include_mt2 is True but mt2_object_types is empty; no MT2 branches will be generated."
+            )
+
         if self.multiObjects_include_mt2 and "MET" not in self.multiObjects_combo_objects_set:
             self._warnings.append(
                 "include_mt2 is True but 'MET' is not in combo_set. "
@@ -490,6 +515,14 @@ class BranchesHandler:
         else:
             return []
 
+    def get_mt2_obj_instances(self):
+        """Return the configured visible-object instances eligible for MT2."""
+        return [
+            instance
+            for obj in self.multiObjects_mt2_object_types
+            for instance in self.get_obj_instances(obj)
+        ]
+
     def get_obj_branch_names(self, obj):
         if obj not in self.objects:
             return []
@@ -591,12 +624,17 @@ class BranchesHandler:
         kinematics = self.get_nbody_kinematics(N)
         branch_names = []
         lepton_instances = set(self.get_obj_instances("Lepton"))
+        mt2_instances = set(self.get_mt2_obj_instances())
         
         for combo in combos:
             combo_str = "_".join(combo)
             for kin in kinematics:
                 # MtW is only meaningful for an object and MET
                 if kin == "MtW" and "MET" not in combo:
+                    continue
+                # MT2 uses two configured visible-object legs; MET enters
+                # separately through its transverse-momentum components.
+                if kin == "MT2" and not all(name in mt2_instances for name in combo):
                     continue
                 # OS/SS and SF/OF tags only make sense for two leptons
                 if kin in ["isOSSF", "isOSOF", "isSSOF", "isSSSF"]:
@@ -692,6 +730,7 @@ class BranchesHandler:
             ["include_same_represenations", self.multiObjects_include_same_represenations],
             ["include_trival_kinematics", self.multiObjects_include_trival_kinematics],
             ["include_mt2", self.multiObjects_include_mt2],
+            ["mt2_object_types", self.multiObjects_mt2_object_types],
             ["basic_kinematics", self.multiObject_basic_kinematics],
             ["2body_kinematics", self.multiObject_2body_kinematics],
             ["trival_kinematics", self.multiObject_trival_kinematics],

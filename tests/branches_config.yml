@@ -67,9 +67,23 @@ multi-objects:
   basic_kinematics  : ["Pt", "Eta", "Phi", "M", "Px", "Py", "Pz", "Energy"] 
 
   # kinematics that will be calculated for 2-body objects only
-  # the mt2 are calculated for any 2 bodies from the combo_set along with the Px and Py components of MET.
   2body_kinematics  : ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
-  include_mt2: True 
+  # MT2 (stransverse mass) is mass-sensitive in pair decays to visible and
+  # invisible particles; its endpoint can constrain the parent mass and help
+  # distinguish signal from background. MT2=min_{q1T+q2T=pTmiss}
+  # max[mT(v1,q1;mchi1),mT(v2,q2;mchi2)], minimizing the larger transverse
+  # mass over partitions of the measured missing transverse momentum. Each
+  # visible leg contributes M(), Px(), Py(); event MissingET
+  # contributes Px(), Py(); the invisible masses are 0.0, 0.0 (massless
+  # neutrinos, in the input momentum units). Only pairs whose BOTH visible
+  # object types are in mt2_object_types get MT2 branches/calculations; MET
+  # is always used separately as the missing momentum, not as a visible leg.
+  # Types listed here must be declared in objects and included in combo_set.
+  # References: https://github.com/tpgillam/mt2
+  #             https://arxiv.org/abs/1411.4312
+  #             https://arxiv.org/abs/hep-ph/9906349
+  include_mt2: True
+  mt2_object_types: ["Lepton", "FatJet"]
   
   # trival kinematics are kinematics that you chose to include or not by the boolean flag below
   include_trival_kinematics: False
