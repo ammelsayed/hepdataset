@@ -20,7 +20,7 @@ void collect_trees()
             out->cd();
             TTree *newt = t->CloneTree(-1, "fast");
             newt->Write();
-            printf("copied %s\n", treeName.Data());
+            // printf("copied %s\n", treeName.Data());
         }
         f->Close();
         delete f;
