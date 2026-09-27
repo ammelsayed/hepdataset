@@ -196,7 +196,7 @@ multi-objects:
   basic_kinematics  : ["X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy", "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et", "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta", "Beta", "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity"] 
 
   # kinematics that will be calculated for 2-body objects only
-  # the mt2 are calculated for any 2 bodies from the combo_set along with the Px and Py components of MET.
+  # MT2 is documented separately below; it is not part of this list.
   # Allowed values: ["DeltaR", "DeltaPhi", "DeltaEta", "MtW", "isOSSF", "isOSOF", "isSSOF", "isSSSF"]
   #   DeltaR    : ΔR(η,φ)  between the two particles
   #   DeltaPhi  : Δφ        between the two particles
@@ -210,12 +210,27 @@ multi-objects:
   # here is silently removed.
   2body_kinematics  : ["DeltaR", "DeltaPhi", "DeltaEta", "MtW", "isOSSF", "isOSOF", "isSSOF", "isSSSF"]
 
-  # include_mt2 adds the "MT2" branch for every 2-body combination
-  # drawn from (Lepton ∪ FatJet) together with MET. MT2 is computed
-  # using the mt2 library and the Px,Py components of MET; the two
-  # invisible particles are assumed massless.
+  # MT2 (stransverse mass) is a mass-sensitive observable for events with
+  # two visible objects and missing transverse momentum, as in pair-produced
+  # particles that each decay to a visible object and an invisible particle.
+  # MT2 is min_{q1T+q2T=pTmiss} max[mT(v1,q1;mchi1),mT(v2,q2;mchi2)],
+  # i.e. it minimizes the larger transverse mass over partitions of the
+  # measured missing transverse momentum. Its endpoint can constrain the
+  # parent-particle mass and help distinguish signal from background. For
+  # each visible pair, the calculation uses each object's
+  # M(), Px(), and Py(), the event MissingET four-vector's Px() and Py(),
+  # and the two invisible-particle masses. The invisible particles are
+  # treated as neutrinos with masses 0.0 and 0.0 (in the input momentum units).
+  # mt2_object_types selects which declared visible object types may form
+  # the pair; MET is used separately as missing momentum, not as a visible leg.
+  # Only two-object combinations for which BOTH types are in this list get
+  # an MT2 branch/calculation. These types must also be in combo_set.
+  # References: https://github.com/tpgillam/mt2
+  #             https://arxiv.org/abs/1411.4312
+  #             https://arxiv.org/abs/hep-ph/9906349
   # If MET is not in combo_set, a warning is printed.
   include_mt2: True 
+  mt2_object_types: ["Lepton", "FatJet", "Jet"]
   
   # trival kinematics are kinematics that you chose to include or not by the boolean flag below
   # Allowed values (all computed per N-body combination):

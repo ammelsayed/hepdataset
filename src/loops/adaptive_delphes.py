@@ -412,15 +412,13 @@ def loop_tree(**loop_args):
                                 b[f"MtW_{sufx}"][0] = MtW(p1.Pt(), p1.Phi(), p2.Pt(), p2.Phi())
                         
 
-                        # Here we wish to calculate the stransverse mass
-                        # We just calclate it for 2 body objects, 
-                        # and only for lepton and fatjet pars
-                        # this is because calculating mt2 can be slow
+                        # MT2 uses the configured pair of visible objects and
+                        # the event's missing transverse momentum.
                         if BR.multiObjects_include_mt2 and N == 2:
-                            supported = BR.get_obj_instances("Lepton") + BR.get_obj_instances("FatJet")
+                            supported = set(BR.get_mt2_obj_instances())
                             p1 = p4_list[0]; p2 = p4_list[1]
                             p1_name = p_names[0]; p2_name = p_names[1]
-                            if (p1_name in supported) and (p2_name in supported):
+                            if p1_name in supported and p2_name in supported:
                                 b[f"MT2_{sufx}"][0] = mt2(
                                     p1.M(), p1.Px(), p1.Py(),
                                     p2.M(), p2.Px(), p2.Py(),

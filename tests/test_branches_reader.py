@@ -14,7 +14,7 @@ def default_config():
 
 @pytest.fixture
 def packaged_config():
-    return REPO_DIR / "src" / "defaults" / "branches_config.yml"
+    return REPO_DIR / "src" / "defaults" / "branches_config_minimal.yml"
 
 
 def _config(tmp_path, text):
@@ -92,6 +92,14 @@ class TestObjectAccessors:
     def test_object_instances_unknown():
         handler = BranchesHandler()
         assert handler.get_obj_instances("Ghost") == []
+
+    @staticmethod
+    def test_mt2_object_instances_from_config(default_config):
+        handler = BranchesHandler(str(default_config))
+        assert handler.get_mt2_obj_instances() == [
+            "Lepton0", "Lepton1", "Lepton2", "Lepton3",
+            "FatJet0", "FatJet1", "SoftDroppedFatJet0", "SoftDroppedFatJet1",
+        ]
 
     @staticmethod
     def test_singleton_branch_names(default_config):
@@ -195,6 +203,25 @@ multi-objects:
 
         assert any(n.startswith("M_Lepton0_FatJet") for n in names)
         assert any(n.startswith("DeltaR_") for n in names)
+
+    @staticmethod
+    def test_mt2_branches_are_limited_to_configured_visible_types(default_config):
+        handler = BranchesHandler(str(default_config))
+        names = handler.get_nbody_branch_names(2)
+
+        assert "MT2_Lepton0_FatJet0" in names
+        assert "MT2_Lepton0_MET" not in names
+        assert "MT2_Lepton0_Jet0" not in names
+
+    @staticmethod
+    def test_maximal_card_enables_mt2_for_configured_jet_pairs():
+        maximal_config = REPO_DIR / "src" / "defaults" / "branches_config_maximal.yml"
+        handler = BranchesHandler(str(maximal_config))
+        assert handler.is_valid()
+        assert "Jet" in handler.multiObjects_mt2_object_types
+        names = handler.get_nbody_branch_names(2)
+        assert "MT2_Jet0_Jet1" in names
+        assert "MT2_Lepton0_Jet0" in names
 
     @staticmethod
     def test_nbody_kinematics_depend_on_n(default_config):
@@ -452,6 +479,35 @@ multi-objects:
         )
         assert handler.is_valid()
         assert any("MT2 requires MET" in w for w in handler._warnings)
+
+    @staticmethod
+    def test_mt2_object_types_must_be_visible_combo_objects(tmp_path):
+        handler = BranchesHandler(
+            _config(
+                tmp_path,
+                """
+objects:
+  Lepton:
+    count: 2
+    representations: ["Lepton"]
+    kinematics: ["Pt"]
+  MET:
+    count: 1
+    representations: ["MET"]
+    kinematics: ["MET"]
+event-variables:
+  global_scalars: []
+  event_shapes: []
+multi-objects:
+  Nmax: 2
+  combo_set: ["Lepton", "MET"]
+  include_mt2: True
+  mt2_object_types: ["MET", "Ghost"]
+""",
+            )
+        )
+        assert not handler.is_valid()
+        assert any("mt2_object_types" in error for error in handler._errors)
 
     @staticmethod
     def test_unknown_object_keys_warn(tmp_path):
