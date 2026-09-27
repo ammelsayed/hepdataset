@@ -1,0 +1,298 @@
+Info in <hadd>: parallelizing  with 40 processes.
+Info in <hadd>: target file: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/tag_1_delphes_events.root
+Info in <hadd>: compression setting for all output: 101
+Info in <hadd>: each process should handle at least 3 files for efficiency. Setting the number of processes to: 14
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_18/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_27/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_21/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_15/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_0/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_3/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_24/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_12/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_9/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_30/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_6/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_33/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_36/delphes_events.root
+hadd Source file 1: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_39/delphes_events.root
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_28/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_29/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial9_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_10/delphes_events.root
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_31/delphes_events.root
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_16/delphes_events.root
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_19/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_11/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_32/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_17/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_20/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial3_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial10_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+Warning in <hadd>: hadd Target path: /data/ammelsayed/my_tmp//partial5_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial6_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+Warning in <hadd>: hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_37/delphes_events.root
+Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial13_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_38/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial12_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_22/delphes_events.root
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_13/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_23/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_14/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial7_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial4_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_4/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_5/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial1_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_34/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_35/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial11_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_1/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_2/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial0_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_7/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_8/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial2_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 2: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_25/delphes_events.root
+hadd Source file 3: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/PY8_parallelization/split_26/delphes_events.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/my_tmp//partial8_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root:/
+hadd Source file 1: /data/ammelsayed/my_tmp//partial0_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+Warning in <TClass::Init>: no dictionary for class HepMCEvent is available
+Warning in <TClass::Init>: no dictionary for class Event is available
+Warning in <TClass::Init>: no dictionary for class Weight is available
+Warning in <TClass::Init>: no dictionary for class GenParticle is available
+Warning in <TClass::Init>: no dictionary for class SortableObject is available
+Warning in <TClass::Init>: no dictionary for class Track is available
+Warning in <TClass::Init>: no dictionary for class Tower is available
+Warning in <TClass::Init>: no dictionary for class Jet is available
+Warning in <TClass::Init>: no dictionary for class MissingET is available
+Warning in <TClass::Init>: no dictionary for class Electron is available
+Warning in <TClass::Init>: no dictionary for class Photon is available
+Warning in <TClass::Init>: no dictionary for class Muon is available
+Warning in <TClass::Init>: no dictionary for class ScalarHT is available
+hadd Source file 2: /data/ammelsayed/my_tmp//partial1_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 3: /data/ammelsayed/my_tmp//partial2_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 4: /data/ammelsayed/my_tmp//partial3_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 5: /data/ammelsayed/my_tmp//partial4_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 6: /data/ammelsayed/my_tmp//partial5_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 7: /data/ammelsayed/my_tmp//partial6_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 8: /data/ammelsayed/my_tmp//partial7_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 9: /data/ammelsayed/my_tmp//partial8_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 10: /data/ammelsayed/my_tmp//partial9_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 11: /data/ammelsayed/my_tmp//partial10_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 12: /data/ammelsayed/my_tmp//partial11_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 13: /data/ammelsayed/my_tmp//partial12_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+hadd Source file 14: /data/ammelsayed/my_tmp//partial13_4e9149da-ba3f-11f1-b956-d9a38dcabeef.root
+Warning in <hadd>: Sources and Target have different compression settings
+hadd merging will be slower
+hadd Target path: /data/ammelsayed/hepdataset/tests/data/wz_3L_SmallSample/Events/run_01/tag_1_delphes_events.root:/

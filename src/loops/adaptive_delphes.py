@@ -40,7 +40,6 @@ def loop_tree(**loop_args):
     Weight_branch    = TreeReader.UseBranch("Weight")
 
     # get the branch names
-    branches_config_path = loop_args["branches_config_path"]
     BR = BranchesHandler(branches_config_path)
     if not BR.is_valid():
         BR.print_validation()
@@ -49,7 +48,7 @@ def loop_tree(**loop_args):
     int_branch_names = BR.get_int_branch_names()
 
     # Analysis channel bookkeeping
-    eventSel = EventSelector()
+    eventSel = EventSelector(splitByFlavour=split_by_flavour)
     ac_keys, ac_dict = eventSel.ac_keys, eventSel.ac_dict
 
     # Initialize object selector
@@ -109,6 +108,8 @@ def loop_tree(**loop_args):
 
         # A dictonary to hold the selected objects' four-momenta for easier access
         P4s = {}
+        Charges = {}
+        Flavours = {}
 
         # Count number of objects before quality selections AND store them locally
         nPreQS_Muon = Muon_branch.GetEntries()
@@ -116,17 +117,11 @@ def loop_tree(**loop_args):
         nPreQS_Lepton = nPreQS_Muon + nPreQS_Electron
         nPreQS_FatJet = FatJet_branch.GetEntries()
         nPreQS_Jet = Jet_branch.GetEntries()
-
         b["nPreQS_Muon"][0] = nPreQS_Muon
         b["nPreQS_Electron"][0] = nPreQS_Electron
         b["nPreQS_Lepton"][0] = nPreQS_Lepton
         b["nPreQS_FatJet"][0] = nPreQS_FatJet
         b["nPreQS_Jet"][0] = nPreQS_Jet
-
-        if debug_loop:
-            print(f"Number of objects before quality selections:")
-            print(f" mu = {nPreQS_Muon}, e = {nPreQS_Electron}, J = {nPreQS_FatJet}, j = {nPreQS_Jet}")
-
        
         # ----------------------------------------------------------------
         # Fill leptons kinematics
@@ -136,179 +131,151 @@ def loop_tree(**loop_args):
         electronMass = 0.511E-3
 
         for lep_idx, lepton in enumerate(goodLeptons[:BR.get_obj_count("Lepton")]):
-
             mainClassNames = ["Lepton"] # branches including these class names will be filled
-
             lepClassName = lepton.ClassName()
             if lepClassName in BR.get_obj_repr("Lepton"):
                 mainClassNames.append(lepClassName)
 
-            for lepType in mainClassNames:
+            # Store charge and flavour for N-body combinations
+            if lepClassName == 'Muon':
+                Charges[f"Lepton{lep_idx}"] = int(lepton.Charge)
+                Flavours[f"Lepton{lep_idx}"] = 2
+                Charges[f"Muon{lep_idx}"] = int(lepton.Charge)
+                Flavours[f"Muon{lep_idx}"] = 2
+            elif lepClassName == 'Electron':
+                Charges[f"Lepton{lep_idx}"] = int(lepton.Charge)
+                Flavours[f"Lepton{lep_idx}"] = 1
+                Charges[f"Electron{lep_idx}"] = int(lepton.Charge)
+                Flavours[f"Electron{lep_idx}"] = 1
 
+            for lepType in mainClassNames:
                 inst = f"{lepType}{lep_idx}"
 
                 # Correct P4 object with mass
-                if debug_loop:
-                    print(inst)
-                    print(f"> Before p4 correction: pt = {lepton.P4().Pt()}, eta = {lepton.P4().Eta()}, phi = {lepton.P4().Phi()}, m = {lepton.P4().M()}.")
-
                 if lepClassName == 'Muon':
                     p4 = ROOT.TLorentzVector()
                     p4.SetPtEtaPhiM(lepton.PT, lepton.Eta, lepton.Phi, muonMass)
                     P4s[inst] = p4
-                    if debug_loop:
-                        print(f"> After p4 correction: pt = {p4.Pt()}, eta = {p4.Eta()}, phi = {p4.Phi()}, m = {p4.M()}.")
-
                 elif lepClassName == 'Electron':
                     p4 = ROOT.TLorentzVector()
                     p4.SetPtEtaPhiM(lepton.PT, lepton.Eta, lepton.Phi, electronMass)
                     P4s[inst] = p4
-                    if debug_loop:
-                        print(f"> After p4 correction: pt = {p4.Pt()}, eta = {p4.Eta()}, phi = {p4.Phi()}, m = {p4.M()}.")
-                else:
-                    continue 
+                else: continue 
 
                 # Fill kinematics asked for
                 for k in BR.get_obj_kinematics("Lepton"):
-
                     branch_name = f"{k}_{inst}"
-
-                    try:
-                        b[branch_name][0] = getattr(lepton, k) # example: lep.PT 
-                    except AttributeError:
+                    if k == "ElectronTag":
+                        b[branch_name][0] = 1 if lepClassName == "Electron" else 0
+                    elif k == "MuonTag":
+                        b[branch_name][0] = 1 if lepClassName == "Muon" else 0
+                    else:
                         try:
-                            b[branch_name][0] = getattr(p4, k)() # example: lep.P4().Px() 
-                        except AttributeError as e:
-                            # leave as NaN (already set at reset time)
-                            if debug_loop:
-                                print(f"> Skipping {branch_name}: not available on {lepClassName} or its TLorentzVector.")
-                            continue
+                            b[branch_name][0] = getattr(lepton, k) # example: lep.PT 
+                        except AttributeError:
+                            try:
+                                b[branch_name][0] = getattr(p4, k)() # example: lep.P4().Px() 
+                            except AttributeError as e:
+                                continue # leave as NaN (already set at reset time)
 
         # ----------------------------------------------------------------
         # Fill Large-R (FatJets) kinematics
         # ---------------------------------------------------------------
 
         for fj_idx, fatjet in enumerate(goodFatJets[:BR.get_obj_count("FatJet")]):
-            
             classname = fatjet.ClassName()
-
             p4_fj = fatjet.P4()
             P4s[f"FatJet{fj_idx}"] = p4_fj
 
-            # Log softdropped large-R jet four-momenta
-            # Required only if softdropped fatjets are configured as a representaion of large-R jets.
+            # Log softdropped/trimmed/pruned large-R jet four-momenta
+            # Required only if softdropped/trimmed/prune fatjets are configured as a representaion of large-R jets.
             if hasattr(fatjet, 'SoftDroppedP4') and ("SoftDroppedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_sd = fatjet.SoftDroppedP4[0]
                 P4s[f"SoftDroppedFatJet{fj_idx}"] = p4_sd
-
-            # Log trimmed large-R jet four-momenta
             if hasattr(fatjet, 'TrimmedP4') and ("TrimmedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_tr = fatjet.TrimmedP4[0]            
                 P4s[f"TrimmedFatJet{fj_idx}"] = p4_tr
-
-            # Log pruned large-R jet four-momenta
             if hasattr(fatjet, 'PrunedP4') and ("PrunedFatJet" in BR.get_obj_repr("FatJet")):
                 p4_pr = fatjet.PrunedP4[0]
                 P4s[f"PrunedFatJet{fj_idx}"] = p4_pr
 
             # Fill kinematics asked for
-            for k in BR.get_obj_kinematics("FatJet"):
-
-                # n-subjetness variables are handeled seperatly
-                if k in ["Tau1", "Tau2", "Tau3", "Tau21", "Tau32"]: 
-                    continue
-                
-                # Fill basic kinematics of the fatjet
+            for k in BR.get_obj_kinematics("FatJet"):                
+                if k in ["Tau1", "Tau2", "Tau3", "Tau4", "Tau5", "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43", "Tau51", "Tau52", "Tau53", "Tau54"]: continue # n-subjetness variables are handeled seperatly
                 branch_name = f"{k}_FatJet{fj_idx}"
-
                 try:
                     b[branch_name][0] = getattr(fatjet, k)  
                 except AttributeError:
                     try:
                         b[branch_name][0] = getattr(p4_fj, k)()  
                     except AttributeError as e:
-                        if debug_loop:
-                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                         continue
 
-                # Fill same kinematics for the softdropped jet
-                # grooming variants do not have direct methods
-                # so we just use one layer of reading 
+                # grooming variants do not have direct methods so we just use one layer of reading 
                 if hasattr(fatjet, 'SoftDroppedP4') and ("SoftDroppedFatJet" in BR.get_obj_repr("FatJet")):
-
                     branch_name = f"{k}_SoftDroppedFatJet{fj_idx}"
-
                     try:
                         b[branch_name][0] = getattr(p4_sd, k)()  
                     except AttributeError as e:
-                        if debug_loop:
-                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                         continue
-
-                # Fill same kinematics for the trimmed jet
                 if hasattr(fatjet, 'TrimmedP4') and ("TrimmedFatJet" in BR.get_obj_repr("FatJet")):
-
                     branch_name = f"{k}_TrimmedFatJet{fj_idx}"
-
                     try:
                         b[branch_name][0] = getattr(p4_tr, k)()  
                     except AttributeError as e:
-                        if debug_loop:
-                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                         continue
-
-                # Fill same kinematics for the pruned jet
                 if hasattr(fatjet, 'PrunedP4') and ("PrunedFatJet" in BR.get_obj_repr("FatJet")):
-
                     branch_name = f"{k}_PrunedFatJet{fj_idx}"
-
                     try:
                         b[branch_name][0] = getattr(p4_pr, k)()  
                     except AttributeError as e:
-                        if debug_loop:
-                            print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                         continue
 
             # Fill n-subjetness substructure variables
-            # Those are only filled for FatJet
-            # The groomed variants do not carry these methods
-            for t_idx in [1, 2, 3]:
-                b[f"Tau{t_idx}_FatJet{fj_idx}"][0] = fatjet.Tau[t_idx - 1]
+            # Those are only filled for FatJet, t groomed variants do not carry these methods
+            ntaus_available = min(len(fatjet.Tau), 5)
+            requested_taus = BR.get_obj_kinematics("FatJet")
+            tau_values = {}
 
-                if debug_loop:
-                    print(f"> Filled branch Tau{t_idx}_FatJet{fj_idx}: value = {fatjet.Tau[t_idx - 1]}.")
+            for t_idx in range(1, ntaus_available + 1):
+                tau_name = f"Tau{t_idx}"
+                if tau_name in requested_taus:
+                    tau_values[t_idx] = fatjet.Tau[t_idx - 1]
+                    b[f"{tau_name}_FatJet{fj_idx}"][0] = tau_values[t_idx]
 
-            t1, t2, t3 = fatjet.Tau[0], fatjet.Tau[1], fatjet.Tau[2]
-            b[f"Tau21_FatJet{fj_idx}"][0] = t2 / t1 if t1 > 0 else 1.0
-            b[f"Tau32_FatJet{fj_idx}"][0] = t3 / t2 if t2 > 0 else 1.0
+            for k in requested_taus:
+                if k.startswith("Tau") and len(k) == 5 and k[3].isdigit() and k[4].isdigit():
+                    i, j = int(k[3]), int(k[4])
+                    if i <= ntaus_available and j <= ntaus_available and i > j:
+                        ti = tau_values.get(i)
+                        if ti is None:
+                            ti = fatjet.Tau[i - 1]
+                            tau_values[i] = ti
+                        tj = tau_values.get(j)
+                        if tj is None:
+                            tj = fatjet.Tau[j - 1]
+                            tau_values[j] = tj
+                        b[f"Tau{i}{j}_FatJet{fj_idx}"][0] = ti / tj if tj > 0 else 1.0
 
         # ----------------------------------------------------------------
         # Fill Small-R Jets kinematics
         # ----------------------------------------------------------------
 
         for goodJetsList, prefix in zip([goodJets, goodBJets, goodTauJets], ["Jet", "BJet", "TauJet"]):
-
-            if prefix not in BR.get_obj_repr("Jet"):
-                continue
-
+            if prefix not in BR.get_obj_repr("Jet"): continue
             for jet_idx, jet in enumerate(goodJetsList[:BR.get_obj_count("Jet")]):
                 classname = jet.ClassName()
                 inst = f"{prefix}{jet_idx}"
                 p4 = jet.P4()
                 P4s[inst] = p4
-
                 for k in BR.get_obj_kinematics("Jet"):
-
                     branch_name = f"{k}_{inst}"
-
                     try:
                         b[branch_name][0] = getattr(jet, k)  
                     except AttributeError:
                         try:
                             b[branch_name][0] = getattr(p4, k)()  
                         except AttributeError as e:
-                            if debug_loop:
-                                print(f"> Skipping {branch_name}: not available on {classname} or its TLorentzVector.")
                             continue
 
         # ----------------------------------------------------------------
@@ -327,59 +294,54 @@ def loop_tree(**loop_args):
                 try:
                     b[branch_name][0] = getattr(p4_met, k)()  
                 except AttributeError as e:
-                    if debug_loop:
-                        print(f"> Skipping {branch_name}: not available on {met.ClassName()} or its TLorentzVector.")
                     continue
 
         # Fill other global scalars        
         ht = ScalarHT_branch.At(0).HT
-        b["HT"][0] = ht
+        if "HT" in BR.global_scalars: b["HT"][0] = ht
         
         lt = sum([lep.PT for lep in goodLeptons])
         st = lt + ht
         meff = st + met.MET
         sig_met = ( met.MET / np.sqrt(ht) ) if ht > 0 else np.nan
-        b["LT"][0] = lt
-        b["ST"][0] = st
-        b["Significance_MET"][0] = sig_met
-        b["Meff"][0] = meff
+        if "LT" in BR.global_scalars: b["LT"][0] = lt
+        if "ST" in BR.global_scalars: b["ST"][0] = st
+        if "Significance_MET" in BR.global_scalars: b["Significance_MET"][0] = sig_met
+        if "Meff" in BR.global_scalars: b["Meff"][0] = meff
 
         sumPT_jets = sum([jet.PT for jet in goodJets])
         sumPT_fjs = sum([fj.PT for fj in goodFatJets])
         sumPT_sdfjs = sum([fj.SoftDroppedP4[0].Pt() for fj in goodFatJets])
 
-        b["ScalarSumPT_Jets"][0] = sumPT_jets
-        b["ScalarSumPT_FatJets"][0] = sumPT_fjs
-        b["ScalarSumPT_SoftDroppedFatJets"][0] = sumPT_sdfjs
-        b["ScalarSumPT_Hadronic"][0] = sumPT_jets + sumPT_sdfjs # should equal HT
+        if "ScalarSumPT_Jets" in BR.global_scalars: b["ScalarSumPT_Jets"][0] = sumPT_jets
+        if "ScalarSumPT_FatJets" in BR.global_scalars: b["ScalarSumPT_FatJets"][0] = sumPT_fjs
+        if "ScalarSumPT_SoftDroppedFatJets" in BR.global_scalars: b["ScalarSumPT_SoftDroppedFatJets"][0] = sumPT_sdfjs
+        if "ScalarSumPT_Hadronic" in BR.global_scalars: b["ScalarSumPT_Hadronic"][0] = sumPT_jets + sumPT_sdfjs # should equal HT
         
         # Fill event shapes
-        vis_p4s = [lep.P4() for lep in goodLeptons] + [fj.P4() for fj in goodFatJets] + [jet.P4() for jet in goodJets] + [met.P4()]
-        px_arr = np.array([p.Px() for p in vis_p4s], dtype=np.float64)
-        py_arr = np.array([p.Py() for p in vis_p4s], dtype=np.float64)
-        pz_arr = np.array([p.Pz() for p in vis_p4s], dtype=np.float64)
-        e_arr  = np.array([p.Energy() for p in vis_p4s], dtype=np.float64)
-    
-        S, A, C = EventShapes(px_arr, py_arr, pz_arr)
-        b["Sphericity"][0] = S
-        b["Aplanarity"][0] = A
-        b["Circularity"][0] = C
-        b["Centrality"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
+        if BR.event_shapes:
+            vis_p4s = [lep.P4() for lep in goodLeptons] + [fj.P4() for fj in goodFatJets] + [jet.P4() for jet in goodJets] + [met.P4()]
+            px_arr = np.array([p.Px() for p in vis_p4s], dtype=np.float64)
+            py_arr = np.array([p.Py() for p in vis_p4s], dtype=np.float64)
+            pz_arr = np.array([p.Pz() for p in vis_p4s], dtype=np.float64)
+            e_arr  = np.array([p.Energy() for p in vis_p4s], dtype=np.float64)
+        
+            if "Sphericity" in BR.event_shapes or "Aplanarity" in BR.event_shapes or "Circularity" in BR.event_shapes:
+                S, A, C = EventShapes(px_arr, py_arr, pz_arr)
+                if "Sphericity" in BR.event_shapes: b["Sphericity"][0] = S
+                if "Aplanarity" in BR.event_shapes: b["Aplanarity"][0] = A
+                if "Circularity" in BR.event_shapes: b["Circularity"][0] = C
+            if "Centrality" in BR.event_shapes: b["Centrality"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
 
         # ----------------------------------------------------------------
         # Fill N-body relations
         # ----------------------------------------------------------------
 
         if BR.multiObjects_Nmax >= 2:
-
             for N in range(2, BR.multiObjects_Nmax + 1, 1):
-
                 for p_names in BR.get_nbody_combinations(N):
-
                     p4_list = [P4s.get(n) for n in p_names]
-
                     if all(p4_list):
-
                         sufx = '_'.join(p_names)
 
                         # Without start, sum() defaults to  0 (integer), 
@@ -393,12 +355,10 @@ def loop_tree(**loop_args):
                                 try:
                                     b[branch_name][0] = getattr(total_p4, k)()  
                                 except AttributeError as e:
-                                    if debug_loop:
-                                        print(f"Skipping {k}: not available for {sufx}.")
                                     continue
 
                         # by default 2body kinematics should be included for any 2-body objects
-                        # those are just ["DeltaR", "DeltaPhi", "DeltaEta", "MtW"]
+                        # those are just ["DeltaR", "DeltaPhi", "DeltaEta", "MtW", "isOSSF", "isOSOF", "isSSOF", "isSSSF"]
                         # we fill them manullay
                         if N == 2:
                             p1 = p4_list[0]; p2 = p4_list[1]
@@ -408,9 +368,28 @@ def loop_tree(**loop_args):
                                 b[f"DeltaPhi_{sufx}"][0] = p1.DeltaPhi(p2)
                             if "DeltaEta" in BR.multiObject_2body_kinematics:
                                 b[f"DeltaEta_{sufx}"][0] = p1.Eta() - p2.Eta()
-                            if "MtW" in BR.multiObject_2body_kinematics:
+                            if "MtW" in BR.multiObject_2body_kinematics and "MET" in p_names:
                                 b[f"MtW_{sufx}"][0] = MtW(p1.Pt(), p1.Phi(), p2.Pt(), p2.Phi())
-                        
+                            
+                            # Fill OS/SS and SF/OF tags for lepton pairs
+                            p1_name = p_names[0]; p2_name = p_names[1]
+                            if (p1_name in Flavours) and (p2_name in Flavours):
+                                q1 = Charges[p1_name]; q2 = Charges[p2_name]
+                                f1 = Flavours[p1_name]; f2 = Flavours[p2_name]
+                                
+                                os_flag = (q1 * q2 == -1)
+                                ss_flag = (q1 * q2 == 1)
+                                sf_flag = (f1 == f2)
+                                of_flag = (f1 != f2)
+                                
+                                if "isOSSF" in BR.multiObject_2body_kinematics:
+                                    b[f"isOSSF_{sufx}"][0] = 1 if (os_flag and sf_flag) else 0
+                                if "isOSOF" in BR.multiObject_2body_kinematics:
+                                    b[f"isOSOF_{sufx}"][0] = 1 if (os_flag and of_flag) else 0
+                                if "isSSOF" in BR.multiObject_2body_kinematics:
+                                    b[f"isSSOF_{sufx}"][0] = 1 if (ss_flag and of_flag) else 0
+                                if "isSSSF" in BR.multiObject_2body_kinematics:
+                                    b[f"isSSSF_{sufx}"][0] = 1 if (ss_flag and sf_flag) else 0
 
                         # MT2 uses the configured pair of visible objects and
                         # the event's missing transverse momentum.
@@ -428,17 +407,19 @@ def loop_tree(**loop_args):
                         
                         # only fill the event shapes if they are asked for
                         if BR.multiObjects_include_trival_kinematics:
+                            tk = set(BR.multiObject_trival_kinematics)
                             px_arr = np.array([p.Px() for p in p4_list], dtype=np.float64)
                             py_arr = np.array([p.Py() for p in p4_list], dtype=np.float64)
                             pz_arr = np.array([p.Pz() for p in p4_list], dtype=np.float64)
                             e_arr  = np.array([p.Energy() for p in p4_list], dtype=np.float64)
-                            S, A, C = EventShapes(px_arr, py_arr, pz_arr)
-                            b[f"Sphericity_{sufx}"][0] = S
-                            b[f"Aplanarity_{sufx}"][0] = A
-                            b[f"Circularity_{sufx}"][0] = C
-                            b[f"Centrality_{sufx}"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
-                            b[f"ScalarSumPT_{sufx}"][0] = sum([p.Pt() for p in p4_list])
-                            b[f"VectorSumPT_{sufx}"][0] = total_p4.Pt()
+
+                            if "Sphericity" in tk or "Aplanarity" in tk or "Circularity" in tk:
+                                S, A, C = EventShapes(px_arr, py_arr, pz_arr)
+                                if "Sphericity" in tk: b[f"Sphericity_{sufx}"][0] = S
+                                if "Aplanarity" in tk: b[f"Aplanarity_{sufx}"][0] = A
+                                if "Circularity" in tk: b[f"Circularity_{sufx}"][0] = C
+                            if "Centrality" in tk: b[f"Centrality_{sufx}"][0] = Centrality(px_arr, py_arr, pz_arr, e_arr)
+                            if "ScalarSumPT" in tk: b[f"ScalarSumPT_{sufx}"][0] = sum([p.Pt() for p in p4_list])
 
 
         # fill weight branches 
@@ -453,11 +434,11 @@ def loop_tree(**loop_args):
     if show_progress:
         objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=eventWeight)
         eventSel.PrintEventSelectionSummary(treeName, event_weight = eventWeight, lum = luminosity)
-        
+    
+
     # if output_dir is given, then write the trees into root files.
     root_paths = {}
     if output_dir is not None:
-        
         # Write the trees into .root files at:
         # <output_dir>/<analysis_channel_name>/<analysis_region_name>/<output_root_file_name>.root
         for ac, ac_rgs in ac_dict.items():
@@ -471,29 +452,28 @@ def loop_tree(**loop_args):
                 # trees[ac_key].Delete()
                 f_out.Close()
                 root_paths[ac_key] = path
-        
-        # Write object-selection histograms + cutflow into a dedicated root file at:
-        # <output_dir>/ObjectSelection/<treeName>.root
-        out_objsel = os.path.join(output_dir, "ObjectSelection")
-        os.makedirs(out_objsel, exist_ok=True)
-        f_objsel = ROOT.TFile.Open(os.path.join(out_objsel, f"{treeName}.root"), "RECREATE")
-        objSel.WriteObjectSelectionHistograms(f_objsel)
-        objSel.WriteObjectSelectionSummary(f_objsel)
-        f_objsel.Close()
-        # Draw the object selection histograms (PNGs go in the same directory)
-        if show_progress:
-            objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
 
-        # Write event-selection cutflow into a dedicated root file at:
-        # <output_dir>/EventSelection/<treeName>.root
-        out_evtsel = os.path.join(output_dir, "EventSelection")
-        os.makedirs(out_evtsel, exist_ok=True)
-        f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, f"{treeName}.root"), "RECREATE")
-        eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
-        f_evtsel.Close()
+        # Write object-selection histograms + cutflow into a dedicated root
+        if write_metadata:
+            out_objsel = os.path.join(output_dir, "ObjectSelection")
+            os.makedirs(out_objsel, exist_ok=True)
+            f_objsel = ROOT.TFile.Open(os.path.join(out_objsel, output_file_name), "RECREATE")
+            objSel.WriteObjectSelectionHistograms(f_objsel)
+            objSel.WriteObjectSelectionSummary(f_objsel)
+            f_objsel.Close()
+            if show_progress:
+                objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
+
+            out_evtsel = os.path.join(output_dir, "EventSelection")
+            os.makedirs(out_evtsel, exist_ok=True)
+            f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, output_file_name), "RECREATE")
+            eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
+            f_evtsel.Close()
         
+    # Only return TTree objects if explicitly requested (for standalone execution)
+    # When running in parallel workers, return_trees is False to prevent PyROOT pickling crashes!
     return {
-        "trees" : trees,
+        "trees" : trees if return_trees else None,
         "root_paths" : root_paths,
         "ObjectSelector": objSel,
         "EventSelector": eventSel

@@ -1,0 +1,78 @@
+# Uncomment the line below to skip this analysis altogether
+# @MG5aMC skip_analysis
+
+@MG5aMC stdout_lvl=INFO
+
+@MG5aMC inputs = *.lhe
+@MG5aMC analysis_name = analysis1
+
+# Multiparticle definition
+define vl = 12 14 16
+define vl~ = -16 -14 -12
+define invisible = vm vt~ vm~ vt ve~ ve vl vl~
+
+# Histogram drawer (options: matplotlib or root)
+set main.graphic_render = root
+
+# Global event variables
+plot THT   40 0 500 [logY]
+plot MET   40 0 500 [logY]
+plot SQRTS 40 0 500 [logY]
+# PT and ETA distributions of all particles
+plot  PT(z[1]) 40 0  500 [logY interstate]
+plot ETA(z[1]) 40 -10 10 [logY interstate]
+plot  PT(w+[1]) 40 0  500 [logY interstate]
+plot ETA(w+[1]) 40 -10 10 [logY interstate]
+# Invariant-mass distributions
+plot M(z[1] w+[1]) 40 0  500 [logY allstate]
+# Angular distance distributions
+plot DELTAR(z[1],w+[1]) 40 0 10 [logY allstate]
+# PT and ETA distributions of all particles
+plot  PT(l-[1]) 40 0  500 [logY]
+plot ETA(l-[1]) 40 -10 10 [logY]
+plot  PT(l+[1]) 40 0  500 [logY]
+plot ETA(l+[1]) 40 -10 10 [logY]
+plot  PT(l+[2]) 40 0  500 [logY]
+plot ETA(l+[2]) 40 -10 10 [logY]
+# Invariant-mass distributions
+plot M(l+[1] l+[2]) 40 0  500 [logY ]
+plot M(l-[1] l+[1]) 40 0  500 [logY ]
+plot M(l-[1] l+[1] l+[2]) 40 0  500 [logY ]
+plot M(l-[1] l+[2]) 40 0  500 [logY ]
+# Angular distance distributions
+plot DELTAR(l+[1],l+[2]) 40 0 10 [logY ]
+plot DELTAR(l-[1],l+[1]) 40 0 10 [logY ]
+plot DELTAR(l-[1],l+[2]) 40 0 10 [logY ]
+# Invisible
+plot MT_MET(l-[1]) 40 0  500 [logY]
+plot MT_MET(l+[1]) 40 0  500 [logY]
+plot MT_MET(l+[2]) 40 0  500 [logY]
+# PT and ETA distributions of all particles
+plot  PT(z[1]) 40 0  500 [logY interstate]
+plot ETA(z[1]) 40 -10 10 [logY interstate]
+plot  PT(w-[1]) 40 0  500 [logY interstate]
+plot ETA(w-[1]) 40 -10 10 [logY interstate]
+# Invariant-mass distributions
+plot M(z[1] w-[1]) 40 0  500 [logY allstate]
+# Angular distance distributions
+plot DELTAR(z[1],w-[1]) 40 0 10 [logY allstate]
+# PT and ETA distributions of all particles
+plot  PT(l-[1]) 40 0  500 [logY]
+plot ETA(l-[1]) 40 -10 10 [logY]
+plot  PT(l-[2]) 40 0  500 [logY]
+plot ETA(l-[2]) 40 -10 10 [logY]
+plot  PT(l+[1]) 40 0  500 [logY]
+plot ETA(l+[1]) 40 -10 10 [logY]
+# Invariant-mass distributions
+plot M(l-[1] l+[1]) 40 0  500 [logY ]
+plot M(l-[1] l-[2]) 40 0  500 [logY ]
+plot M(l-[1] l-[2] l+[1]) 40 0  500 [logY ]
+plot M(l-[2] l+[1]) 40 0  500 [logY ]
+# Angular distance distributions
+plot DELTAR(l-[1],l+[1]) 40 0 10 [logY ]
+plot DELTAR(l-[1],l-[2]) 40 0 10 [logY ]
+plot DELTAR(l-[2],l+[1]) 40 0 10 [logY ]
+# Invisible
+plot MT_MET(l-[1]) 40 0  500 [logY]
+plot MT_MET(l-[2]) 40 0  500 [logY]
+plot MT_MET(l+[1]) 40 0  500 [logY]
