@@ -1,8 +1,0 @@
-P1_qq_wpz_wp_lvl_z_ll
-P1_qq_wpz_wp_lvl_z_taptam
-P1_qq_wpz_wp_tapvl_z_ll
-P1_qq_wpz_wp_tapvl_z_taptam
-P2_qq_wmz_wm_lvl_z_ll
-P2_qq_wmz_wm_lvl_z_taptam
-P2_qq_wmz_wm_tamvl_z_ll
-P2_qq_wmz_wm_tamvl_z_taptam

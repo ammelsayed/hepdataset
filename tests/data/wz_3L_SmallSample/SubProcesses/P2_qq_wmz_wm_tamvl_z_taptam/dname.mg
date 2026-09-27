@@ -1,1 +1,0 @@
-DIRNAME=P2_qq_wmz_wm_tamvl_z_taptam

@@ -8,4 +8,4 @@ HEPDataset/
 HepDataset/
 HepDatasetSplitFlavour/
 *.pid
-tests/data/wz_3L_SmallSample/
+wz_3L_SmallSample/
