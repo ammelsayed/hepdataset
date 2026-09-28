@@ -3,6 +3,7 @@ import uproot
 import json
 import re
 import xml.etree.ElementTree as ET
+from pathlib import Path
 from xml.dom import minidom
 from ROOT import TFile
 from yaml import safe_load
@@ -153,16 +154,17 @@ def print_table(data, fmt="plain"):
 class SamplesReader:
 
     def __init__(self, path):
-        self.path = path
+        self.path = Path(path).resolve()
+        self.auto_save = True
 
         # Must exist and be a regular file
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Input file does not exist: {path}")
-        if not os.path.isfile(path):
-            raise IsADirectoryError(f"Input path is not a regular file: {path}")
+        if not self.path.exists():
+            raise FileNotFoundError(f"Input file does not exist: {self.path}")
+        if not self.path.isfile():
+            raise IsADirectoryError(f"Input path is not a regular file: {self.path}")
 
         # Detect format from extension
-        ext = os.path.splitext(path)[1].lower()
+        ext = self.path.suffix
         if ext in (".yml", ".yaml"):
             self.fmt = "yaml"
         elif ext == ".json":
@@ -272,27 +274,43 @@ class SamplesReader:
                 # Check for the cross section data and the k-factors
                 # usually k-factors are pT dependent of the event
                 # for v5.0.0 we are going to assume they are global
-                if 'cross_section' not in proc_info:
-                    print(f"Warning: '{proc_name}' in '{category}' is missing 'cross_section'. Going to set it to 1.0 by default.")
+                if 'inclusive_cross_section' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'inclusive_cross_section'. Going to set it to 1.0 by default.")
+                    proc_info['inclusive_cross_section'] = 1.0
+
+                if 'fiducial_cross_section' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'fiducial_cross_section'. Going to set it to 1.0 by default.")
                     proc_info['cross_section'] = 1.0
                 
-                if 'cross_section_err_high' not in proc_info:
-                    print(f"Warning: '{proc_name}' in '{category}' is missing 'cross_section_err_high'. Going to set it to 0.0 by default.")
-                    proc_info['cross_section_err_high'] = 0.0
+                if 'fiducial_cross_section_err_high' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'fiducial_cross_section_err_low'. Going to set it to 0.0 by default.")
+                    proc_info['fiducial_cross_section_err_high'] = 0.0
 
-                if 'cross_section_err_low' not in proc_info:
-                    print(f"Warning: '{proc_name}' in '{category}' is missing 'cross_section_err_low'. Going to set it to 0.0 by default.")
-                    proc_info['cross_section_err_low'] = 0.0
+                if 'fiducial_cross_section_err_low' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'fiducial_cross_section_err_low'. Going to set it to 0.0 by default.")
+                    proc_info['fiducial_cross_section_err_low'] = 0.0
 
-                if 'k_factor' not in proc_info:
-                    print(f"Warning: '{proc_name}' in '{category}' is missing 'k_factor'. Going to set it to 1.0 by default.")
-                    proc_info['k_factor'] = 1.0
+                if 'flat_k_factor' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'flat_k_factor'. Going to set it to 1.0 by default.")
+                    proc_info['flat_k_factor'] = 1.0
+
+                if 'differential_k_factors' not in proc_info:
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'differential_k_factors'.")
+                    proc_info['differential_k_factors'] = None
         
         # Remove the skipped processes now that iteration is done
         for category, proc_name in to_remove:
             data[category].pop(proc_name, None)
+        
+        if self.auto_save:
+            self.to_json(data, self.path.parent / f"{input_file.stem}_out.json")
 
         return data
+
+    @staticmethod
+    def to_yaml(data, path):
+        """Dump the parsed samples dictionary to a YAML file."""
+        pass
 
     @staticmethod
     def to_json(data, path):
@@ -337,8 +355,16 @@ def main():
     args = parser.parse_args()
     
     # Read the yaml file
-    reader = SamplesReader(args.yml_file)
-    data = reader.read()
+    input_file = Path(args.yml_file).resolve()
+    json_path = input_file.parent / f"{input_file.stem}_out.json"
+
+    reader = SamplesReader(input_file)
+
+    if json_path.exists():
+        with open(json_path, "r") as f:
+            data = json.load(f)
+    else:
+        data = reader.read()
 
     if args.inspect:
        inspect(data)
