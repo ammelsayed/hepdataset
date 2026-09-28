@@ -15,6 +15,11 @@ from tqdm import tqdm
 ######################################################
 #######################################################
 
+def print_loop_status(info, idx, N):
+    info = info + " ..."
+    width = len(str(abs(N)))
+    print(f"\r{info:<25} [{idx:>{width}}/{N}]", end="\n" if idx == N else "", flush=True)
+
 # def inspect(data):
 #     for category, processes in data.items():
 #         for proc_name, proc_info in processes.items():
@@ -75,9 +80,7 @@ def inspect(data):
     return data
 
 
-def print_table(data, fmt="plain"):
-
-    print("\nPrinting table ...")
+def print_table(data, fmt="plain", lumi = 400):
 
     if fmt == "plain":
         header = f"{'Process':<20} {'N_gen':>8} {'sigma [fb]':>10} {'+err':>8} {'-err':>8} {'K_F':>6} {'w_i':>10}"
@@ -90,11 +93,11 @@ def print_table(data, fmt="plain"):
             print("-" * len(header))
             for name, info in processes.items():
                 nb_events = info['nb_events']
-                sigma     = info['cross_section']        * 1e3
-                sigma_eh  = info['cross_section_err_high'] * 1e3
-                sigma_el  = info['cross_section_err_low']  * 1e3
-                k_factor  = info['k_factor']
-                w         = sigma / nb_events
+                sigma     = info['fiducial_cross_section']        * 1e3
+                sigma_eh  = info['fiducial_cross_section_err_high'] * 1e3
+                sigma_el  = info['fiducial_cross_section_err_low']  * 1e3
+                k_factor  = info['flat_k_factor']
+                w         = (sigma * k_factor * lumi) / nb_events
                 print(f"{name:<20} {nb_events:>8,} {sigma:>10.3f} {sigma_eh:>8.3f} {sigma_el:>8.3f} {k_factor:>6.3f} {w:>10.3g}")
         print("=" * len(header))
         return None
@@ -131,11 +134,11 @@ def print_table(data, fmt="plain"):
             out.append(r"\midrule")   
             for name, info in processes.items():
                 nb_events = info['nb_events']
-                sigma     = info['cross_section']        * 1e3
-                sigma_eh  = info['cross_section_err_high'] * 1e3
-                sigma_el  = info['cross_section_err_low']  * 1e3
-                k_factor  = info['k_factor']
-                w         = sigma / nb_events
+                sigma     = info['fiducial_cross_section']        * 1e3
+                sigma_eh  = info['fiducial_cross_section_err_high'] * 1e3
+                sigma_el  = info['fiducial_cross_section_err_low']  * 1e3
+                k_factor  = info['flat_k_factor']
+                w         = (sigma * k_factor * lumi) / nb_events
                 sigma_str = fmt_with_err(sigma, sigma_eh, sigma_el)
                 out.append(f"{name} & ${nb_events:,}$ & {sigma_str} & ${k_factor}$ & ${fmt_sci(w)}$ \\\\")
         out.append(r"\bottomrule")
@@ -160,7 +163,7 @@ class SamplesReader:
         # Must exist and be a regular file
         if not self.path.exists():
             raise FileNotFoundError(f"Input file does not exist: {self.path}")
-        if not self.path.isfile():
+        if not self.path.is_file():
             raise IsADirectoryError(f"Input path is not a regular file: {self.path}")
 
         # Detect format from extension
@@ -250,7 +253,10 @@ class SamplesReader:
 
             for idx, (proc_name, proc_info) in enumerate(processes.items(), start = 1):
                 
-                print(f"({idx}/{nb_processes}) {proc_name}")
+                # print line variables
+                width  = len(str(abs(nb_processes)))
+                status = f"{proc_name:<10} [{idx:>{width}}/{nb_processes}]"
+                end    = "\n" if idx == nb_processes else ""
 
                 # Check for the .root files
                 # Drop processes without valid ROOT files
@@ -259,7 +265,8 @@ class SamplesReader:
                     to_remove.append((category, proc_name))
                     continue
                 
-                print("Reading .root files ...")
+                msg = "Reading .root files"
+                print(f"\r{msg:<40} {status}", end="", flush=True)
                 proc_info['files'] = self.clean_root_files(proc_info['files'])
                 if not proc_info['files']:
                     print(f"Warning: '{proc_name}' in '{category}' has no valid ROOT files! Removing this process.")
@@ -267,7 +274,8 @@ class SamplesReader:
                     continue
                 
                 # Read the number of events
-                print("Calculating total number of events ...")
+                msg = "Calculating total number of events"
+                print(f"\r{msg:<40} {status}", end=end, flush=True)
                 proc_info['nb_events'] = sum(self.get_nb_events(f) for f in proc_info['files'])
                    
                 
@@ -280,10 +288,10 @@ class SamplesReader:
 
                 if 'fiducial_cross_section' not in proc_info:
                     print(f"Warning: '{proc_name}' in '{category}' is missing 'fiducial_cross_section'. Going to set it to 1.0 by default.")
-                    proc_info['cross_section'] = 1.0
+                    proc_info['fiducial_cross_section'] = 1.0
                 
                 if 'fiducial_cross_section_err_high' not in proc_info:
-                    print(f"Warning: '{proc_name}' in '{category}' is missing 'fiducial_cross_section_err_low'. Going to set it to 0.0 by default.")
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'fiducial_cross_section_err_high'. Going to set it to 0.0 by default.")
                     proc_info['fiducial_cross_section_err_high'] = 0.0
 
                 if 'fiducial_cross_section_err_low' not in proc_info:
@@ -303,7 +311,7 @@ class SamplesReader:
             data[category].pop(proc_name, None)
         
         if self.auto_save:
-            self.to_json(data, self.path.parent / f"{input_file.stem}_out.json")
+            self.to_json(data, self.path.parent / f"{self.path.stem}.out.json")
 
         return data
 
@@ -347,7 +355,9 @@ def main():
     parser = argparse.ArgumentParser(description="Parse a samples.yml file and print the resulting dictionary.")
     parser.add_argument("yml_file", type=str, help="Path to the samples file (.yml, .yaml, or .json)")
     parser.add_argument("--inspect", action="store_true", help="Deep inspect ROOT files by reading events")
+    parser.add_argument("--overwrite", action="store_true", default = False, help="Overwrite the .out.json card.")
     parser.add_argument("--print", dest="print_fmt", nargs="?", const="plain", default=None, choices=["latex", "plain"], help="Print the samples table ('plain' by default, or 'latex')")
+    parser.add_argument("--lumi", type=float, default=400.0, help = "Luminosity in fb^-1 used for calculating the per-event weights.")
     parser.add_argument("--json", type=str, metavar="PATH", help="Write the parsed YAML to a JSON file")
     parser.add_argument("--xml",  type=str, metavar="PATH", help="Write the parsed YAML to an XML file")
     
@@ -356,11 +366,11 @@ def main():
     
     # Read the yaml file
     input_file = Path(args.yml_file).resolve()
-    json_path = input_file.parent / f"{input_file.stem}_out.json"
+    json_path = input_file.parent / f"{input_file.stem}.out.json"
 
     reader = SamplesReader(input_file)
 
-    if json_path.exists():
+    if json_path.exists() and (args.overwrite == False):
         with open(json_path, "r") as f:
             data = json.load(f)
     else:
@@ -370,7 +380,7 @@ def main():
        inspect(data)
     
     if args.print_fmt:
-        print_table(data, args.print_fmt)
+        print_table(data, args.print_fmt, args.lumi)
 
     if args.json:
         reader.to_json(data, args.json)
