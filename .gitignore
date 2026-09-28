@@ -9,3 +9,5 @@ HepDataset/
 HepDatasetSplitFlavour/
 *.pid
 wz_3L_SmallSample/
+src/cpp/hepdataset-loops
+src/loops/_cpp_loop_bridge*.so

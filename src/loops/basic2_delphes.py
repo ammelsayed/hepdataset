@@ -1,157 +1,135 @@
 #!/usr/bin/env python3
+"""Fixed-schema flat-tree loop with object-level selection but no channel split.
+
+The loop retains every processed event, stores at most three selected leptons
+and two selected fat jets, and computes pairwise observables for populated
+objects. It applies the common object cuts, but does not route events into
+analysis-channel trees. See README.md for its contrast with other loops.
+"""
+
 import os
+from itertools import combinations
+
 import ROOT
 import numpy as np
 from tqdm import tqdm
-from itertools import combinations
-from ..core.delphes_utilis   import build_chain
+
+from ..core.delphes_utilis import build_chain, load_delphes
 from ..core.object_selection import ObjectSelector
-from ..core.event_selection  import EventSelector
-from .loop_utilis            import check_loop_args
+from ..core.event_selection import EventSelector
+from .loop_utilis import check_loop_args, run_loop_cli
+
+
+MAX_LEPTONS = 3
+MAX_FATJETS = 2
+PAIR_OBJECTS = [*(f"Lepton{i}" for i in range(MAX_LEPTONS)),
+                *(f"FatJet{i}" for i in range(MAX_FATJETS))]
+
+
+def _branch_names():
+    names = [f"{field}_Lepton{i}" for i in range(MAX_LEPTONS)
+             for field in ("PT", "Eta", "Phi")]
+    names += [f"{field}_FatJet{i}" for i in range(MAX_FATJETS)
+              for field in ("PT", "Eta", "Phi", "Mass")]
+    names += [f"{field}_{a}_{b}" for a, b in combinations(PAIR_OBJECTS, 2)
+              for field in ("DeltaR", "DeltaPhi", "DeltaEta", "M")]
+    names += ["MET", "HT", "LT", "ST", "Meff", "weight", "gen_weight"]
+    return names
 
 
 def loop_tree(**loop_args):
-    loop_args = apply_loop_defaults(loop_args)
+    chain = build_chain(loop_args["inputRootFile"])
+    reader = ROOT.ExRootTreeReader(chain)
+    args = check_loop_args(loop_args, reader.GetEntries())
 
-    inputRootFile = loop_args["inputRootFile"]
-    treeName      = loop_args["treeName"]
-    show_progress = loop_args["show_progress"]
-    debug_loop    = loop_args["debug_loop"]
-    output_dir    = loop_args["output_dir"]
-    output_file_name = loop_args["output_file_name"]
+    electron = reader.UseBranch("Electron")
+    muon = reader.UseBranch("Muon")
+    fatjet = reader.UseBranch("FatJet")
+    jet = reader.UseBranch("Jet")
+    met_branch = reader.UseBranch("MissingET")
+    scalar_ht = reader.UseBranch("ScalarHT")
+    weight_branch = reader.UseBranch("Weight")
 
-    # Read the input file
-    Chain = build_chain(inputRootFile)
-    TreeReader = ROOT.ExRootTreeReader(Chain)
-
-    # basic checks
-    numberOfEntries = TreeReader.GetEntries()
-    start_entry, end_entry = check_start_end_entries(numberOfEntries, loop_args["start_entry"], loop_args["end_entry"])
-    numberOfProcessedEntries = end_entry - start_entry
-    eventWeight = get_event_weight(
-        loop_args["eventWeight"],
-        loop_args["cross_section"],
-        loop_args["luminosity"],
-        numberOfProcessedEntries,
-        numberOfEntries,
-    )
-    output_dir = prepare_output_dir(output_dir, loop_args["overwrite"])
-    if output_dir is not None and not output_file_name.endswith(".root"):
-        raise ValueError("output_file_name must end with .root!")
-    if show_progress:
-        print(f"Reading ROOT file: {inputRootFile}")
-        print(f"Total events in file: {numberOfEntries}")
-        print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
-        print(f"Event weight: {eventWeight}")
-    
-    # Branches to read
-    Electron_branch  = TreeReader.UseBranch("Electron")
-    Muon_branch      = TreeReader.UseBranch("Muon")
-    FatJet_branch    = TreeReader.UseBranch("FatJet")
-    Jet_branch       = TreeReader.UseBranch("Jet")
-    MissingET_branch = TreeReader.UseBranch("MissingET")
-    ScalarHT_branch  = TreeReader.UseBranch("ScalarHT")
-    Weight_branch    = TreeReader.UseBranch("Weight")
-
-    # Setup branches to write
-    nb_lep_max = 3
-    nb_fj_max = 2
-    branch_names  = [f"{k}_Lepton{i}" for k in ["PT", "Eta", "Phi"] for i in range(nb_lep_max)]
-    branch_names += [f"{k}_FatJet{i}" for k in ["PT", "Eta", "Phi", "Mass"] for i in range(nb_fj_max)]
-    branch_names += [f"{k}_{'_'.join(comb)}" for k in ["DeltaR", "DeltaPhi", "DeltaEta", "M"] for comb in combinations([f"Lepton{i}" for i in range(nb_lep_max)] + [f"FatJet{i}" for i in range(nb_fj_max)], 2)]
-    branch_names += ["MET", "HT", "LT", "ST", "Meff"]
-    branch_names += ["weight", "gen_weight"]
-
-    # book the tree and create the branch buffers
-    b = {} 
-    tree = ROOT.TTree(treeName, treeName)
+    tree = ROOT.TTree(args["treeName"], args["treeName"])
     tree.SetDirectory(0)
-    for name in branch_names:
-        b[name] = np.zeros(1, dtype=np.float64)
-        tree.Branch(name, b[name], f"{name}/D")
+    buffers = {name: np.zeros(1, dtype=np.float64) for name in _branch_names()}
+    for name, buffer in buffers.items():
+        tree.Branch(name, buffer, f"{name}/D")
 
-    # Event loop
-    rng = range(start_entry, end_entry)
-    for entry in (tqdm(rng) if show_progress else rng):
-        
-        TreeReader.ReadEntry(entry)
+    selector = ObjectSelector()
+    event_selector = EventSelector()  # Provided for the shared make_dataset result contract.
+    entries = range(args["start_entry"], args["end_entry"])
+    for entry in tqdm(entries) if args["show_progress"] else entries:
+        reader.ReadEntry(entry)
+        selected = selector.Select(muon, electron, fatjet, jet, event_weight=args["eventWeight"])
+        leptons = selected["goodLeptons"][:MAX_LEPTONS]
+        fatjets = selected["goodFatJets"][:MAX_FATJETS]
+        p4s = {}
 
-        # Reset branches to np.nan (weight defaults to 0.0 for skipped events)
-        for name in b:
-            b[name][0] = np.nan
-        b["weight"][0] = 0.0
+        for buffer in buffers.values():
+            buffer[0] = np.nan
+        buffers["weight"][0] = 0.0
 
-        # Object selection
-        selected_objects = select_objects(Muon_branch, Electron_branch, FatJet_branch, Jet_branch, objSel_cutflow)
-        goodFatJets = selected_objects["goodFatJets"]
-        goodLeptons = selected_objects["goodLeptons"]
-        goodJets = selected_objects["goodJets"]
-        goodBJets = selected_objects["goodBJets"]
-        goodTauJets = selected_objects["goodTauJets"]
+        for index, lep in enumerate(leptons):
+            name = f"Lepton{index}"
+            p4s[name] = lep.P4()
+            buffers[f"PT_{name}"][0] = lep.PT
+            buffers[f"Eta_{name}"][0] = lep.Eta
+            buffers[f"Phi_{name}"][0] = lep.Phi
 
-        # A dictonary to hold the selected objects' four-momenta for easier access
-        P4s = {}
+        for index, fj in enumerate(fatjets):
+            name = f"FatJet{index}"
+            p4s[name] = fj.P4()
+            buffers[f"PT_{name}"][0] = fj.PT
+            buffers[f"Eta_{name}"][0] = fj.Eta
+            buffers[f"Phi_{name}"][0] = fj.Phi
+            buffers[f"Mass_{name}"][0] = fj.SoftDroppedP4[0].M()
 
-        # Fill lepton data
-        if len(goodLeptons) > 0:
-            for idx, lep in enumerate(goodLeptons[:nb_lep_max]):
-                P4s[f"Lepton{idx}"] = lep.P4()
-                b[f"PT_Lepton{idx}"][0]  = lep.PT
-                b[f"Eta_Lepton{idx}"][0] = lep.Eta
-                b[f"Phi_Lepton{idx}"][0] = lep.Phi
-                
-        
-        # Fill fatjet data
-        if len(goodFatJets) > 0:
-            for idx, fj in enumerate(goodFatJets[:nb_fj_max]):
-                P4s[f"FatJet{idx}"] = fj.P4()
-                b[f"PT_FatJet{idx}"][0]   = fj.PT
-                b[f"Eta_FatJet{idx}"][0]  = fj.Eta
-                b[f"Phi_FatJet{idx}"][0]  = fj.Phi
-                b[f"Mass_FatJet{idx}"][0] = fj.SoftDroppedP4[0].M()
-        
-        # Fill pairwise kinematic variables
-        for obj1, obj2 in combinations([f"Lepton{i}" for i in range(nb_lep_max)] + [f"FatJet{i}" for i in range(nb_fj_max)], 2):
-            if obj1 in P4s and obj2 in P4s:
-                sufx = f"{obj1}_{obj2}"
-                p4_1, p4_2 = P4s[obj1], P4s[obj2]
-                b[f"DeltaR_{sufx}"][0] = p4_1.DeltaR(p4_2)
-                b[f"DeltaPhi_{sufx}"][0] = p4_1.DeltaPhi(p4_2)
-                b[f"DeltaEta_{sufx}"][0] = p4_1.Eta() - p4_2.Eta()
-                b[f"M_{sufx}"][0]        = (p4_1 + p4_2).M()
-        
-        # Fill global event variables
-        met = MissingET_branch.At(0).MET
-        ht  = ScalarHT_branch.At(0).HT
-        lt  = sum(lep.PT for lep in goodLeptons)
-        st  =  ht + lt
-        meff = st + met
-        b["MET"][0]  = met
-        b["HT"][0]   = ht
-        b["LT"][0]   = lt
-        b["ST"][0]   = st
-        b["Meff"][0] = meff
+        for first_name, second_name in combinations(PAIR_OBJECTS, 2):
+            if first_name not in p4s or second_name not in p4s:
+                continue
+            first, second = p4s[first_name], p4s[second_name]
+            suffix = f"{first_name}_{second_name}"
+            buffers[f"DeltaR_{suffix}"][0] = first.DeltaR(second)
+            buffers[f"DeltaPhi_{suffix}"][0] = first.DeltaPhi(second)
+            buffers[f"DeltaEta_{suffix}"][0] = first.Eta() - second.Eta()
+            buffers[f"M_{suffix}"][0] = (first + second).M()
 
-        # Fill event weights
-        w_gen = Weight_branch.At(0).Weight
-        b["gen_weight"][0] = w_gen
-        b["weight"][0] = eventWeight
-
+        met = met_branch.At(0).MET
+        ht = scalar_ht.At(0).HT
+        lt = sum(obj.PT for obj in selected["goodLeptons"])
+        buffers["MET"][0] = met
+        buffers["HT"][0] = ht
+        buffers["LT"][0] = lt
+        buffers["ST"][0] = ht + lt
+        buffers["Meff"][0] = ht + lt + met
+        buffers["gen_weight"][0] = weight_branch.At(0).Weight
+        buffers["weight"][0] = args["eventWeight"]
         tree.Fill()
 
-    # if output_dir is given, then write the tree into root file.
-    if output_dir is not None:
-        os.makedirs(output_dir, exist_ok=True)
-        path = os.path.join(output_dir, output_file_name)
-        f_out = ROOT.TFile.Open(path, "RECREATE")
-        tree.SetDirectory(f_out)
+    root_paths = {}
+    trees = {"inclusive_events": tree}
+    if args["output_dir"] is not None:
+        output_path = os.path.join(args["output_dir"], args["output_file_name"])
+        output = ROOT.TFile.Open(output_path, "RECREATE")
+        tree.SetDirectory(output)
         tree.Write()
-        f_out.Close()
-        return path
-    else:
-        return tree
+        output.Close()
+        root_paths["inclusive_events"] = output_path
 
-if __name__ == "__main__":
-    from loop_utilis import run_loop_cli
+    return {
+        "trees": trees,
+        "root_paths": root_paths,
+        "ObjectSelector": selector,
+        "EventSelector": event_selector,
+    }
+
+
+def main():
     load_delphes()
     run_loop_cli(loop_tree)
+    return 0
+
+
+if __name__ == "__main__":
+    main()

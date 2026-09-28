@@ -1,152 +1,108 @@
 #!/usr/bin/env python3
+"""Compact fixed-schema loop for exactly-one-lepton, fat-jet events.
 
-"""
-Supports reading of one Delphes root file at a time, and writing a flat tree with selected events to a new root file.
-Requires an event to contain exactly one lepton and at least one fatjet to be selected.
-Supports limited amount of branches.
+Reads one Delphes file, applies the shared object selection, and keeps events
+with exactly one selected lepton and at least one selected fat jet. It writes
+separate Muon/Electron fields, up to two FatJets, lepton--FatJet observables,
+and a per-event analysis weight. It is intentionally narrower than basic2,
+basic3, and the configurable adaptive/explicit loops.
 """
 
 import os
 import ROOT
-import math
 import numpy as np
 from tqdm import tqdm
-from delphes import load_delphes, build_chain
-from kinematics import DeltaR, DeltaPhi, DeltaEta
-from object_selection import select_objects
-from loop_utilis import apply_loop_defaults, check_start_end_entries, get_event_weight, prepare_output_dir
-from itertools import combinations
-from tabulate import tabulate
+
+from ..core.delphes_utilis import build_chain, load_delphes
+from ..core.kinematics import DeltaR, DeltaPhi, DeltaEta
+from ..core.object_selection import ObjectSelector
+from ..core.event_selection import EventSelector
+from .loop_utilis import check_loop_args, run_loop_cli
+
 
 def loop_tree(**loop_args):
-    loop_args = apply_loop_defaults(loop_args)
+    input_file = loop_args["inputRootFile"]
+    chain = build_chain(input_file)
+    reader = ROOT.ExRootTreeReader(chain)
+    args = check_loop_args(loop_args, reader.GetEntries())
 
-    inputRootFile = loop_args["inputRootFile"]
-    treeName      = loop_args["treeName"]
-    show_progress = loop_args["show_progress"]
-    debug_loop    = loop_args["debug_loop"]
-    output_dir    = loop_args["output_dir"]
-    output_file_name = loop_args["output_file_name"]
+    electron = reader.UseBranch("Electron")
+    muon = reader.UseBranch("Muon")
+    fatjet = reader.UseBranch("FatJet")
+    jet = reader.UseBranch("Jet")
 
-    # Read the input file
-    Chain = build_chain(inputRootFile)
-    TreeReader = ROOT.ExRootTreeReader(Chain)
-
-    # basic checks
-    numberOfEntries = TreeReader.GetEntries()
-    start_entry, end_entry = check_start_end_entries(numberOfEntries, loop_args["start_entry"], loop_args["end_entry"])
-    numberOfProcessedEntries = end_entry - start_entry
-    eventWeight = get_event_weight(
-        loop_args["eventWeight"],
-        loop_args["cross_section"],
-        loop_args["luminosity"],
-        numberOfProcessedEntries,
-        numberOfEntries,
-    )
-    output_dir = prepare_output_dir(output_dir, loop_args["overwrite"])
-    if output_dir is not None and not output_file_name.endswith(".root"):
-        raise ValueError("output_file_name must end with .root!")
-    if show_progress:
-        print(f"Reading ROOT file: {inputRootFile}")
-        print(f"Total events in file: {numberOfEntries}")
-        print(f"Processing events: {start_entry} to {end_entry - 1} ({numberOfProcessedEntries} events)")
-        print(f"Event weight: {eventWeight}")
-    
-    # Branches to read
-    Electron_branch  = TreeReader.UseBranch("Electron")
-    Muon_branch      = TreeReader.UseBranch("Muon")
-    FatJet_branch    = TreeReader.UseBranch("FatJet")
-    Jet_branch       = TreeReader.UseBranch("Jet")
-    MissingET_branch = TreeReader.UseBranch("MissingET")
-    ScalarHT_branch  = TreeReader.UseBranch("ScalarHT")
-    Weight_branch    = TreeReader.UseBranch("Weight")
-
-    # Setup the tree
-    tree = ROOT.TTree(treeName, treeName)
+    tree = ROOT.TTree(args["treeName"], args["treeName"])
     tree.SetDirectory(0)
-
-    # Setup branches to write
-    branch_names = [
-        "PT_Muon0",     "Eta_Muon0",     "Phi_Muon0",
+    names = [
+        "PT_Muon0", "Eta_Muon0", "Phi_Muon0",
         "PT_Electron0", "Eta_Electron0", "Phi_Electron0",
-        "PT_FatJet0",   "Eta_FatJet0",   "Phi_FatJet0",   "M_FatJet0",
-        "PT_FatJet1",   "Eta_FatJet1",   "Phi_FatJet1",   "M_FatJet1",
-        "DeltaR_Lepton_FatJet0",   "DeltaPhi_Lepton_FatJet0",   "DeltaEta_Lepton_FatJet0",
-        "DeltaR_Lepton_FatJet1",   "DeltaPhi_Lepton_FatJet1",   "DeltaEta_Lepton_FatJet1",
-        "M_Lepton_FatJet0", "M_Lepton_FatJet1",
-        "weight",
+        "PT_FatJet0", "Eta_FatJet0", "Phi_FatJet0", "M_FatJet0",
+        "PT_FatJet1", "Eta_FatJet1", "Phi_FatJet1", "M_FatJet1",
+        "DeltaR_Lepton_FatJet0", "DeltaPhi_Lepton_FatJet0", "DeltaEta_Lepton_FatJet0",
+        "DeltaR_Lepton_FatJet1", "DeltaPhi_Lepton_FatJet1", "DeltaEta_Lepton_FatJet1",
+        "M_Lepton_FatJet0", "M_Lepton_FatJet1", "weight",
     ]
+    buffers = {name: np.zeros(1, dtype=np.float64) for name in names}
+    for name, buffer in buffers.items():
+        tree.Branch(name, buffer, f"{name}/D")
 
-    b = {} 
-    for name in branch_names:
-        b[name] = np.zeros(1, dtype=np.float64)
-        tree.Branch(name, b[name], f"{name}/D")
-
-    # Event loop
-    rng = range(start_entry, end_entry)
-    for entry in (tqdm(rng) if show_progress else rng):
-        
-        TreeReader.ReadEntry(entry)
-
-        # Reset branches to np.nan (weight defaults to 0.0 for skipped events)
-        for name in b:
-            b[name][0] = np.nan
-        b["weight"][0] = 0.0
-
-        # Object selection
-        selected_objects = select_objects(FatJet_branch, Electron_branch, Muon_branch)
-        goodFatJets = selected_objects["goodFatJets"]
-        goodLeptons = selected_objects["goodLeptons"]
-
-        # Event selection (analysis channels configuration)
-        # Exactly one lepton and at least one fatjet
-        if not (len(goodLeptons) == 1 and len(goodFatJets) >= 1):
+    selector = ObjectSelector()
+    event_selector = EventSelector()
+    entries = range(args["start_entry"], args["end_entry"])
+    for entry in tqdm(entries) if args["show_progress"] else entries:
+        reader.ReadEntry(entry)
+        selected = selector.Select(muon, electron, fatjet, jet, event_weight=args["eventWeight"])
+        leptons = selected["goodLeptons"]
+        fatjets = selected["goodFatJets"]
+        if len(leptons) != 1 or not fatjets:
             continue
 
-        # Sort fatjets by PT (descending)
-        goodFatJets.sort(key=lambda fj: fj.PT, reverse=True)
+        for buffer in buffers.values():
+            buffer[0] = np.nan
+        buffers["weight"][0] = 0.0
 
-        # Fill lepton branches
-        lepton = goodLeptons[0]
-        if lepton.ClassName() == "Muon":
-            b["PT_Muon0"][0]  = lepton.PT
-            b["Eta_Muon0"][0] = lepton.Eta
-            b["Phi_Muon0"][0] = lepton.Phi
-        else:
-            b["PT_Electron0"][0]  = lepton.PT
-            b["Eta_Electron0"][0] = lepton.Eta
-            b["Phi_Electron0"][0] = lepton.Phi
+        lepton = leptons[0]
+        prefix = "Muon" if lepton.ClassName() == "Muon" else "Electron"
+        for field, value in (("PT", lepton.PT), ("Eta", lepton.Eta), ("Phi", lepton.Phi)):
+            buffers[f"{field}_{prefix}0"][0] = value
 
-        # Fill fatjet + lepton–fatjet pair branches
-        for idx, fj in enumerate(goodFatJets[:2]):
-            tag = f"FatJet{idx}"
-            b[f"PT_{tag}"][0]   = fj.PT
-            b[f"Eta_{tag}"][0]  = fj.Eta
-            b[f"Phi_{tag}"][0]  = fj.Phi
-            b[f"M_{tag}"][0]    = fj.SoftDroppedP4[0].M()
-            b[f"DeltaR_Lepton_{tag}"][0]   = DeltaR(lepton, fj)
-            b[f"DeltaPhi_Lepton_{tag}"][0] = DeltaPhi(lepton, fj)
-            b[f"DeltaEta_Lepton_{tag}"][0] = DeltaEta(lepton, fj)
-            b[f"M_Lepton_{tag}"][0]        = (fj.P4() + lepton.P4()).M()
+        for index, fj in enumerate(fatjets[:2]):
+            tag = f"FatJet{index}"
+            buffers[f"PT_{tag}"][0] = fj.PT
+            buffers[f"Eta_{tag}"][0] = fj.Eta
+            buffers[f"Phi_{tag}"][0] = fj.Phi
+            buffers[f"M_{tag}"][0] = fj.SoftDroppedP4[0].M()
+            buffers[f"DeltaR_Lepton_{tag}"][0] = DeltaR(lepton, fj)
+            buffers[f"DeltaPhi_Lepton_{tag}"][0] = DeltaPhi(lepton, fj)
+            buffers[f"DeltaEta_Lepton_{tag}"][0] = DeltaEta(lepton, fj)
+            buffers[f"M_Lepton_{tag}"][0] = (lepton.P4() + fj.P4()).M()
 
-        # Weight
-        b["weight"][0] = eventWeight
-
+        buffers["weight"][0] = args["eventWeight"]
         tree.Fill()
 
-    # if output_dir is given, then write the tree into root file.
-    if output_dir is not None:
-        os.makedirs(output_dir, exist_ok=True)
-        path = os.path.join(output_dir, output_file_name)
-        f_out = ROOT.TFile.Open(path, "RECREATE")
-        tree.SetDirectory(f_out)
+    trees = {"inclusive_events": tree}
+    root_paths = {}
+    if args["output_dir"] is not None:
+        output_path = os.path.join(args["output_dir"], args["output_file_name"])
+        output = ROOT.TFile.Open(output_path, "RECREATE")
+        tree.SetDirectory(output)
         tree.Write()
-        f_out.Close()
-        return path
-    else:
-        return tree
+        output.Close()
+        root_paths["inclusive_events"] = output_path
 
-if __name__ == "__main__":
-    from loop_utilis import run_loop_cli
+    return {
+        "trees": trees,
+        "root_paths": root_paths,
+        "ObjectSelector": selector,
+        "EventSelector": event_selector,
+    }
+
+
+def main():
     load_delphes()
     run_loop_cli(loop_tree)
+    return 0
+
+
+if __name__ == "__main__":
+    main()
