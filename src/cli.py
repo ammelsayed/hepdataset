@@ -19,6 +19,12 @@ SUBCOMMANDS = {
     "basic2_delphes":   ("hepdataset.loops.basic2_delphes",   "main"),
     "basic3_delphes":   ("hepdataset.loops.basic3_delphes",   "main"),
     "adaptive_delphes": ("hepdataset.loops.adaptive_delphes", "main"),
+    "explicit_delphes": ("hepdataset.loops.explicit_delphes", "main"),
+    "basic1_delphes_cpp": ("hepdataset.loops.basic1_delphes_cpp", "main"),
+    "basic2_delphes_cpp": ("hepdataset.loops.basic2_delphes_cpp", "main"),
+    "basic3_delphes_cpp": ("hepdataset.loops.basic3_delphes_cpp", "main"),
+    "adaptive_delphes_cpp": ("hepdataset.loops.adaptive_delphes_cpp", "main"),
+    "explicit_delphes_cpp": ("hepdataset.loops.explicit_delphes_cpp", "main"),
 }
 
 

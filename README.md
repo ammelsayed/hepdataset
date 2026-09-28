@@ -6,7 +6,7 @@ HEPDataset converts Delphes ROOT files into analysis-ready ROOT trees for high-e
 
 HEPDataset requires Python 3.8 or newer and a working [ROOT](https://root.cern/) installation with PyROOT and the Delphes classes available. ROOT is not installed by pip and must be installed separately through the ROOT/Delphes distribution appropriate for the analysis environment. The Python dependencies are installed by the package metadata.
 
-The input files must be ROOT files containing the tree and branches expected by the selected loop. A small validation sample is not bundled; the example cards contain placeholder paths that must be replaced with local files.
+The input files must be ROOT files containing the tree and branches expected by the selected loop. The repository includes a 5,000-event Delphes sample at [`tests/data/tag_1_delphes_events.root`](tests/data/tag_1_delphes_events.root) for validation; example samples cards still contain paths that must be replaced with local files.
 
 ## Installation
 
@@ -43,6 +43,12 @@ hepdataset basic1_delphes
 hepdataset basic2_delphes
 hepdataset basic3_delphes
 hepdataset adaptive_delphes
+hepdataset explicit_delphes
+hepdataset basic1_delphes_cpp
+hepdataset basic2_delphes_cpp
+hepdataset basic3_delphes_cpp
+hepdataset adaptive_delphes_cpp
+hepdataset explicit_delphes_cpp
 ```
 
 If the first argument is not a recognized subcommand, it is treated as an argument to `make`. The explicit form is recommended because it makes scripts unambiguous. Every subcommand provides its own help:
@@ -73,7 +79,7 @@ Important options are:
 | `--branches-config-file PATH` | Branch and feature configuration. The packaged default is used when this option is omitted. |
 | `--output-dir PATH` | Destination directory; defaults to `HEPDataset`. |
 | `--working-luminosity VALUE` | Analysis luminosity used for event weights; defaults to `400.0`. |
-| `--loop-method NAME` | Loop implementation, such as `adaptive_delphes`, `basic1_delphes`, `basic2_delphes`, or `basic3_delphes`. |
+| `--loop-method NAME` | Loop implementation, such as `adaptive_delphes`, `explicit_delphes`, any `basicN_delphes` variant, or a `*_delphes_cpp` bridge (after building it). |
 | `--merge-proc-samples` | Merge files belonging to the same process after processing. |
 | `--max-workers N` | Maximum number of worker processes used for merging or parallel processing. |
 | `--n-chunks N` | Number of event ranges used by a parallel loop. |
@@ -147,7 +153,7 @@ The example card is [`tests/samples_example1.yml`](tests/samples_example1.yml). 
 
 ## Branch configuration
 
-The adaptive loop reads a YAML branch card. The packaged default is [`src/defaults/branches_config.yml`](src/defaults/branches_config.yml), and an editable example is [`tests/branches_config_example1.yml`](tests/branches_config_example1.yml). A card defines:
+The adaptive and explicit loops read a YAML branch card. The packaged default is [`src/defaults/branches_config_minimal.yml`](src/defaults/branches_config_minimal.yml); [`src/defaults/branches_config_maximal.yml`](src/defaults/branches_config_maximal.yml) requests a broader schema, and an editable example is [`tests/branches_config_example1.yml`](tests/branches_config_example1.yml). A card defines:
 
 - object types, multiplicities, representations, and kinematic variables;
 - global event variables and event shapes;
@@ -163,6 +169,41 @@ hepdataset adaptive_delphes input.root \
 ```
 
 The exact option names for each loop are available through its `--help` output. Branch names must match the objects exposed by the Delphes tree; a syntactically valid card can still request branches that are absent from a particular sample.
+
+## Event-loop variants
+
+The loop names are not interchangeable: the three `basic` loops use fixed branch lists and have different event-routing behavior, while `adaptive_delphes` and `explicit_delphes` generate branches from the YAML card.
+
+| Loop | Schema and event behavior | Main trade-off |
+| --- | --- | --- |
+| `basic1_delphes` | Fixed compact tree. Keeps only events with exactly one selected lepton and at least one selected fat jet; writes lepton fields, up to two fat jets, their pair observables, and `weight`. | Smallest, targeted output; no configurable branch card or generator-weight branch. |
+| `basic2_delphes` | Fixed flat tree with one row for every processed event. Applies the shared object selections, stores up to three leptons and two fat jets, computes pair observables, and writes MET/HT/LT/ST/Meff plus event weights. | Useful inclusive fixed schema; it does not split events into channels. |
+| `basic3_delphes` | Same general fixed set of up to three leptons/two fat jets and event-level scalars as basic2, but classifies events and writes separate trees by lepton/fat-jet analysis channel; unmatched channels are dropped. | Adds channel routing/cutflow at the cost of multiple output trees; still fixed-schema. |
+| `adaptive_delphes` | Configurable schema; each configured kinematic name is tried with `getattr(object, name)` (for example `lepton.PT`), then `getattr(p4, name)()` (for example `lepton.P4().Pt()`). Unsupported members remain at the reset value. | Concise and flexible because the YAML card drives the lookup, but repeated dynamic attribute lookup may add runtime overhead and the dispatch does not translate directly to C++. |
+| `explicit_delphes` | Configurable schema with finite getter tables: each kinematic name maps to a spelled-out Delphes member or TLorentzVector call. It shares the same branch reader, object/event selectors, event construction, and output contract as adaptive. | More mapping code, but explicit, auditable dispatch that is easier to port to compiled C++; it avoids per-variable `getattr`. It is not guaranteed faster without benchmarking. |
+
+The explicit loop's getter tables are in `src/loops/kinematic_getters.py`. Some names are aliases in the branch card (for example `Pt` maps to `TLorentzVector::Pt()`, while a direct Delphes transverse-momentum member is named `PT`). Values with no available getter, including placeholder MVA tags, remain NaN.
+
+### C++-callable loop entry points
+
+The `*_delphes_cpp` Python modules and `src/cpp/hepdataset_loops.cpp` provide C++/CPython bridge entry points for **all five** loop variants. The bridge calls the corresponding Python `loop_tree`/`main`, so it reuses `branches_reader.py`, `event_selection.py`, and `object_selection.py` exactly and can be selected from `make_dataset` with e.g. `loop_method="explicit_delphes_cpp"`.
+
+This is an interoperability bridge, not a native C++ reimplementation of ROOT event processing, and it does not remove Python-loop overhead. A native port would need C++ implementations of the event loop and selectors. Build the optional extension (requires a C++ compiler and Python development headers) and the standalone embedded-Python launcher from the repository root:
+
+```bash
+make -C src/cpp
+```
+
+The Makefile builds the extension in place with the extension-build flag set, then compiles the standalone launcher against the same Python interpreter. Use `make -C src/cpp PYTHON=/path/to/python` if the desired Python is not `python3`.
+
+Use the C++ launcher with a loop name followed by the normal loop arguments:
+
+```bash
+PYTHONPATH=src src/cpp/hepdataset-loops explicit_delphes tests/data/tag_1_delphes_events.root \
+  --output-dir output --branches-config-path src/defaults/branches_config_minimal.yml
+```
+
+Python callers can instead set `loop_method="basic3_delphes_cpp"` (or another `*_delphes_cpp` name) in `make_dataset`, or import that module's `loop_tree` after the optional extension is built. The loop can also be run directly with `python -m hepdataset.loops.explicit_delphes_cpp ...`.
 
 ## Merging ROOT outputs
 

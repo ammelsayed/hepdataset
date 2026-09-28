@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""Fixed-schema event loop that writes selected events by analysis channel.
+
+Basic3 stores up to three selected leptons and two selected fat jets, their
+pairwise kinematics, global MET/HT/LT/ST/Meff quantities, and event weights.
+Unlike basic2 it classifies events with EventSelector and routes them to
+channel-specific TTrees; unlike adaptive/explicit it does not read a branch
+configuration card.
+"""
 import os
 import ROOT
 import numpy as np
@@ -200,7 +208,8 @@ def main():
     from ..core.delphes_utilis import load_delphes
     from .loop_utilis          import run_loop_cli
     load_delphes()
-    return run_loop_cli(loop_tree)
+    run_loop_cli(loop_tree)
+    return 0
 
 if __name__ == "__main__":
 

@@ -46,7 +46,7 @@ def make_dataset(
     # Read the branches configuration file.
     if branches_config_file is None:
         branches_config_file = str(
-            resource_files("hepdataset").joinpath("defaults/branches_config.yml")
+            resource_files("hepdataset").joinpath("defaults/branches_config_minimal.yml")
         )
         print(f"Using packaged default branches configuration file at: {branches_config_file}")
     else:
