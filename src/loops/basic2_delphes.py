@@ -62,6 +62,7 @@ def loop_tree(**loop_args):
     for entry in tqdm(entries) if args["show_progress"] else entries:
         reader.ReadEntry(entry)
         selected = selector.Select(muon, electron, fatjet, jet, event_weight=args["eventWeight"])
+        event_selector.Select(selected["goodLeptons"], selected["goodFatJets"])
         leptons = selected["goodLeptons"][:MAX_LEPTONS]
         fatjets = selected["goodFatJets"][:MAX_FATJETS]
         p4s = {}

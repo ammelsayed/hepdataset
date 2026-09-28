@@ -87,16 +87,39 @@ PyObject* run_cli(PyObject*, PyObject* args) {
     }
 
     PyObject* sys_module = PyImport_ImportModule("sys");
-    if (sys_module == nullptr || PyObject_SetAttrString(sys_module, "argv", argv) < 0) {
-        Py_XDECREF(sys_module);
+    if (sys_module == nullptr) {
         Py_DECREF(argv);
         Py_DECREF(main_function);
         return nullptr;
     }
-    Py_DECREF(sys_module);
+    PyObject* original_argv = PyObject_GetAttrString(sys_module, "argv");
+    if (original_argv == nullptr || PyObject_SetAttrString(sys_module, "argv", argv) < 0) {
+        Py_XDECREF(sys_module);
+        Py_XDECREF(original_argv);
+        Py_DECREF(argv);
+        Py_DECREF(main_function);
+        return nullptr;
+    }
     Py_DECREF(argv);
     PyObject* result = PyObject_CallObject(main_function, nullptr);
     Py_DECREF(main_function);
+
+    // Preserve any exception from main() while restoring process-global state.
+    PyObject* error_type = nullptr;
+    PyObject* error_value = nullptr;
+    PyObject* error_traceback = nullptr;
+    if (result == nullptr) {
+        PyErr_Fetch(&error_type, &error_value, &error_traceback);
+    }
+    const int restore_status = PyObject_SetAttrString(sys_module, "argv", original_argv);
+    Py_DECREF(original_argv);
+    Py_DECREF(sys_module);
+    if (result == nullptr) {
+        PyErr_Restore(error_type, error_value, error_traceback);
+    } else if (restore_status < 0) {
+        Py_DECREF(result);
+        result = nullptr;
+    }
     return result;
 }
 

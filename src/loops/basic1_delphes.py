@@ -54,6 +54,7 @@ def loop_tree(**loop_args):
         selected = selector.Select(muon, electron, fatjet, jet, event_weight=args["eventWeight"])
         leptons = selected["goodLeptons"]
         fatjets = selected["goodFatJets"]
+        event_selector.Select(leptons, fatjets)
         if len(leptons) != 1 or not fatjets:
             continue
 
