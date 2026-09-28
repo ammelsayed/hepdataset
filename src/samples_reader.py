@@ -15,11 +15,6 @@ from tqdm import tqdm
 ######################################################
 #######################################################
 
-def print_loop_status(info, idx, N):
-    info = info + " ..."
-    width = len(str(abs(N)))
-    print(f"\r{info:<25} [{idx:>{width}}/{N}]", end="\n" if idx == N else "", flush=True)
-
 # def inspect(data):
 #     for category, processes in data.items():
 #         for proc_name, proc_info in processes.items():
