@@ -3,15 +3,6 @@ import ROOT
 import pandas as pd
 from tabulate import tabulate
 
-def MergeEventSelectors():
-    """
-    For each event selector object,
-    read its cutflow and histograms, then,
-    merge the cutflows
-    merge the histograms
-    """
-    pass
-
 class EventSelector:
 
     def __init__(self, splitByFlavour=False):
