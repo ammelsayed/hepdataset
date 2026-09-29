@@ -1,5 +1,9 @@
 # event_selection.py
+import ast
+from pathlib import Path
+
 import ROOT
+import yaml
 import pandas as pd
 from tabulate import tabulate
 
@@ -14,20 +18,37 @@ def MergeEventSelectors():
 
 class EventSelector:
 
-    def __init__(self):
-        self.splitByFlavour = False
+    def __init__(self, splitByFlavour=False, config_path=None):
+        self.splitByFlavour = splitByFlavour
+        self.config_path = Path(config_path) if config_path else self._default_config_path()
+        self._channel_config = self._load_channel_config(self.config_path)
         self.ac_keys, self.ac_dict = self.GetChannelKeys()
         self.ac_counts = dict.fromkeys(["initial", *self.ac_keys, "dropped"], 0)
-    
+
+    @staticmethod
+    def _default_config_path():
+        return Path(__file__).resolve().parents[1] / "defaults" / "event_selection.yml"
+
+    @staticmethod
+    def _load_channel_config(config_path):
+        with open(config_path, "r", encoding="utf-8") as stream:
+            config = yaml.safe_load(stream) or {}
+        channels = config.get("Channels")
+        if not isinstance(channels, dict):
+            raise ValueError("event selection config must contain a Channels mapping")
+        return channels
+
     @classmethod
-    def Merge(cls, selectors):
+    def Merge(cls, selectors, splitByFlavour=None):
         """Return a new EventSelector with the ac_counts of `selectors` summed."""
-        merged = cls()
+        if splitByFlavour is None:
+            splitByFlavour = selectors[0].splitByFlavour if selectors else False
+        merged = cls(splitByFlavour=splitByFlavour)
         for sel in selectors:
             for k, v in sel.ac_counts.items():
                 merged.ac_counts[k] = merged.ac_counts.get(k, 0) + v
         return merged
-        
+
     def LeptonFlavour(self, lep):
         """
         Return 'lep' if we don't split by flavour, else 'e' / 'mu'.
@@ -35,73 +56,49 @@ class EventSelector:
         return ("e" if lep.ClassName() == "Electron" else "mu") if self.splitByFlavour else "lep"
 
     def GetChannelKeys(self):
-        if self.splitByFlavour:
-            ac_dict = {
-                "0L"   : ["Nothing", "J", "JJ", "JJJ"],
-                "1L"   : ["e", "mu", "eJ", "muJ", "eJJ", "muJJ"],
-                "2OSL ": ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
-                "2SSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
-                "3L"   : ["eee", "eemu", "emumu", "mumumu"],
-                # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
-            }
-        else:
-            ac_dict = {
-                "0L"   : ["Nothing", "J", "JJ", "JJJ"],
-                "1L"   : ["lep", "lepJ", "lepJJ"],
-                "2OSL" : ["leplep", "leplepJ"],
-                "2SSL" : ["leplep", "leplepJ"],
-                "3L"   : ["lepleplep"],
-                # "4L": ["leplepleplep"],
-            }
-
-        ac_keys = [f"{ac}_{r}" for ac, acr in ac_dict.items() for r in acr]
+        """Build channel keys and classification rules from the YAML config."""
+        ac_dict = {}
+        self._channel_rules = []
+        for channel, definition in self._channel_config.items():
+            regions = (definition or {}).get("Regions", {})
+            selected_regions = []
+            for region, region_definition in regions.items():
+                requirement = (region_definition or {}).get("requirement")
+                if not isinstance(requirement, str):
+                    raise ValueError(f"missing requirement for {channel}_{region}")
+                names = {node.id for node in ast.walk(ast.parse(requirement, mode="eval"))
+                         if isinstance(node, ast.Name)}
+                uses_flavour = bool(names & {"ne", "nmu"})
+                uses_generic_leptons = "nL" in names and channel != "0L"
+                if uses_flavour and not self.splitByFlavour:
+                    continue
+                if uses_generic_leptons and not uses_flavour and self.splitByFlavour:
+                    continue
+                selected_regions.append(region)
+                self._channel_rules.append((channel, region, requirement))
+            if selected_regions:
+                ac_dict[channel] = selected_regions
+        ac_keys = [f"{channel}_{region}" for channel, regions in ac_dict.items()
+                   for region in regions]
         return ac_keys, ac_dict
 
-
     def ClassifyChannelKey(self, goodLeptons, goodFatJets):
-        n_lep = len(goodLeptons)
-        n_fj  = len(goodFatJets)
-
-        # 0 leptons
-        if n_lep == 0:
-            if n_fj == 0: return "0L_Nothing"
-            if n_fj == 1: return "0L_J"
-            if n_fj == 2: return "0L_JJ"
-            if n_fj >= 3: return "0L_JJJ"
-            return None
-
-        # 1 lepton
-        if n_lep == 1:
-            f = self.LeptonFlavour(goodLeptons[0])
-            if n_fj == 0: return f"1L_{f}"
-            if n_fj == 1: return f"1L_{f}J"
-            if n_fj >= 2: return f"1L_{f}JJ"
-            return None
-
-        # 2 leptons
-        if n_lep == 2:
-            lep1, lep2 = goodLeptons[0], goodLeptons[1]
-            q_tot_abs  = abs(lep1.Charge + lep2.Charge)
-            fs = "".join(sorted(self.LeptonFlavour(l) for l in (lep1, lep2)))
-
-            # opposite sign lepton pair (no requirment on the flavour)
-            if q_tot_abs == 0: 
-                if n_fj == 0: return f"2OSL_{fs}"
-                if n_fj >= 1: return f"2OSL_{fs}J"
-                return None
-
-            # same sign lepton pair (no requirment on the flavour)
-            if q_tot_abs == 2: 
-                if n_fj == 0: return f"2SSL_{fs}"
-                if n_fj >= 1: return f"2SSL_{fs}J"
-                return None
-
-        # 3 leptons
-        if n_lep >= 3:
-            fs = "".join(sorted(self.LeptonFlavour(l) for l in goodLeptons[:3]))
-            if n_fj >= 0: return f"3L_{fs}"
-            return None
-        
+        """Return the first configured channel whose requirement matches the event."""
+        charges = [lep.Charge for lep in goodLeptons]
+        variables = {
+            "nL": len(goodLeptons),
+            "ne": sum(lep.ClassName() == "Electron" for lep in goodLeptons),
+            "nmu": sum(lep.ClassName() == "Muon" for lep in goodLeptons),
+            "QL": abs(sum(charges)),
+            "nJ": len(goodFatJets),
+        }
+        for channel, region, requirement in self._channel_rules:
+            try:
+                matches = bool(eval(requirement, {"__builtins__": {}}, variables))
+            except (NameError, SyntaxError, TypeError, ValueError) as exc:
+                raise ValueError(f"invalid event-selection requirement {requirement!r}") from exc
+            if matches:
+                return f"{channel}_{region}"
         return None
 
     def Select(self, goodLeptons, goodFatJets, valid_keys = None):

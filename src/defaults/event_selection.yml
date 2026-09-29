@@ -14,12 +14,14 @@ Channels:
 # ===============================================================
   0L:
     Regions:
+      Nothing:
+        requirement: (nL == 0) & (nJ == 0)
       J:
-        requirement: nJ == 1
+        requirement: (nL == 0) & (nJ == 1)
       JJ:
-        requirement: nJ == 2
+        requirement: (nL == 0) & (nJ == 2)
       JJJ:
-        requirement: nJ >= 3
+        requirement: (nL == 0) & (nJ >= 3)
 # ===============================================================
   1L:
     Regions:
