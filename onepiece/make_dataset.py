@@ -741,7 +741,7 @@ def make_dataset(
     samples_file,
     branches_config_file = None, 
     output_dir = "HepDataset", 
-    working_luminosity = 400.0,
+    working_luminosity = 500.0,
     max_workers = None, 
     n_chunks = None,
     show_progress=False,
@@ -879,7 +879,7 @@ def main():
     p.add_argument("samples_file", help="Samples YAML file.")
     p.add_argument("--branches-config-file", default="/data/ammelsayed/hepdataset/src/defaults/branches_config_minimal.yml", help="Branch configuration YAML file.")
     p.add_argument("--output-dir", default="HepDataset", help="Output directory.")
-    p.add_argument("--working-luminosity", type=float, default=400.0)
+    p.add_argument("--working-luminosity", type=float, default=500.0)
     p.add_argument("--max-workers", type=int, default=os.cpu_count())
     p.add_argument("--n-chunks", type=int, default=os.cpu_count())
     p.add_argument("--show-progress", action="store_true")

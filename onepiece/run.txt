@@ -1,0 +1,2 @@
+nohup python3 -u make_dataset.py /data/ammelsayed/samples.yml --output-dir HepDataset > HepDataset/run.log 2>&1 &
+nohup python3 -u make_dataset.py /data/ammelsayed/samples.yml --output-dir HepDatasetSplitFlavour --split-by-flavour > HepDatasetSplitFlavour/run.log 2>&1 &

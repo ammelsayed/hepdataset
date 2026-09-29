@@ -352,7 +352,7 @@ def main():
     parser.add_argument("--inspect", action="store_true", help="Deep inspect ROOT files by reading events")
     parser.add_argument("--overwrite", action="store_true", default = False, help="Overwrite the .out.json card.")
     parser.add_argument("--print", dest="print_fmt", nargs="?", const="plain", default=None, choices=["latex", "plain"], help="Print the samples table ('plain' by default, or 'latex')")
-    parser.add_argument("--lumi", type=float, default=400.0, help = "Luminosity in fb^-1 used for calculating the per-event weights.")
+    parser.add_argument("--lumi", type=float, default=500.0, help = "Luminosity in fb^-1 used for calculating the per-event weights.")
     parser.add_argument("--json", type=str, metavar="PATH", help="Write the parsed YAML to a JSON file")
     parser.add_argument("--xml",  type=str, metavar="PATH", help="Write the parsed YAML to an XML file")
     
