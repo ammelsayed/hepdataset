@@ -30,18 +30,24 @@ def test_flavour_card_classifies_os_and_ss_channels(tmp_path):
   2OSL:
     Regions:
       emu:
-        requirement: (ne == 1) & (nmu == 1) & (QL == 0)
+        requirement: (ne == 1) & (nmu == 1) & (QL == 0) & (nJ == 0)
+      emuJ:
+        requirement: (ne == 1) & (nmu == 1) & (QL == 0) & (nJ >= 1)
   2SSL:
     Regions:
       emu:
-        requirement: (ne == 1) & (nmu == 1) & (QL == 2)
+        requirement: (ne == 1) & (nmu == 1) & (QL == 2) & (nJ == 0)
+      emuJ:
+        requirement: (ne == 1) & (nmu == 1) & (QL == 2) & (nJ >= 1)
 """,
         encoding="utf-8",
     )
     selector = EventSelector(card)
 
     assert selector.ClassifyChannelKey([lep("Electron", 1), lep("Muon", -1)], []) == "2OSL_emu"
+    assert selector.ClassifyChannelKey([lep("Electron", 1), lep("Muon", -1)], [object()]) == "2OSL_emuJ"
     assert selector.ClassifyChannelKey([lep("Electron", 1), lep("Muon", 1)], []) == "2SSL_emu"
+    assert selector.ClassifyChannelKey([lep("Electron", 1), lep("Muon", 1)], [object()]) == "2SSL_emuJ"
 
 
 def test_inspect_rejects_overlapping_regions(tmp_path):

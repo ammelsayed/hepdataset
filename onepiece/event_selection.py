@@ -9,7 +9,7 @@ import yaml
 from tabulate import tabulate
 
 
-_VARIABLES = {"nL", "ne", "nmu", "QL", "nJ", "nj", "nbj", "ncj", "ntj"}
+_VARIABLES = {"nL", "ne", "nmu", "QL", "nJ"}
 
 
 def _value(node, variables):

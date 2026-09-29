@@ -47,7 +47,7 @@ def loop_tree(**loop_args):
     branch_names += ["weight", "gen_weight"]
 
     # Analysis channel bookkeeping
-    eventSel = EventSelector()
+    eventSel = EventSelector(loop_args["event_selection_config_path"])
     ac_keys, ac_dict = eventSel.ac_keys, eventSel.ac_dict
 
     # Initialize object selector
