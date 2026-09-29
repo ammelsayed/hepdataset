@@ -761,12 +761,13 @@ def make_dataset(
             proc_RootFiles      = proc_meta["files"]
             proc_NbRootFiles    = len(proc_RootFiles)
             proc_totalNbEvents  = proc_meta["nb_events"]
-            proc_CrossSection   = proc_meta["cross_section"] * 1000
+            proc_CrossSection   = proc_meta["fiducial_cross_section"] * 1000
+            proc_flat_k_factor  = proc_meta["flat_k_factor"]
 
             if not proc_RootFiles or not proc_totalNbEvents:
                 continue
 
-            proc_eventWeight = proc_CrossSection * working_luminosity / proc_totalNbEvents
+            proc_eventWeight = (proc_CrossSection * proc_flat_k_factor * working_luminosity )/ proc_totalNbEvents
             proc_treeName    = f"{prefix}_{proc_name}"
 
             print("-" * 80)
