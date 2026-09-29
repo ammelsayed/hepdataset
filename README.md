@@ -164,6 +164,29 @@ hepdataset adaptive_delphes input.root \
 
 The exact option names for each loop are available through its `--help` output. Branch names must match the objects exposed by the Delphes tree; a syntactically valid card can still request branches that are absent from a particular sample.
 
+## Event-selection cards
+
+Event channels are defined by YAML cards. The selector reads the card directly; there is no separate lepton-flavour switch. The packaged cards are:
+
+- [`src/defaults/event_selection.yml`](src/defaults/event_selection.yml): inclusive lepton channels such as `1L/lep` and `2OSL/leplep`;
+- [`src/defaults/event_selection_flavour.yml`](src/defaults/event_selection_flavour.yml): flavour-specific channels such as `1L/e`, `1L/mu`, and `2OSL/emu`.
+
+Use one card or the other, and edit/copy it for an analysis. **All regions in one card must be mutually exclusive.** In particular, do not put `1L/lep` together with `1L/e` or `1L/mu`: an electron event would satisfy more than one region. The same rule applies to `leplep` versus `ee`/`emu`/`mumu` and to the three-lepton regions.
+
+Before running a dataset production, inspect a card with:
+
+```bash
+python3 src/core/event_selection.py src/defaults/event_selection.yml --inspect
+```
+
+The command checks representative electron/muon charge and fatjet combinations for overlapping regions. Pass a custom card to `make` with `--event-selection-config-file`:
+
+```bash
+hepdataset make samples.yml \
+  --branches-config-file branches_config.yml \
+  --event-selection-config-file src/defaults/event_selection_flavour.yml
+```
+
 ## Merging ROOT outputs
 
 The standalone merge utility operates on a directory of per-sample ROOT outputs:
