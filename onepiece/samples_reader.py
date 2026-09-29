@@ -93,7 +93,7 @@ def print_table(data, fmt="plain", lumi = 400):
                 sigma_el  = info['fiducial_cross_section_err_low']  * 1e3
                 k_factor  = info['flat_k_factor']
                 w         = (sigma * k_factor * lumi) / nb_events
-                print(f"{name:<20} {nb_events:>8,} {sigma:>10.3f} {sigma_eh:>8.3f} {sigma_el:>8.3f} {k_factor:>6.3f} {w:>10.3g}")
+                print(f"{name:<20} {nb_events:>8,} {sigma:>10.5f} {sigma_eh:>8.5f} {sigma_el:>8.5f} {k_factor:>6.3f} {w:>10.5g}")
         print("=" * len(header))
         return None
 
