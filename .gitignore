@@ -4,7 +4,7 @@ hepdataset.egg-info/
 build/
 .pytest_cache/
 dist/
-HEPDataset/
+HepDataset_Old/
 HepDataset/
 HepDatasetSplitFlavour/
 *.pid
