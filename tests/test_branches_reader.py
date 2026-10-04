@@ -93,6 +93,27 @@ class TestObjectAccessors:
         handler = BranchesHandler()
         assert handler.get_obj_instances("Ghost") == []
 
+
+class TestNativeManifest:
+    @staticmethod
+    def test_exports_versioned_manifest_with_mt2_objects(packaged_config, tmp_path):
+        handler = BranchesHandler(str(packaged_config))
+        output = tmp_path / "native" / "branches.tsv"
+
+        assert handler.write_native_manifest(str(output)) == str(output)
+        lines = output.read_text().splitlines()
+        assert lines[0] == "HEPDATASET_NATIVE_CONFIG\t1"
+        assert "OBJECT\tLepton\t4\tLepton\tElectronTag,MuonTag,Pt,Eta,Phi,M,Charge,IsolationVar" in lines
+        assert any(line.startswith("FLOAT_BRANCHES\t") for line in lines)
+        assert any(line.startswith("COMBO\t2\tLepton0,Lepton1") for line in lines)
+        assert any(line.startswith("MT2_OBJECT_INSTANCES\tLepton0,Lepton1") for line in lines)
+
+    @staticmethod
+    def test_invalid_config_cannot_export_manifest(tmp_path):
+        handler = BranchesHandler(str(tmp_path / "missing.yml"))
+        with pytest.raises(ValueError, match="invalid branch configuration"):
+            handler.write_native_manifest(str(tmp_path / "branches.tsv"))
+
     @staticmethod
     def test_mt2_object_instances_from_config(default_config):
         handler = BranchesHandler(str(default_config))

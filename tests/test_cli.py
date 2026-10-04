@@ -43,6 +43,7 @@ def test_help_flag_prints_help(capsys, monkeypatch):
     out = capsys.readouterr().out
     assert "Available subcommands" in out
     assert "adaptive_delphes" in out
+    assert "native_delphes" in out
 
 
 def test_unknown_first_arg_routes_to_make(fake_module, monkeypatch):

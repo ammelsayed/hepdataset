@@ -34,10 +34,7 @@ def make_dataset(
 
     # Import the required libraries
     from .samples_reader          import SamplesReader
-    from .core.delphes_utilis     import load_delphes
     from .loops.parallel_loop     import run_in_parallel, hadd_files
-    from .core.object_selection   import ObjectSelector
-    from .core.event_selection    import EventSelector
 
     # Read samples
     print("Reading the samples file ...")
@@ -45,15 +42,21 @@ def make_dataset(
 
     # Read the branches configuration file.
     if branches_config_file is None:
-        branches_config_file = str(
-            resource_files("hepdataset").joinpath("defaults/branches_config.yml")
-        )
+        branches_config_file = str(resource_files("hepdataset").joinpath("defaults/branches_config_minimal.yml"))
         print(f"Using packaged default branches configuration file at: {branches_config_file}")
     else:
         print("Checking the given branches configuration file ...")
 
-    loop_tree = _load_loop(loop_method)
-    load_delphes()
+    native_mode = loop_method == "native_delphes"
+    if native_mode:
+        from .loops.native_delphes import run_native_in_parallel
+        loop_tree = None
+    else:
+        from .core.delphes_utilis import load_delphes
+        from .core.object_selection import ObjectSelector
+        from .core.event_selection import EventSelector
+        loop_tree = _load_loop(loop_method)
+        load_delphes()
     output_dir = Path(output_dir).resolve()
 
     for category, processes in Data.items():
@@ -89,46 +92,88 @@ def make_dataset(
                 sample_treeName = f"{proc_treeName}_sample{i}"
                 sample_fileName = f"{proc_treeName}_sample{i}.root"
 
-                result = run_in_parallel(
-                    loop_tree,
-                    max_workers=max_workers,
-                    n_chunks=n_chunks,
-                    merge_method=1,
+                loop_kwargs = dict(
                     inputRootFile=str(sampleRootFile),
-                    treeName=proc_treeName,               # <-- same tree name for every sample
+                    treeName=proc_treeName,
                     eventWeight=proc_eventWeight,
                     output_dir=str(output_dir),
                     output_file_name=sample_fileName,
                     overwrite=True,
                     show_progress=show_progress,
-                    branches_config_path = branches_config_file
+                    branches_config_path=branches_config_file,
+                    luminosity=working_luminosity,
                 )
+                if native_mode:
+                    result = run_native_in_parallel(
+                        max_workers=max_workers,
+                        n_chunks=n_chunks,
+                        **loop_kwargs,
+                    )
+                else:
+                    result = run_in_parallel(
+                        loop_tree,
+                        max_workers=max_workers,
+                        n_chunks=n_chunks,
+                        merge_method=1,
+                        **loop_kwargs,
+                    )
 
-                all_objSel.append(result["ObjectSelector"])
-                all_evtSel.append(result["EventSelector"])
+                if result.get("ObjectSelector") is not None:
+                    all_objSel.append(result["ObjectSelector"])
+                if result.get("EventSelector") is not None:
+                    all_evtSel.append(result["EventSelector"])
 
                 for key, path in result["root_paths"].items():
                     proc_paths.setdefault(key, []).append(path)
 
             # Merge per-sample files with hadd 
             if merge_proc_samples:
-                for key, paths in proc_paths.items():
-                    if key is None:
-                        ac, ac_r = "", ""
-                    else:
+                if native_mode:
+                    from .loops.native_delphes import _hadd, _runtime_env
+                    env = _runtime_env()
+                    for key, paths in proc_paths.items():
                         ac, _, ac_r = key.rpartition("_")
-                    target = output_dir / ac / ac_r / f"{proc_treeName}.root"
-                    target.parent.mkdir(parents=True, exist_ok=True)
-
-                    if hadd_files(str(target), paths, max_workers=max_workers):
-                        for p in paths:
+                        target = output_dir / ac / ac_r / f"{proc_treeName}.root"
+                        _hadd(env, target, [Path(path) for path in paths], max_workers)
+                        for path in paths:
                             try:
-                                os.remove(p)
+                                os.remove(path)
                             except OSError:
                                 pass
+                else:
+                    for key, paths in proc_paths.items():
+                        if key is None:
+                            ac, ac_r = "", ""
+                        else:
+                            ac, _, ac_r = key.rpartition("_")
+                        target = output_dir / ac / ac_r / f"{proc_treeName}.root"
+                        target.parent.mkdir(parents=True, exist_ok=True)
+
+                        if hadd_files(str(target), paths, max_workers=max_workers):
+                            for p in paths:
+                                try:
+                                    os.remove(p)
+                                except OSError:
+                                    pass
+
+                if native_mode:
+                    from .loops.native_delphes import _hadd, _runtime_env
+                    env = _runtime_env()
+                    for metadata_dir in ("ObjectSelection", "EventSelection"):
+                        inputs = [output_dir / metadata_dir / f"{proc_treeName}_sample{i}.root"
+                                  for i in range(proc_NbRootFiles)]
+                        inputs = [path for path in inputs if path.is_file()]
+                        if inputs:
+                            target = output_dir / metadata_dir / f"{proc_treeName}.root"
+                            _hadd(env, target, inputs, max_workers)
+                            for path in inputs:
+                                try:
+                                    path.unlink()
+                                except OSError:
+                                    pass
 
             # Merge the selectors across samples and print 
-            if all_objSel and all_evtSel:
+            if not native_mode and all_objSel and all_evtSel:
                 merged_objSel = ObjectSelector.Merge(all_objSel)
                 merged_evtSel = EventSelector.Merge(all_evtSel)
                 merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)

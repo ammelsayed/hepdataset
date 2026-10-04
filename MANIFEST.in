@@ -2,7 +2,8 @@ include README.md
 include LICENSE
 include pyproject.toml
 
-recursive-include src *.py *.yml
+recursive-include src *.py *.yml *.cpp *.h Makefile
+recursive-include src/loops/native_cpp *.cpp *.h Makefile *_LICENSE
 
 global-exclude *.pyc
 global-exclude *.so

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 import os
+try:
+    from importlib.resources import files as resource_files
+except ImportError:  # pragma: no cover - Python 3.8
+    from importlib_resources import files as resource_files
 import ROOT
 import numpy as np
 from tqdm import tqdm
@@ -29,6 +33,12 @@ def loop_tree(**loop_args):
     output_dir = loop_args["output_dir"]
     output_file_name = loop_args["output_file_name"]
     luminosity = loop_args["luminosity"]
+    branches_config_path = loop_args["branches_config_path"]
+    if branches_config_path is None:
+        branches_config_path = str(resource_files("hepdataset").joinpath("defaults/branches_config_minimal.yml"))
+    split_by_flavour = loop_args.get("split_by_flavour", False)
+    write_metadata = loop_args.get("write_metadata", True)
+    return_trees = loop_args.get("return_trees", False)
     
     # Branches to read
     Electron_branch  = TreeReader.UseBranch("Electron")
@@ -214,22 +224,25 @@ def loop_tree(**loop_args):
                 # grooming variants do not have direct methods so we just use one layer of reading 
                 if hasattr(fatjet, 'SoftDroppedP4') and ("SoftDroppedFatJet" in BR.get_obj_repr("FatJet")):
                     branch_name = f"{k}_SoftDroppedFatJet{fj_idx}"
-                    try:
-                        b[branch_name][0] = getattr(p4_sd, k)()  
-                    except AttributeError as e:
-                        continue
+                    if branch_name in b:
+                        try:
+                            b[branch_name][0] = getattr(p4_sd, k)()
+                        except AttributeError:
+                            continue
                 if hasattr(fatjet, 'TrimmedP4') and ("TrimmedFatJet" in BR.get_obj_repr("FatJet")):
                     branch_name = f"{k}_TrimmedFatJet{fj_idx}"
-                    try:
-                        b[branch_name][0] = getattr(p4_tr, k)()  
-                    except AttributeError as e:
-                        continue
+                    if branch_name in b:
+                        try:
+                            b[branch_name][0] = getattr(p4_tr, k)()
+                        except AttributeError:
+                            continue
                 if hasattr(fatjet, 'PrunedP4') and ("PrunedFatJet" in BR.get_obj_repr("FatJet")):
                     branch_name = f"{k}_PrunedFatJet{fj_idx}"
-                    try:
-                        b[branch_name][0] = getattr(p4_pr, k)()  
-                    except AttributeError as e:
-                        continue
+                    if branch_name in b:
+                        try:
+                            b[branch_name][0] = getattr(p4_pr, k)()
+                        except AttributeError:
+                            continue
 
             # Fill n-subjetness substructure variables
             # Those are only filled for FatJet, t groomed variants do not carry these methods
@@ -484,7 +497,8 @@ def main():
     from ..core.delphes_utilis import load_delphes
     from .loop_utilis          import run_loop_cli
     load_delphes()
-    return run_loop_cli(loop_tree)
+    run_loop_cli(loop_tree)
+    return 0
 
 if __name__ == "__main__":
 

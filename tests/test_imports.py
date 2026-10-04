@@ -40,5 +40,6 @@ def test_cli_subcommand_list():
         "basic2_delphes",
         "basic3_delphes",
         "adaptive_delphes",
+        "native_delphes",
     }
     assert set(SUBCOMMANDS) == expected

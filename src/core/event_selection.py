@@ -14,8 +14,8 @@ def MergeEventSelectors():
 
 class EventSelector:
 
-    def __init__(self):
-        self.splitByFlavour = False
+    def __init__(self, splitByFlavour=False):
+        self.splitByFlavour = splitByFlavour
         self.ac_keys, self.ac_dict = self.GetChannelKeys()
         self.ac_counts = dict.fromkeys(["initial", *self.ac_keys, "dropped"], 0)
     
@@ -39,7 +39,7 @@ class EventSelector:
             ac_dict = {
                 "0L"   : ["Nothing", "J", "JJ", "JJJ"],
                 "1L"   : ["e", "mu", "eJ", "muJ", "eJJ", "muJJ"],
-                "2OSL ": ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
+                "2OSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
                 "2SSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
                 "3L"   : ["eee", "eemu", "emumu", "mumumu"],
                 # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
