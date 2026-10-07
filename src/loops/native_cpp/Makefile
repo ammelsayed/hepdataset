@@ -1,33 +1,41 @@
-# Build the native C++ adaptive Delphes loop (no embedded Python).
-# Example:
-#   export ROOTSYS=/path/to/root
-#   export DELPHES_DIR=/path/to/Delphes
-#   export PATH="$ROOTSYS/bin:$PATH"
-#   make -C src/loops/native_cpp native_adaptive_delphes
-
 CXX ?= c++
+CXXFLAGS ?= -O2
 ROOT_CONFIG ?= root-config
 DELPHES_DIR ?=
+BUILD_DIR ?= build
+ROOT_BIN = $(dir $(shell readlink -f $(ROOT_CONFIG)))
+ROOT_PRIVATE_LIBS = $(ROOT_BIN)/../../root.libs
 
-ROOT_CFLAGS := $(shell $(ROOT_CONFIG) --cflags)
-ROOT_LIBS := $(shell $(ROOT_CONFIG) --libs)
-ROOT_PREFIX := $(shell dirname "$$(dirname "$$(readlink -f "$$(command -v $(ROOT_CONFIG))")")")
-ROOT_PRIVATE_LIBS := $(ROOT_PREFIX)/../root.libs
-CXXFLAGS ?= -O2
-CXXFLAGS += -std=c++17 $(ROOT_CFLAGS)
-CPPFLAGS += -I"$(DELPHES_DIR)" -I"$(DELPHES_DIR)/external" -I"$(DELPHES_DIR)/external/ExRootAnalysis" -I"$(CURDIR)/vendor"
-LDFLAGS += -L"$(DELPHES_DIR)" -Wl,-rpath,"$(DELPHES_DIR)" -Wl,-rpath-link,"$(ROOT_PRIVATE_LIBS)" -Wl,-rpath,"$(ROOT_PRIVATE_LIBS)"
-LDLIBS += -lDelphes $(ROOT_LIBS)
+CPPFLAGS += -I"$(DELPHES_DIR)" -I"$(DELPHES_DIR)/classes" \
+            -I"$(DELPHES_DIR)/external" \
+            -I"$(DELPHES_DIR)/external/ExRootAnalysis"
+CXXFLAGS += -std=c++17 $(shell $(ROOT_CONFIG) --cflags)
+LDFLAGS += -L"$(DELPHES_DIR)" -Wl,-rpath,"$(DELPHES_DIR)" \
+           -L"$(ROOT_PRIVATE_LIBS)" -Wl,-rpath-link,"$(ROOT_PRIVATE_LIBS)" \
+           -Wl,-rpath,"$(ROOT_PRIVATE_LIBS)"
+LDLIBS += -lDelphes $(shell $(ROOT_CONFIG) --libs)
 
-NATIVE_LOOP := native_adaptive_delphes
-NATIVE_SOURCE := native_adaptive_delphes.cpp
+SELECTORS = object_selection.cpp event_selection.cpp
+PROGRAMS = basic1_delphes basic2_delphes basic3_delphes
 
-.PHONY: all clean
-all: native_adaptive_delphes
+.PHONY: all basic1_delphes basic2_delphes basic3_delphes clean
+all: $(PROGRAMS)
 
-$(NATIVE_LOOP): $(NATIVE_SOURCE) vendor/mt2_bisect.h
-	@test -n "$(DELPHES_DIR)" || (echo "Set DELPHES_DIR to the Delphes source/build directory" >&2; exit 2)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(NATIVE_SOURCE) $(LDFLAGS) $(LDLIBS) -o $@
+basic1_delphes: $(BUILD_DIR)/basic1_delphes
+basic2_delphes: $(BUILD_DIR)/basic2_delphes
+basic3_delphes: $(BUILD_DIR)/basic3_delphes
+
+$(BUILD_DIR)/basic1_delphes: basic1_delphes.cpp $(SELECTORS) object_selection.h event_selection.h
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) basic1_delphes.cpp $(SELECTORS) $(LDFLAGS) $(LDLIBS) -o $@
+
+$(BUILD_DIR)/basic2_delphes: basic2_delphes.cpp object_selection.cpp object_selection.h
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) basic2_delphes.cpp object_selection.cpp $(LDFLAGS) $(LDLIBS) -o $@
+
+$(BUILD_DIR)/basic3_delphes: basic3_delphes.cpp $(SELECTORS) object_selection.h event_selection.h
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) basic3_delphes.cpp $(SELECTORS) $(LDFLAGS) $(LDLIBS) -o $@
 
 clean:
-	rm -f $(NATIVE_LOOP)
+	rm -rf $(BUILD_DIR)

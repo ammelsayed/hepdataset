@@ -34,7 +34,6 @@ def make_dataset(
 
     # Import the required libraries
     from .samples_reader          import SamplesReader
-    from .loops.parallel_loop     import run_in_parallel, hadd_files
 
     # Read samples
     print("Reading the samples file ...")
@@ -47,11 +46,13 @@ def make_dataset(
     else:
         print("Checking the given branches configuration file ...")
 
-    native_mode = loop_method == "native_delphes"
-    if native_mode:
-        from .loops.native_delphes import run_native_in_parallel
+    native_loop_name = None
+    if loop_method in {"basic1_delphes_cpp", "basic2_delphes_cpp", "basic3_delphes_cpp"}:
+        native_loop_name = loop_method[:-4]
+        from .loops.native_basic import run_native_basic
         loop_tree = None
     else:
+        from .loops.parallel_loop import run_in_parallel, hadd_files
         from .core.delphes_utilis import load_delphes
         from .core.object_selection import ObjectSelector
         from .core.event_selection import EventSelector
@@ -103,11 +104,17 @@ def make_dataset(
                     branches_config_path=branches_config_file,
                     luminosity=working_luminosity,
                 )
-                if native_mode:
-                    result = run_native_in_parallel(
+                if native_loop_name:
+                    result = run_native_basic(
+                        native_loop_name,
+                        input_root_file=str(sampleRootFile),
+                        tree_name=proc_treeName,
+                        event_weight=proc_eventWeight,
+                        output_dir=str(output_dir),
+                        output_file_name=sample_fileName,
                         max_workers=max_workers,
                         n_chunks=n_chunks,
-                        **loop_kwargs,
+                        show_progress=show_progress,
                     )
                 else:
                     result = run_in_parallel(
@@ -128,52 +135,41 @@ def make_dataset(
 
             # Merge per-sample files with hadd 
             if merge_proc_samples:
-                if native_mode:
-                    from .loops.native_delphes import _hadd, _runtime_env
-                    env = _runtime_env()
-                    for key, paths in proc_paths.items():
+                for key, paths in proc_paths.items():
+                    if key is None:
+                        ac, ac_r = "", ""
+                    else:
                         ac, _, ac_r = key.rpartition("_")
-                        target = output_dir / ac / ac_r / f"{proc_treeName}.root"
-                        _hadd(env, target, [Path(path) for path in paths], max_workers)
-                        for path in paths:
+                    target = output_dir / ac / ac_r / f"{proc_treeName}.root"
+                    target.parent.mkdir(parents=True, exist_ok=True)
+
+                    if native_loop_name:
+                        from .loops.native_basic import merge_native_root_files
+                        merge_native_root_files(paths, target, max_workers)
+                        merged = True
+                    else:
+                        merged = hadd_files(str(target), paths, max_workers=max_workers)
+                    if merged:
+                        for p in paths:
                             try:
-                                os.remove(path)
+                                os.remove(p)
                             except OSError:
                                 pass
-                else:
-                    for key, paths in proc_paths.items():
-                        if key is None:
-                            ac, ac_r = "", ""
-                        else:
-                            ac, _, ac_r = key.rpartition("_")
-                        target = output_dir / ac / ac_r / f"{proc_treeName}.root"
-                        target.parent.mkdir(parents=True, exist_ok=True)
 
-                        if hadd_files(str(target), paths, max_workers=max_workers):
-                            for p in paths:
-                                try:
-                                    os.remove(p)
-                                except OSError:
-                                    pass
-
-                if native_mode:
-                    from .loops.native_delphes import _hadd, _runtime_env
-                    env = _runtime_env()
-                    for metadata_dir in ("ObjectSelection", "EventSelection"):
-                        inputs = [output_dir / metadata_dir / f"{proc_treeName}_sample{i}.root"
+                if native_loop_name == "basic3_delphes":
+                    from .loops.native_basic import merge_native_root_files
+                    for metadata in ("ObjectSelection", "EventSelection"):
+                        inputs = [output_dir / metadata / f"{proc_treeName}_sample{i}.root"
                                   for i in range(proc_NbRootFiles)]
-                        inputs = [path for path in inputs if path.is_file()]
+                        inputs = [str(path) for path in inputs if path.is_file()]
                         if inputs:
-                            target = output_dir / metadata_dir / f"{proc_treeName}.root"
-                            _hadd(env, target, inputs, max_workers)
+                            target = output_dir / metadata / f"{proc_treeName}.root"
+                            merge_native_root_files(inputs, target, max_workers)
                             for path in inputs:
-                                try:
-                                    path.unlink()
-                                except OSError:
-                                    pass
+                                os.remove(path)
 
             # Merge the selectors across samples and print 
-            if not native_mode and all_objSel and all_evtSel:
+            if all_objSel and all_evtSel:
                 merged_objSel = ObjectSelector.Merge(all_objSel)
                 merged_evtSel = EventSelector.Merge(all_evtSel)
                 merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)

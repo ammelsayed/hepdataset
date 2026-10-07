@@ -1,4 +1,5 @@
 import math
+import json
 import os
 import sys
 import argparse
@@ -806,52 +807,49 @@ class BranchesHandler:
             print(" > Cleansing of large amounts of NaN entries in tabular data could lead")
             print("   to loss of valuable data if not done carefully.")
 
-    def write_native_manifest(self, output_path):
-        """Write the validated branch schema in a C++-friendly TSV format.
-
-        The native Delphes executable consumes this versioned manifest rather
-        than parsing YAML itself.  Comma-separated fields are safe because
-        branch/object identifiers in this schema cannot contain commas.
-        """
+    def write_native_config_json(self, output_path):
+        """Export the validated branch configuration as versioned JSON."""
         if not self.is_valid():
             raise ValueError("Cannot export an invalid branch configuration")
 
-        def csv(values):
-            return ",".join(str(value) for value in values)
-
-        def record(*fields):
-            return "\t".join(str(field) for field in fields)
+        config = {
+            "schema_version": 1,
+            "objects": self.objects,
+            "event_variables": {
+                "global_scalars": self.global_scalars,
+                "event_shapes": self.event_shapes,
+            },
+            "multi_objects": {
+                "Nmax": self.multiObjects_Nmax,
+                "combo_set": list(self.multiObjects_combo_objects_set),
+                "include_same_representations": self.multiObjects_include_same_represenations,
+                "include_trivial_kinematics": self.multiObjects_include_trival_kinematics,
+                "include_mt2": self.multiObjects_include_mt2,
+                "mt2_object_types": self.multiObjects_mt2_object_types,
+                "mt2_object_instances": self.get_mt2_obj_instances(),
+                "basic_kinematics": self.multiObject_basic_kinematics,
+                "two_body_kinematics": self.multiObject_2body_kinematics,
+                "trivial_kinematics": self.multiObject_trival_kinematics,
+                "combinations": {
+                    str(n): [list(combo) for combo in self.get_nbody_combinations(n)]
+                    for n in range(2, self.multiObjects_Nmax + 1)
+                },
+                "kinematics": {
+                    str(n): self.get_nbody_kinematics(n)
+                    for n in range(2, self.multiObjects_Nmax + 1)
+                },
+            },
+            "branches": {
+                "integers": self.get_int_branch_names(),
+                "floats": self.get_float_branch_names(),
+            },
+        }
 
         parent = os.path.dirname(os.path.abspath(output_path))
         os.makedirs(parent, exist_ok=True)
-        with open(output_path, "w", encoding="utf-8", newline="\n") as stream:
-            stream.write(record("HEPDATASET_NATIVE_CONFIG", 1) + "\n")
-            for name, definition in self.objects.items():
-                stream.write(record(
-                    "OBJECT", name, definition.get("count", 0),
-                    csv(definition.get("representations", [])),
-                    csv(definition.get("kinematics", [])),
-                ) + "\n")
-            stream.write(record("GLOBAL_SCALARS", csv(self.global_scalars)) + "\n")
-            stream.write(record("EVENT_SHAPES", csv(self.event_shapes)) + "\n")
-            stream.write(record(
-                "MULTI_OBJECTS", self.multiObjects_Nmax,
-                int(self.multiObjects_include_same_represenations),
-                int(self.multiObjects_include_trival_kinematics),
-                int(self.multiObjects_include_mt2),
-            ) + "\n")
-            stream.write(record("COMBO_SET", csv(self.multiObjects_combo_objects_set)) + "\n")
-            stream.write(record("MT2_OBJECT_TYPES", csv(self.multiObjects_mt2_object_types)) + "\n")
-            stream.write(record("MT2_OBJECT_INSTANCES", csv(self.get_mt2_obj_instances())) + "\n")
-            stream.write(record("BASIC_KINEMATICS", csv(self.multiObject_basic_kinematics)) + "\n")
-            stream.write(record("TWO_BODY_KINEMATICS", csv(self.multiObject_2body_kinematics)) + "\n")
-            stream.write(record("TRIVAL_KINEMATICS", csv(self.multiObject_trival_kinematics)) + "\n")
-            stream.write(record("INT_BRANCHES", csv(self.get_int_branch_names())) + "\n")
-            stream.write(record("FLOAT_BRANCHES", csv(self.get_float_branch_names())) + "\n")
-            for n in range(2, self.multiObjects_Nmax + 1):
-                stream.write(record("NBODY_KINEMATICS", n, csv(self.get_nbody_kinematics(n))) + "\n")
-                for combo in self.get_nbody_combinations(n):
-                    stream.write(record("COMBO", n, csv(combo)) + "\n")
+        with open(output_path, "w", encoding="utf-8") as stream:
+            json.dump(config, stream, indent=2)
+            stream.write("\n")
         return output_path
 
 
@@ -874,7 +872,7 @@ def main():
     parser.add_argument(
         "--export-native-config",
         metavar="PATH",
-        help="Export the validated branch schema to a TSV manifest for native C++ loops.",
+        help="Export the validated branch configuration as JSON for future native C++ loops.",
     )
     args = parser.parse_args()
 
@@ -888,8 +886,8 @@ def main():
 
     if args.export_native_config:
         if reader.is_valid():
-            path = reader.write_native_manifest(args.export_native_config)
-            print(f"\n✓ Wrote native C++ configuration manifest: {path}")
+            path = reader.write_native_config_json(args.export_native_config)
+            print(f"\n✓ Wrote native C++ configuration JSON: {path}")
 
     reader.print_summary()
 

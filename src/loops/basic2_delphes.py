@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Write one flat tree containing every input event and up to three leptons/two fat jets.
+
+Unlike basic1, this loop does not require a particular event channel; unlike basic3,
+it does not split output by channel or write selector metadata.
+"""
 import os
 import ROOT
 import numpy as np

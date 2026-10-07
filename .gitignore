@@ -9,4 +9,3 @@ HepDataset/
 HepDatasetSplitFlavour/
 *.pid
 wz_3L_SmallSample/
-src/loops/native_cpp/native_adaptive_delphes

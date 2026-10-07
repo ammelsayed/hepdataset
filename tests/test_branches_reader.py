@@ -1,5 +1,6 @@
 """Unit tests for the branch-card reader: hepdataset.core.branches_reader."""
 
+import json
 import pytest
 
 from hepdataset.core.branches_reader import BranchesHandler
@@ -94,25 +95,29 @@ class TestObjectAccessors:
         assert handler.get_obj_instances("Ghost") == []
 
 
-class TestNativeManifest:
+class TestNativeConfigJson:
     @staticmethod
-    def test_exports_versioned_manifest_with_mt2_objects(packaged_config, tmp_path):
+    def test_exports_versioned_json_with_mt2_objects(packaged_config, tmp_path):
         handler = BranchesHandler(str(packaged_config))
-        output = tmp_path / "native" / "branches.tsv"
+        output = tmp_path / "native" / "branches.json"
 
-        assert handler.write_native_manifest(str(output)) == str(output)
-        lines = output.read_text().splitlines()
-        assert lines[0] == "HEPDATASET_NATIVE_CONFIG\t1"
-        assert "OBJECT\tLepton\t4\tLepton\tElectronTag,MuonTag,Pt,Eta,Phi,M,Charge,IsolationVar" in lines
-        assert any(line.startswith("FLOAT_BRANCHES\t") for line in lines)
-        assert any(line.startswith("COMBO\t2\tLepton0,Lepton1") for line in lines)
-        assert any(line.startswith("MT2_OBJECT_INSTANCES\tLepton0,Lepton1") for line in lines)
+        assert handler.write_native_config_json(str(output)) == str(output)
+        config = json.loads(output.read_text())
+        assert config["schema_version"] == 1
+        assert config["objects"]["Lepton"] == {
+            "count": 4,
+            "representations": ["Lepton"],
+            "kinematics": ["ElectronTag", "MuonTag", "Pt", "Eta", "Phi", "M", "Charge", "IsolationVar"],
+        }
+        assert "weight" in config["branches"]["floats"]
+        assert ["Lepton0", "Lepton1"] in config["multi_objects"]["combinations"]["2"]
+        assert config["multi_objects"]["mt2_object_instances"][:2] == ["Lepton0", "Lepton1"]
 
     @staticmethod
-    def test_invalid_config_cannot_export_manifest(tmp_path):
+    def test_invalid_config_cannot_export_json(tmp_path):
         handler = BranchesHandler(str(tmp_path / "missing.yml"))
         with pytest.raises(ValueError, match="invalid branch configuration"):
-            handler.write_native_manifest(str(tmp_path / "branches.tsv"))
+            handler.write_native_config_json(str(tmp_path / "branches.json"))
 
     @staticmethod
     def test_mt2_object_instances_from_config(default_config):

@@ -96,7 +96,6 @@ hepdataset = [
 "hepdataset.loops" = [
     "native_cpp/*.cpp",
     "native_cpp/Makefile",
-    "native_cpp/vendor/*",
 ]
 
 [tool.setuptools.exclude-package-data]

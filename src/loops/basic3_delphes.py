@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Write basic2's observable schema into separate event-channel trees.
+
+This loop applies ObjectSelector and EventSelector and also writes their selection
+histograms and cutflows; unlike basic2, events are partitioned by analysis channel.
+"""
 import os
 import ROOT
 import numpy as np

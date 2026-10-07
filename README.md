@@ -1,6 +1,6 @@
 # HEPDataset
 
-HEPDataset converts Delphes ROOT files into analysis-ready ROOT trees for high-energy-physics studies. Version 5 reorganizes the project around a package-installed command-line interface, configurable branch cards, reusable selection modules, and optional parallel event processing in Python or native C++.
+HEPDataset converts Delphes ROOT files into analysis-ready ROOT trees for high-energy-physics studies. Version 5 reorganizes the project around a package-installed command-line interface, configurable branch cards, reusable selection modules, and optional parallel event processing in Python.
 
 ## Requirements
 
@@ -43,7 +43,6 @@ hepdataset basic1_delphes
 hepdataset basic2_delphes
 hepdataset basic3_delphes
 hepdataset adaptive_delphes
-hepdataset native_delphes
 ```
 
 If the first argument is not a recognized subcommand, it is treated as an argument to `make`. The explicit form is recommended because it makes scripts unambiguous. Every subcommand provides its own help:
@@ -52,7 +51,6 @@ If the first argument is not a recognized subcommand, it is treated as an argume
 hepdataset make --help
 hepdataset samples_reader --help
 hepdataset adaptive_delphes --help
-hepdataset native_delphes --help
 ```
 
 ## Creating a dataset
@@ -75,7 +73,7 @@ Important options are:
 | `--branches-config-file PATH` | Branch and feature configuration. The packaged default is used when this option is omitted. |
 | `--output-dir PATH` | Destination directory; defaults to `HEPDataset`. |
 | `--working-luminosity VALUE` | Analysis luminosity used for event weights; defaults to `400.0`. |
-| `--loop-method NAME` | Loop implementation, such as `adaptive_delphes`, `native_delphes`, `basic1_delphes`, `basic2_delphes`, or `basic3_delphes`. |
+| `--loop-method NAME` | Python loop (`adaptive_delphes`, `basic1_delphes`, `basic2_delphes`, `basic3_delphes`) or native executable (`basic1_delphes_cpp`, `basic2_delphes_cpp`, `basic3_delphes_cpp`). |
 | `--merge-proc-samples` | Merge files belonging to the same process after processing. |
 | `--max-workers N` | Maximum number of worker processes used for merging or parallel processing. |
 | `--n-chunks N` | Number of event ranges used by a parallel loop. |
@@ -149,7 +147,7 @@ The example card is [`tests/samples_example1.yml`](tests/samples_example1.yml). 
 
 ## Branch configuration
 
-The adaptive and native loops read a YAML branch card. The packaged default is [`src/defaults/branches_config_minimal.yml`](src/defaults/branches_config_minimal.yml), and an editable example is [`tests/branches_config_example1.yml`](tests/branches_config_example1.yml). A card defines:
+The adaptive Python loop reads a YAML branch card. The packaged default is [`src/defaults/branches_config_minimal.yml`](src/defaults/branches_config_minimal.yml), and an editable example is [`tests/branches_config_example1.yml`](tests/branches_config_example1.yml). A card defines:
 
 - object types, multiplicities, representations, and kinematic variables;
 - global event variables and event shapes;
@@ -226,13 +224,19 @@ hepdataset adaptive_delphes input.root \
   --output-dir output
 ```
 
-The Python loop methods use the package's Python parallel orchestration. The native C++ loop uses a separate approach: the coordinator obtains the entry count from the C++ executable, starts one native executable subprocess per entry range, waits for the child processes, and merges their ROOT files with ROOT's `hadd`. It does not use `ProcessPoolExecutor` and Python does not read/process the event entries in this mode. Parallel ROOT workflows should be validated against a serial run on a small input file.
+The Python loop methods use the package's Python parallel orchestration. The `basic1_delphes_cpp`, `basic2_delphes_cpp`, and `basic3_delphes_cpp` dataset methods instead split each input entry range and launch the native executables as direct subprocesses, then merge their ROOT outputs with `hadd`; they do not use Python's `ProcessPoolExecutor` to process events. Validate parallel ROOT workflows against a serial run on a small input file.
 
-## Native C++ loop
+## Native C++ basic loops
 
-`native_delphes` is a native C++ implementation of the configurable adaptive Delphes loop. The C++ program reads the ROOT `Delphes` tree through `TChain`/`ExRootTreeReader`, performs lepton and fat-jet selections and channel classification, calculates configured observables (including configured MT2), and writes channel trees plus object/event selection metadata. There is no Python embedding or callback during event processing. The Python layer only validates the YAML branch card, exports a versioned tab-delimited branch manifest, and launches/waits for the C++ executable; this keeps the full Python `BranchesHandler` out of the C++ event loop.
+The native C++ replicas are standalone executables and are also available from `make_dataset` under the explicit `*_cpp` method names. Their source follows the Python separation: [`object_selection.cpp`](src/loops/native_cpp/object_selection.cpp) and [`event_selection.cpp`](src/loops/native_cpp/event_selection.cpp) contain the reusable selector classes, and each loop file has one `loop_tree` event-processing function plus its command-line `main`.
 
-Build requirements are a C++17 compiler, `make`, ROOT with `root-config`, and a Delphes build containing `libDelphes.so` and the ExRootAnalysis headers. Set the ROOT and Delphes paths, then build:
+| Executable | Behavior |
+| --- | --- |
+| `basic1_delphes` | Keeps events with exactly one selected lepton and at least one selected fat jet; writes a compact tree with the lepton, up to two leading fat jets, their pair observables, and event weight. |
+| `basic2_delphes` | Writes one flat entry per input event, with up to three selected leptons, two selected fat jets, pair observables, global event variables, and analysis/generator weights. It does not split events into analysis-channel files. |
+| `basic3_delphes` | Uses `ObjectSelector` and `EventSelector`; writes the fixed basic2 observable schema into separate channel trees, plus object- and event-selection ROOT metadata. |
+
+All three use the shared `ObjectSelector`; basic1 and basic3 also use the shared `EventSelector`. Build requirements are a C++17 compiler, `make`, ROOT with `root-config`, and a Delphes build containing `libDelphes.so` and the ExRootAnalysis headers. Set the ROOT and Delphes paths, then build:
 
 ```bash
 export ROOTSYS=/path/to/root
@@ -241,33 +245,36 @@ export DELPHES_DIR=/path/to/Delphes
 make -C src/loops/native_cpp
 ```
 
-The standalone command accepts the same core range/output controls as the Python adaptive loop:
+The binaries are placed in `src/loops/native_cpp/build/`. Each accepts `--input-root-file`, `--output-dir`, `--output-file-name`, `--tree-name`, `--start-entry`, `--end-entry`, `--event-weight`, `--cross-section`, `--luminosity`, `--overwrite`, and `--show-progress`. For example:
 
 ```bash
-hepdataset native_delphes /path/to/tag_1_delphes_events.root \
-  --branches-config-path src/defaults/branches_config_minimal.yml \
+src/loops/native_cpp/build/basic3_delphes \
+  --input-root-file /path/to/tag_1_delphes_events.root \
   --start-entry 0 --end-entry 1000 \
-  --output-dir native-output --output-file-name events.root --overwrite
+  --output-dir native-output --output-file-name events.root --overwrite --show-progress
 ```
 
-The compiled executable can also be invoked directly with a branch manifest:
+`--event-weight` uses the supplied value as-is. Otherwise, supply both `--cross-section` and `--luminosity` to calculate the constant analysis weight over the requested entry range; if neither is supplied, the weight is 1.0. Use `--help` for the compact command synopsis.
+
+To use the native loops from `make_dataset`, select one explicitly. `--n-chunks` controls entry-range shards, and `--max-workers` caps the number of C++ subprocesses running concurrently:
 
 ```bash
-src/loops/native_cpp/native_adaptive_delphes \
-  --input-root-file input.root --branch-manifest branches.tsv \
-  --start-entry 0 --end-entry 1000 --output-dir native-output --overwrite
+hepdataset make samples.yml --loop-method basic3_delphes_cpp \
+  --n-chunks 8 --max-workers 4 --output-dir native-dataset
 ```
 
-The wrapper exports the manifest from the validated YAML card into a temporary file automatically. To use C++ subprocess sharding from `make_dataset`:
+The binaries can also be called directly from Python orchestration with `subprocess` or from the terminal as shown above.
 
-```bash
-hepdataset make samples.yml \
-  --branches-config-file src/defaults/branches_config_minimal.yml \
-  --loop-method native_delphes --max-workers 4 --n-chunks 8 \
-  --output-dir native-dataset
+### Branch configuration export for a future adaptive C++ loop
+
+`BranchesHandler.write_native_config_json(path)` writes its validated configuration as versioned JSON. The JSON retains object definitions, event variables, multi-object combinations and kinematics, MT2 settings, and the generated branch names. It is groundwork for a future native C++ adaptive loop; the three fixed-schema basic executables do not consume this file.
+
+```python
+from hepdataset.core.branches_reader import BranchesHandler
+
+reader = BranchesHandler("src/defaults/branches_config_minimal.yml")
+reader.write_native_config_json("branches.json")
 ```
-
-`--max-workers` caps concurrently running C++ subprocesses; `--n-chunks` controls how many entry ranges are created. The native mode writes ROOT selector summaries/histograms, not Python `ObjectSelector`/`EventSelector` objects, and returns no in-memory `TTree` objects. Use `adaptive_delphes` when those Python objects or Python-side plotting are required. The native mode processes the adaptive loop's lepton, fat-jet, small-R jet, MET, and scalar-HT configuration and uses the same branch card as its input schema; it does not currently implement the distinct fixed-schema `basic1_delphes`, `basic2_delphes`, or `basic3_delphes` loop contracts.
 
 ## Testing and validation
 
