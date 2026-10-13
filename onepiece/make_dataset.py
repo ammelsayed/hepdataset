@@ -423,7 +423,7 @@ def loop_tree(
         
         # Fill event shapes
         if BR.event_shapes:
-            vis_p4s = [lep.P4() for lep in goodLeptons] + [fj.P4() for fj in goodFatJets] + [jet.P4() for jet in goodJets] + [met.P4()]
+            vis_p4s = [lep.P4() for lep in goodLeptons] + [fj.P4() for fj in goodFatJets] + [met.P4()]
             px_arr = np.array([p.Px() for p in vis_p4s], dtype=np.float64)
             py_arr = np.array([p.Py() for p in vis_p4s], dtype=np.float64)
             pz_arr = np.array([p.Pz() for p in vis_p4s], dtype=np.float64)

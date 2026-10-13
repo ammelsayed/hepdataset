@@ -93,13 +93,28 @@ def print_table(data, fmt="plain", lumi = 400):
                 sigma_el  = info['fiducial_cross_section_err_low']  * 1e3
                 k_factor  = info['flat_k_factor']
                 w         = (sigma * k_factor * lumi) / nb_events
-                print(f"{name:<20} {nb_events:>8,} {sigma:>10.3f} {sigma_eh:>8.3f} {sigma_el:>8.3f} {k_factor:>6.3f} {w:>10.3g}")
+                print(f"{name:<20} {nb_events:>8,} {sigma:>10.5f} {sigma_eh:>8.5f} {sigma_el:>8.5f} {k_factor:>6.3f} {w:>10.5g}")
         print("=" * len(header))
+        return None
+
+    if fmt == "markdown":
+        from tabulate import tabulate
+        rows, headers = [], ["Process", "N_gen", "sigma [fb]", "+err", "-err", "K_F", "w_i"]
+        for category, processes in data.items():
+            rows.append([f"**{category}**", "", "", "", "", "", ""])
+            for name, info in processes.items():
+                s  = info['fiducial_cross_section']          * 1e3
+                sh = info['fiducial_cross_section_err_high'] * 1e3
+                sl = info['fiducial_cross_section_err_low']  * 1e3
+                k  = info['flat_k_factor']
+                n  = info['nb_events']
+                w  = (s * k * lumi) / n
+                rows.append([name, f"{n:,}", f"{s:.5f}", f"{sh:.5f}", f"{sl:.5f}", f"{k:.3f}", f"{w:.5g}"])
+        print(tabulate(rows, headers=headers, tablefmt="github"))
         return None
 
 
     if fmt == "latex":
-
         # error formatting for the latex table
         def fmt_with_err(val, high, low, digits=3):
             if (high != 0.0) or (low != 0.0):
@@ -112,20 +127,25 @@ def print_table(data, fmt="plain", lumi = 400):
                 return rf"{mant} \times 10^{{{int(exp)}}}"
             return rf"{mant}"
 
+        def escape_latex(text):
+            for char in ["\\", "&", "%", "$", "#", "_", "{", "}"]:
+                text = text.replace(char, f"\\{char}")
+            return text
+
         ncols   = 5
         header  = r"Process & $N_{\mathrm{gen}}$ & $\sigma_{\mathrm{LO}}$ [fb] & $K_{\mathrm{F}}$ & $w_{i}$ \\"
         out = []
         out.append(r"\begin{table}")
         out.append(r"\centering")
         out.append(r"\scriptsize")
-        out.append(r"\setlength{\tabcolsep}{2.5pt}")
-        out.append(r"\renewcommand{\arraystretch}{1.05}")
+        out.append(r"\setlength{\tabcolsep}{8pt}")
+        out.append(r"\renewcommand{\arraystretch}{1.2}")
         out.append(r"\begin{tabular}{lcccc}")
         out.append(r"\toprule")
         out.append(header)
         out.append(r"\midrule")
         for category, processes in data.items():
-            out.append(rf"\multicolumn{{{ncols}}}{{l}}{{\textbf{{{category}}}}} \\")
+            out.append(rf"\multicolumn{{{ncols}}}{{l}}{{\textbf{{{escape_latex(category)}}}}} \\")
             out.append(r"\midrule")   
             for name, info in processes.items():
                 nb_events = info['nb_events']
@@ -135,7 +155,7 @@ def print_table(data, fmt="plain", lumi = 400):
                 k_factor  = info['flat_k_factor']
                 w         = (sigma * k_factor * lumi) / nb_events
                 sigma_str = fmt_with_err(sigma, sigma_eh, sigma_el)
-                out.append(f"{name} & ${nb_events:,}$ & {sigma_str} & ${k_factor}$ & ${fmt_sci(w)}$ \\\\")
+                out.append(f"{escape_latex(name)} & ${nb_events:,}$ & {sigma_str} & ${k_factor}$ & ${fmt_sci(w)}$ \\\\")
         out.append(r"\bottomrule")
         out.append(r"\end{tabular}")
         out.append(r"\end{table}")
@@ -351,8 +371,8 @@ def main():
     parser.add_argument("yml_file", type=str, help="Path to the samples file (.yml, .yaml, or .json)")
     parser.add_argument("--inspect", action="store_true", help="Deep inspect ROOT files by reading events")
     parser.add_argument("--overwrite", action="store_true", default = False, help="Overwrite the .out.json card.")
-    parser.add_argument("--print", dest="print_fmt", nargs="?", const="plain", default=None, choices=["latex", "plain"], help="Print the samples table ('plain' by default, or 'latex')")
-    parser.add_argument("--lumi", type=float, default=400.0, help = "Luminosity in fb^-1 used for calculating the per-event weights.")
+    parser.add_argument("--print", dest="print_fmt", nargs="?", const="plain", default=None, choices=["latex", "plain", "markdown"], help="Print the samples table ('plain' by default, or 'latex')")
+    parser.add_argument("--lumi", type=float, default=500.0, help = "Luminosity in fb^-1 used for calculating the per-event weights.")
     parser.add_argument("--json", type=str, metavar="PATH", help="Write the parsed YAML to a JSON file")
     parser.add_argument("--xml",  type=str, metavar="PATH", help="Write the parsed YAML to an XML file")
     
