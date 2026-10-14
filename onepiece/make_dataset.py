@@ -81,7 +81,7 @@ def loop_tree(
     output_file_name = "events.root", 
     overwrite_output_dir = False,
     branches_config_path = None,
-    split_by_flavour = False,
+    event_selection_config_path = None,
     write_metadata = True,
     return_trees = True,
     ):
@@ -151,7 +151,7 @@ def loop_tree(
     int_branch_names = BR.get_int_branch_names()
 
     # Analysis channel bookkeeping
-    eventSel = EventSelector(splitByFlavour=split_by_flavour)
+    eventSel = EventSelector(event_selection_config_path)
     ac_keys, ac_dict = eventSel.ac_keys, eventSel.ac_dict
 
     # Initialize object selector
@@ -683,7 +683,7 @@ def loop_tree_parallel(
     output_file_name = "events.root", 
     overwrite_output_dir = False,
     branches_config_path = None,
-    split_by_flavour = False,
+    event_selection_config_path = None,
     n_chunks = None, 
     max_workers = None
     ):
@@ -707,7 +707,7 @@ def loop_tree_parallel(
             f"tmp_split{i}_{output_file_name}", 
             True, # overwrite_output_dir
             branches_config_path,
-            split_by_flavour,
+            event_selection_config_path,
             False, # write_metadata
             False  # return_trees
         ))
@@ -724,7 +724,7 @@ def loop_tree_parallel(
     merged_trees  = None
     merged_paths  = hadd_chunks(results, max_workers, output_file_name)
     merged_objSel = ObjectSelector.Merge([r["ObjectSelector"] for r in results])
-    merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results],splitByFlavour=split_by_flavour)
+    merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results])
         
     return {
         "trees": merged_trees,
@@ -747,7 +747,7 @@ def make_dataset(
     show_progress=False,
     merge_proc_samples = True,
     run_in_parallel = True,
-    split_by_flavour = False,
+    event_selection_config_path = None,
     ):
 
     precompile_numba()
@@ -803,7 +803,7 @@ def make_dataset(
                         output_file_name = sample_fileName, 
                         overwrite_output_dir = True,
                         branches_config_path = branches_config_file,
-                        split_by_flavour = split_by_flavour,
+                        event_selection_config_path = event_selection_config_path,
                         n_chunks = n_chunks, 
                         max_workers = max_workers
                     )
@@ -823,7 +823,7 @@ def make_dataset(
                         output_file_name = sample_fileName, 
                         overwrite_output_dir = True,
                         branches_config_path = branches_config_file,
-                        split_by_flavour = split_by_flavour,
+                        event_selection_config_path = event_selection_config_path,
                         write_metadata = True,
                         return_trees = True
                     )
@@ -854,7 +854,7 @@ def make_dataset(
             # Merge the selectors across samples and print 
             if proc_objSel and proc_evtSel:
                 merged_objSel = ObjectSelector.Merge(proc_objSel)
-                merged_evtSel = EventSelector.Merge(proc_evtSel, splitByFlavour=split_by_flavour)
+                merged_evtSel = EventSelector.Merge(proc_evtSel)
                 merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)
                 merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=working_luminosity)
                 
@@ -885,7 +885,7 @@ def main():
     p.add_argument("--show-progress", action="store_true")
     p.add_argument("--no-merge-proc-samples", dest="merge_proc_samples", action="store_false", default=True)
     p.add_argument("--run-in-parallel", dest="run_in_parallel", action="store_false", default=True)
-    p.add_argument("--split-by-flavour", action="store_true",  help="Split analysis channels by lepton flavour (e/mu) instead of merging them into a single 'lep'.")
+    p.add_argument("--event-selection-config-path", default=None, help="Path to the event-selection configuration YAML.")
     args = p.parse_args()
 
     started = datetime.now()

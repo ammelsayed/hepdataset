@@ -1,0 +1,68 @@
+# Event-selection card. Regions must be mutually exclusive.
+# Variables: nL (leptons), ne (electrons), nmu (muons), QL (absolute total charge), nJ (fatjets).
+# Use either inclusive lepton regions (lep/leplep/...) or flavour-specific regions
+# (e/mu/ee/emu/...), never both in the same card.
+
+Channels:
+  0L:
+    Regions:
+      Nothing:
+        requirement: (nL == 0) & (nJ == 0)
+      J:
+        requirement: (nL == 0) & (nJ == 1)
+      JJ:
+        requirement: (nL == 0) & (nJ == 2)
+      JJJ:
+        requirement: (nL == 0) & (nJ >= 3)
+  1L:
+    Regions:
+      e:
+        requirement: (ne == 1) & (nmu == 0) & (nJ == 0)
+      mu:
+        requirement: (ne == 0) & (nmu == 1) & (nJ == 0)
+      eJ:
+        requirement: (ne == 1) & (nmu == 0) & (nJ == 1)
+      muJ:
+        requirement: (ne == 0) & (nmu == 1) & (nJ == 1)
+      eJJ:
+        requirement: (ne == 1) & (nmu == 0) & (nJ >= 2)
+      muJJ:
+        requirement: (ne == 0) & (nmu == 1) & (nJ >= 2)
+  2OSL:
+    Regions:
+      ee:
+        requirement: (ne == 2) & (nmu == 0) & (QL == 0) & (nJ == 0)
+      emu:
+        requirement: (ne == 1) & (nmu == 1) & (QL == 0) & (nJ == 0)
+      mumu:
+        requirement: (ne == 0) & (nmu == 2) & (QL == 0) & (nJ == 0)
+      eeJ:
+        requirement: (ne == 2) & (nmu == 0) & (QL == 0) & (nJ >= 1)
+      emuJ:
+        requirement: (ne == 1) & (nmu == 1) & (QL == 0) & (nJ >= 1)
+      mumuJ:
+        requirement: (ne == 0) & (nmu == 2) & (QL == 0) & (nJ >= 1)
+  2SSL:
+    Regions:
+      ee:
+        requirement: (ne == 2) & (nmu == 0) & (QL == 2) & (nJ == 0)
+      emu:
+        requirement: (ne == 1) & (nmu == 1) & (QL == 2) & (nJ == 0)
+      mumu:
+        requirement: (ne == 0) & (nmu == 2) & (QL == 2) & (nJ == 0)
+      eeJ:
+        requirement: (ne == 2) & (nmu == 0) & (QL == 2) & (nJ >= 1)
+      emuJ:
+        requirement: (ne == 1) & (nmu == 1) & (QL == 2) & (nJ >= 1)
+      mumuJ:
+        requirement: (ne == 0) & (nmu == 2) & (QL == 2) & (nJ >= 1)
+  3L:
+    Regions:
+      eee:
+        requirement: (ne == 3) & (nmu == 0)
+      eemu:
+        requirement: (ne == 2) & (nmu == 1)
+      emumu:
+        requirement: (ne == 1) & (nmu == 2)
+      mumumu:
+        requirement: (ne == 0) & (nmu == 3)

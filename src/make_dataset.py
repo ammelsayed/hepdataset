@@ -22,6 +22,7 @@ def _load_loop(name):
 def make_dataset(
     samples_file,
     branches_config_file = None, 
+    event_selection_config_file = None,
     output_dir = "HEPDataset", 
     loop_method = "adaptive_delphes",
     working_luminosity = 400.0,
@@ -51,6 +52,8 @@ def make_dataset(
         print(f"Using packaged default branches configuration file at: {branches_config_file}")
     else:
         print("Checking the given branches configuration file ...")
+    if event_selection_config_file is None:
+        event_selection_config_file = str(resource_files("hepdataset").joinpath("defaults/event_selection.yml"))
 
     loop_tree = _load_loop(loop_method)
     load_delphes()
@@ -101,7 +104,8 @@ def make_dataset(
                     output_file_name=sample_fileName,
                     overwrite=True,
                     show_progress=show_progress,
-                    branches_config_path = branches_config_file
+                    branches_config_path = branches_config_file,
+                    event_selection_config_path = event_selection_config_file,
                 )
 
                 all_objSel.append(result["ObjectSelector"])
@@ -179,6 +183,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("samples_file", help="Samples YAML file.")
     p.add_argument("--branches-config-file", default=None)
+    p.add_argument("--event-selection-config-file", default=None)
     p.add_argument("--output-dir", default = "HEPDataset", help="Output directory.")
     p.add_argument("--working-luminosity", type=float, default=400.0)
     p.add_argument("--loop-method", default="adaptive_delphes")

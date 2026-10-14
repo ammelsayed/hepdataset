@@ -115,6 +115,15 @@ LOOP_ARGUMENTS = {
             help="Path to the branches configuration YAML.",
         ),
     ),
+    "event_selection_config_path": dict(
+        cli="--event-selection-config-path",
+        default=None,
+        kwargs=dict(
+            type=str,
+            metavar="",
+            help="Path to the event-selection configuration YAML.",
+        ),
+    ),
 }
 
 def apply_loop_defaults(loop_args):

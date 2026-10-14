@@ -48,7 +48,7 @@ def loop_tree(**loop_args):
     int_branch_names = BR.get_int_branch_names()
 
     # Analysis channel bookkeeping
-    eventSel = EventSelector(splitByFlavour=split_by_flavour)
+    eventSel = EventSelector(loop_args["event_selection_config_path"])
     ac_keys, ac_dict = eventSel.ac_keys, eventSel.ac_dict
 
     # Initialize object selector
