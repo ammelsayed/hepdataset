@@ -115,15 +115,14 @@ def loop_tree(
 
     # Validate / create output_dir 
     if output_dir is not None:
-        if os.path.exists(output_dir):
-            if not os.path.isdir(output_dir):
+        output_dir = Path(output_dir).resolve()
+        if output_dir.exists():
+            if not output_dir.isdir():
                 raise ValueError(f"output_dir is not a directory: {output_dir}")
             if not overwrite_output_dir:
-                raise FileExistsError(
-                    f"Output directory already exists, cannot write there: {output_dir}"
-                )
+                raise FileExistsError(f"Output directory already exists, cannot write there: {output_dir}")
         else:
-            os.makedirs(output_dir)
+            output_dir.mkdir(parents=True, exist_ok=True)
             if show_progress:
                 print(f"Created output directory : {output_dir}")
 
@@ -157,25 +156,37 @@ def loop_tree(
     # Initialize object selector
     objSel = ObjectSelector()
 
-    # book the trees and create the branch buffers
-    trees, buffers = {}, {}
+    # ================================================================
+    # Create RNTuple models, writers, and fields
+    # ================================================================
+    models, writers, fields, out_files = {}, {}, {}, {}
     for ac_key in ac_keys:
-        tree = ROOT.TTree(treeName, treeName)
-        tree.SetDirectory(0)
+        model = ROOT.RNTupleModel.Create()
 
-        # Create a fresh buffer dictionary for this tree
+        # Create fields (equivalent to branches)
         b = {}
         for branch_name in int_branch_names:
-            b[branch_name] = np.zeros(1, dtype=np.int32)
-            tree.Branch(branch_name, b[branch_name], f"{branch_name}/I")  # /I for Integer
+            b[branch_name] = model.MakeField[int](branch_name)
         for branch_name in float_branch_names:
-            b[branch_name] = np.zeros(1, dtype=np.float64)
-            tree.Branch(branch_name, b[branch_name], f"{branch_name}/D")  # /D for Double (64-bit float)
-        buffers[ac_key] = b      
+            b[branch_name] = model.MakeField[float](branch_name)
+        fields[ac_key] = b
 
-        trees[ac_key] = tree
+        # Create output file path
+        ac, _, ac_r = ac_key.rpartition("_")
+        out_path = output_dir / ac / ac_r / output_file_name
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Create TFile and RNTupleWriter
+        f_out = ROOT.TFile(str(out_path), "RECREATE")
+        writer = ROOT.RNTupleWriter.Append(model, treeName, f_out)
+
+        writers[ac_key] = writer
+        models[ac_key] = model
+        out_files[ac_key] = f_out
     
+    # ================================================================
     # Event loop
+    # ================================================================
     rng = range(start_entry, end_entry)
     for entry in (tqdm(rng) if show_progress else rng):
         
@@ -190,14 +201,16 @@ def loop_tree(
         goodTauJets = selected_objects["goodTauJets"]
 
         # Identify the analysis channel key
-        ac_key = eventSel.Select(goodLeptons, goodFatJets, valid_keys = trees.keys())
+        ac_key = eventSel.Select(goodLeptons, goodFatJets, valid_keys = writers.keys())
 
         # Skip events that don't match any analysis channel
         if ac_key is None:
             continue
         
         # Reset branches to np.nan (weight defaults to 0.0 for skipped events)
-        b = buffers[ac_key]
+        # The syntax is nearly identical because PyROOT
+        # treats shared_ptr<float> similarly to a pointer/array
+        b = fields[ac_key]
         for branch_name in int_branch_names:
             b[branch_name][0] = -1
         for branch_name in float_branch_names:
@@ -530,54 +543,49 @@ def loop_tree(
         b["gen_weight"][0] = w_gen
         b["weight"][0] = eventWeight
 
-        # Fill the trees
-        trees[ac_key].Fill()
+        # Fill the RNTuple entry
+        writers[ac_key].Fill()
 
-    # Print object selection cutflow & analysis channels yeilds
+    # ================================================================
+    # Close writers and files
+    # ================================================================
     if show_progress:
         objSel.PrintObjectSelectionSummary(lum=luminosity, event_weight=eventWeight)
-        eventSel.PrintEventSelectionSummary(treeName, event_weight = eventWeight, lum = luminosity)
-    
+        eventSel.PrintEventSelectionSummary(treeName, event_weight=eventWeight, lum=luminosity)
 
-    # if output_dir is given, then write the trees into root files.
+    # Build root_paths dictionary
     root_paths = {}
-    if output_dir is not None:
-        # Write the trees into .root files at:
-        # <output_dir>/<analysis_channel_name>/<analysis_region_name>/<output_root_file_name>.root
-        for ac, ac_rgs in ac_dict.items():
-            for ac_r in ac_rgs:
-                ac_key = f"{ac}_{ac_r}"
-                path = os.path.join(output_dir, ac, ac_r, output_file_name)
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-                f_out = ROOT.TFile.Open(path, "RECREATE")
-                trees[ac_key].SetDirectory(f_out)
-                trees[ac_key].Write()
-                # trees[ac_key].Delete()
-                f_out.Close()
-                root_paths[ac_key] = path
+    for ac, ac_rgs in ac_dict.items():
+        for ac_r in ac_rgs:
+            ac_key = f"{ac}_{ac_r}"
+            out_path = output_dir / ac / ac_r / output_file_name
+            root_paths[ac_key] = str(out_path)
 
-        # Write object-selection histograms + cutflow into a dedicated root
-        if write_metadata:
-            out_objsel = os.path.join(output_dir, "ObjectSelection")
-            os.makedirs(out_objsel, exist_ok=True)
-            f_objsel = ROOT.TFile.Open(os.path.join(out_objsel, output_file_name), "RECREATE")
-            objSel.WriteObjectSelectionHistograms(f_objsel)
-            objSel.WriteObjectSelectionSummary(f_objsel)
-            f_objsel.Close()
-            if show_progress:
-                objSel.DrawObjectSelectionHistograms(output_dir = out_objsel)
+    # Close all writers BEFORE closing files
+    for ac_key, writer in writers.items():
+        writer.Close()
+    
+    # Close all TFiles
+    for ac_key, f_out in out_files.items():
+        f_out.Close()
 
-            out_evtsel = os.path.join(output_dir, "EventSelection")
-            os.makedirs(out_evtsel, exist_ok=True)
-            f_evtsel = ROOT.TFile.Open(os.path.join(out_evtsel, output_file_name), "RECREATE")
-            eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
-            f_evtsel.Close()
-        
-    # Only return TTree objects if explicitly requested (for standalone execution)
-    # When running in parallel workers, return_trees is False to prevent PyROOT pickling crashes!
+    # Write metadata (object selection histograms, etc.)
+    if write_metadata:
+        out_objsel = output_dir / "ObjectSelection"
+        out_objsel.mkdir(parents=True, exist_ok=True)
+        f_objsel = ROOT.TFile(str(out_objsel / output_file_name), "RECREATE")
+        objSel.WriteObjectSelectionHistograms(f_objsel)
+        objSel.WriteObjectSelectionSummary(f_objsel)
+        f_objsel.Close()
+
+        out_evtsel = output_dir / "EventSelection"
+        out_evtsel.mkdir(parents=True, exist_ok=True)
+        f_evtsel = ROOT.TFile(str(out_evtsel / output_file_name), "RECREATE")
+        eventSel.WriteEventSelectionSummary(f_evtsel, treeName)
+        f_evtsel.Close()
+
     return {
-        "trees" : trees if return_trees else None,
-        "root_paths" : root_paths,
+        "root_paths": root_paths,
         "ObjectSelector": objSel,
         "EventSelector": eventSel
     }
