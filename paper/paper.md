@@ -1,21 +1,21 @@
 ---
-title: 'HEPDataset: A configurable framework for constructing high dimensional machine learning datasets from Delphes ROOT files'
+title: 'HEPDataset: A configurable framework for constructing high dimensional machine learning datasets from ROOT files'
 tags:
   - Python
   - High Energy Physics
   - Machine Learning
 authors:
+  - name: A.M.M Elsayed
+    orcid: 0000-0002-4955-4958
+    affiliation: 1
   - name: Yusheng Wu
     corresponding: true
     orcid: 0000-0002-1528-4865
     affiliation: 1
-  - name: A.M.M Elsayed
-    orcid: 0000-0002-4955-4958
-    affiliation: 1
 affiliations:
  - name: Department of Modern Physics and State Key Laboratory of Particle Detection and Electronics, University of Science and Technology of China, Hefei, China
    index: 1
-date: 17 July 2026
+date: 27 October 2026
 bibliography: paper.bib
 ---
 

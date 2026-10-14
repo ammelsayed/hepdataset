@@ -1,0 +1,846 @@
+import math
+import sys
+import argparse
+from itertools import combinations
+from tabulate import tabulate
+from yaml import safe_load 
+
+
+class BranchesHandler:
+    """
+    Handles physics object branch name generation and validation
+    based on a YAML configuration file.
+
+    Usage:
+        reader = BranchesHandler("branch_config.yml")
+        reader.print_summary()
+        reader.print_config()       # detailed inspection
+        reader.is_valid()           # returns True/False
+    """
+
+    # Default physics objects for integer branch counts
+    _PHYSICS_OBJECTS = ["Lepton", "Muon", "Electron", "FatJet", "Jet", "BJet", "TauJet"]
+    _SELECTION_STAGES = ["nPreQS", "nPreES", "nPostES"]
+
+    # Groomed jet representations that do NOT carry n-subjettiness / tau substructure
+    _GROOMED_REPRESENTATIONS = {"SoftDroppedFatJet", "TrimmedFatJet", "PrunedFatJet"}
+
+    # Kinematics that only exist on the main (ungroomed) FatJet
+    _TAU_SUBSTRUCTURE_KINEMATICS = {
+        "Tau1", "Tau2", "Tau3", "Tau4", "Tau5",
+        "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43",
+        "Tau51", "Tau52", "Tau53", "Tau54",
+    }
+
+    # ------------------------------------------------------------------ #
+    # Allowed representations / kinematics (parsed from branches_config)  #
+    # ------------------------------------------------------------------ #
+    # Common TLorentzVector methods that every object with a .P4() exposes.
+    # These are documented at the top of the "objects:" block of the card.
+    _TLORENTZVECTOR_METHODS = [
+        "X", "Y", "Z", "Px", "Py", "Pz", "Pt", "P", "E", "Energy",
+        "Theta", "CosTheta", "Phi", "Rho", "Perp", "Perp2", "Et",
+        "Et2", "Mag", "Mag2", "M", "M2", "Mt", "Mt2", "Beta",
+        "Gamma", "Plus", "Minus", "Rapidity", "Eta", "PseudoRapidity",
+    ]
+
+    # Direct Delphes attributes for leptons (Muon / Electron / Lepton)
+    _LEPTON_DIRECT_METHODS = [
+        "ElectronTag", "MuonTag", "PT", "Eta", "Phi", "T", "Charge", "IsolationVar",
+        "IsolationVarRhoCorr", "SumPtCharged", "SumPtNeutral",
+        "SumPtChargedPU", "SumPt", "D0", "DZ", "ErrorD0", "ErrorDZ",
+    ]
+
+    # Direct Delphes attributes for jets & FatJets
+    _JET_DIRECT_METHODS = [
+        "PT", "Eta", "Phi", "T", "Mass", "DeltaEta", "DeltaPhi",
+        "Flavor", "FlavorAlgo", "FlavorPhys", "TauFlavor", "BTag",
+        "BTagAlgo", "BTagPhys", "TauTag", "TauWeight", "Charge",
+        "EhadOverEem", "NCharged", "NNeutrals", "NeutralEnergyFraction",
+        "Beta", "BetaStar", "MeanSqDeltaR", "NSubJetsTrimmed",
+        "NSubJetsPruned", "NSubJetsSoftDropped", "ExclYmerge12",
+        "ExclYmerge23", "ExclYmerge34", "ExclYmerge45", "ExclYmerge56",
+    ]
+
+    # HepDataset-computed n-subjettiness variables (only valid for FatJet)
+    _FATJET_HEPDATASET_TAUS = [
+        "Tau1", "Tau2", "Tau3", "Tau4", "Tau5",
+        "Tau21", "Tau31", "Tau32", "Tau41", "Tau42", "Tau43",
+        "Tau51", "Tau52", "Tau53", "Tau54",
+    ]
+
+    # Multivariate tagging methods documented as "available soon" for FatJets
+    _FATJET_MVA_TAGS = ["WTag", "ZTag", "HTag", "TopTag"]
+
+    # Direct attributes for MissingET and ScalarHT
+    _MET_DIRECT_METHODS      = ["MET", "Eta", "Phi"]
+    _SCALARHT_DIRECT_METHODS = ["HT"]
+
+    # Per-object allowed representations (mirrors the YAML card comments)
+    _ALLOWED_REPRESENTATIONS = {
+        "Lepton":   ["Lepton", "Muon", "Electron"],
+        "FatJet":   ["FatJet", "SoftDroppedFatJet", "TrimmedFatJet", "PrunedFatJet"],
+        "Jet":      ["Jet", "BJet", "TauJet"],
+        "MET":      ["MET"],
+        "ScalarHT": ["ScalarHT"],
+    }
+
+    # Per-object allowed kinematics (TLorentzVector methods + object-specific direct attrs)
+    _ALLOWED_KINEMATICS = {
+        "Lepton":   _TLORENTZVECTOR_METHODS + _LEPTON_DIRECT_METHODS,
+        "FatJet":   _TLORENTZVECTOR_METHODS + _JET_DIRECT_METHODS
+                    + _FATJET_HEPDATASET_TAUS + _FATJET_MVA_TAGS,
+        "Jet":      _TLORENTZVECTOR_METHODS + _JET_DIRECT_METHODS,
+        "MET":      _TLORENTZVECTOR_METHODS + _MET_DIRECT_METHODS,
+        "ScalarHT": _TLORENTZVECTOR_METHODS + _SCALARHT_DIRECT_METHODS,
+    }
+
+    # Multi-object kinematics allowed lists
+    _ALLOWED_MULTIOBJ_BASIC_KIN  = _TLORENTZVECTOR_METHODS
+    _ALLOWED_MULTIOBJ_2BODY_KIN  = ["DeltaR", "DeltaPhi", "DeltaEta", "MtW", "isOSSF", "isOSOF", "isSSOF", "isSSSF"]
+    _ALLOWED_MULTIOBJ_TRIVAL_KIN = ["Sphericity", "Aplanarity", "Circularity",
+                                    "Centrality", "ScalarSumPT", "VectorSumPT"]
+
+    _ALLOWED_COMBO_OBJECTS = {"Lepton", "FatJet", "Jet", "MET"}
+    _ALLOWED_GLOBAL_SCALARS = {"HT", "LT", "ST", "Meff", "Significance_MET",
+                               "ScalarSumPT_Jets", "ScalarSumPT_FatJets",
+                               "ScalarSumPT_SoftDroppedFatJets", "ScalarSumPT_Hadronic"}
+    _ALLOWED_EVENT_SHAPES = {"Sphericity", "Aplanarity", "Circularity", "Centrality"}
+
+    def __init__(self, config_path=None):
+        self.config_path = config_path
+        self.objects = {}
+        self.global_scalars = []
+        self.event_shapes = []
+
+        # Multi-object configuration (defaults)
+        self.multiObjects_Nmax = 2
+        self.multiObjects_combo_objects_set = ("Lepton", "MET")
+        self.multiObjects_include_same_represenations = False
+        self.multiObjects_include_trival_kinematics = False
+        self.multiObjects_include_mt2 = False
+        self.multiObjects_mt2_object_types = ["Lepton", "FatJet"]
+        self.multiObject_basic_kinematics = []
+        self.multiObject_2body_kinematics = []
+        self.multiObject_trival_kinematics = []
+
+        # Validation results
+        self._errors = []
+        self._warnings = []
+
+        if config_path:
+            self._load_config(config_path)
+            self._validate_config()
+
+    # ==============================
+    # Config Loading
+    # ==============================
+
+    def _load_config(self, config_path):
+        """Load and parse the YAML configuration file."""
+        try:
+            with open(config_path, "r") as f:
+                config = safe_load(f)
+        except FileNotFoundError:
+            self._errors.append(f"Configuration file not found: {config_path}")
+            return
+
+        if config is None:
+            self._errors.append("Configuration file is empty.")
+            return
+
+        # --- Parse objects ---
+        self.objects = config.get("objects", {})
+
+        # --- Parse event-variables ---
+        ev_vars = config.get("event-variables", {})
+        self.global_scalars = ev_vars.get("global_scalars", [])
+        self.event_shapes = ev_vars.get("event_shapes", [])
+
+        # --- Parse multi-objects ---
+        mo = config.get("multi-objects", {})
+        self.multiObjects_Nmax = mo.get("Nmax", 2)
+        self.multiObjects_combo_objects_set = tuple(mo.get("combo_set", ("Lepton", "MET")))
+        self.multiObjects_include_same_represenations = mo.get("include_same_represenations", False)
+        self.multiObjects_include_trival_kinematics = mo.get("include_trival_kinematics", False)
+        self.multiObjects_include_mt2 = mo.get("include_mt2", False)
+        self.multiObjects_mt2_object_types = mo.get(
+            "mt2_object_types",
+            [obj for obj in ("Lepton", "FatJet")
+             if obj in self.objects and obj in self.multiObjects_combo_objects_set],
+        )
+        self.multiObject_basic_kinematics = mo.get("basic_kinematics", [])
+        self.multiObject_2body_kinematics = mo.get("2body_kinematics", [])
+        self.multiObject_trival_kinematics = mo.get("trival_kinematics", [])
+
+    # ==============================
+    # Validation
+    # ==============================
+
+    def _validate_config(self):
+        """Validate the loaded configuration and populate errors/warnings."""
+        self._errors = []
+        self._warnings = []
+
+        # --- Validate objects ---
+        if not self.objects:
+            self._errors.append("No objects defined in configuration.")
+        else:
+            for obj_name, obj_def in self.objects.items():
+                if not isinstance(obj_def, dict):
+                    self._errors.append(
+                        f"Object '{obj_name}' must be a dictionary with "
+                        "'count', 'representations', and 'kinematics'."
+                    )
+                    continue
+
+                # Check count
+                if "count" not in obj_def:
+                    self._errors.append(f"Object '{obj_name}' is missing 'count'.")
+                elif not isinstance(obj_def["count"], int) or obj_def["count"] < 0:
+                    self._errors.append(
+                        f"Object '{obj_name}' count must be a non-negative integer, "
+                        f"got {obj_def['count']!r}."
+                    )
+
+                # Check representations
+                if "representations" not in obj_def:
+                    self._errors.append(f"Object '{obj_name}' is missing 'representations'.")
+                elif not isinstance(obj_def["representations"], list) or len(obj_def["representations"]) == 0:
+                    self._errors.append(
+                        f"Object '{obj_name}' representations must be a non-empty list."
+                    )
+                elif not all(isinstance(r, str) for r in obj_def["representations"]):
+                    self._errors.append(
+                        f"Object '{obj_name}' representations must all be strings. "
+                        f"Check for unquoted values in YAML."
+                    )
+
+                # Check kinematics
+                if "kinematics" not in obj_def:
+                    self._errors.append(f"Object '{obj_name}' is missing 'kinematics'.")
+                elif not isinstance(obj_def["kinematics"], list) or len(obj_def["kinematics"]) == 0:
+                    self._errors.append(
+                        f"Object '{obj_name}' kinematics must be a non-empty list."
+                    )
+                elif not all(isinstance(k, str) for k in obj_def["kinematics"]):
+                    self._errors.append(
+                        f"Object '{obj_name}' kinematics must all be strings. "
+                        f"Check for unquoted values in YAML."
+                    )
+
+                # Warn about extra keys
+                known_keys = {"count", "representations", "kinematics"}
+                extra_keys = set(obj_def.keys()) - known_keys
+                if extra_keys:
+                    self._warnings.append(
+                        f"Object '{obj_name}' has unknown keys: {extra_keys}. These will be ignored."
+                    )
+
+        # --- Validate combo_set ---
+        if not self.multiObjects_combo_objects_set:
+            self._warnings.append("combo_set is empty; no N-body branches will be generated.")
+        for obj in self.multiObjects_combo_objects_set:
+            if obj not in self.objects:
+                self._errors.append(
+                    f"Object '{obj}' in combo_set is not defined in 'objects'."
+                )
+            elif obj not in self._ALLOWED_COMBO_OBJECTS:
+                self._errors.append(
+                    f"Object '{obj}' in combo_set is not supported for N-body combinations. "
+                    f"Allowed: {sorted(self._ALLOWED_COMBO_OBJECTS)}."
+                )
+
+        # --- Validate Nmax ---
+        if not isinstance(self.multiObjects_Nmax, int) or self.multiObjects_Nmax < 2:
+            self._errors.append(
+                f"Nmax must be an integer >= 2, got {self.multiObjects_Nmax!r}."
+            )
+        else:
+            # Check feasibility
+            total_particles = self._count_combo_particles()
+            if self.multiObjects_Nmax > total_particles:
+                self._warnings.append(
+                    f"Nmax={self.multiObjects_Nmax} exceeds total available particles "
+                    f"({total_particles}) in combo_set. Some N-body combinations will be empty."
+                )
+
+        # --- Validate global_scalars and event_shapes ---
+        if not isinstance(self.global_scalars, list):
+            self._errors.append("global_scalars must be a list.")
+        else:
+            invalid_gs = [g for g in self.global_scalars if g not in self._ALLOWED_GLOBAL_SCALARS]
+            if invalid_gs:
+                self._warnings.append(f"global_scalars: removing invalid entries {invalid_gs}.")
+                self.global_scalars = [g for g in self.global_scalars if g in self._ALLOWED_GLOBAL_SCALARS]
+
+        if not isinstance(self.event_shapes, list):
+            self._errors.append("event_shapes must be a list.")
+        else:
+            invalid_es = [e for e in self.event_shapes if e not in self._ALLOWED_EVENT_SHAPES]
+            if invalid_es:
+                self._warnings.append(f"event_shapes: removing invalid entries {invalid_es}.")
+                self.event_shapes = [e for e in self.event_shapes if e in self._ALLOWED_EVENT_SHAPES]
+
+        # --- Validate kinematics lists ---
+        for name, val in [
+            ("basic_kinematics", self.multiObject_basic_kinematics),
+            ("2body_kinematics", self.multiObject_2body_kinematics),
+            ("trival_kinematics", self.multiObject_trival_kinematics),
+            ("mt2_object_types", self.multiObjects_mt2_object_types),
+        ]:
+            if not isinstance(val, list):
+                self._errors.append(f"{name} must be a list, got {type(val).__name__}.")
+            elif not all(isinstance(k, str) for k in val):
+                self._errors.append(f"{name} must contain only strings. Check YAML for unquoted values.")
+
+        # --- Cross-checks ---
+        if isinstance(self.multiObjects_mt2_object_types, list) and all(
+            isinstance(obj, str) for obj in self.multiObjects_mt2_object_types
+        ):
+            invalid_mt2_objects = [
+                obj for obj in self.multiObjects_mt2_object_types
+                if obj == "MET" or obj not in self._ALLOWED_COMBO_OBJECTS
+                or obj not in self.objects or obj not in self.multiObjects_combo_objects_set
+            ]
+            if invalid_mt2_objects:
+                self._errors.append(
+                    "mt2_object_types must contain only declared visible-object types "
+                    f"from combo_set (MET is not a visible MT2 leg); invalid: {invalid_mt2_objects}."
+                )
+        if self.multiObjects_include_mt2 and not self.multiObjects_mt2_object_types:
+            self._warnings.append(
+                "include_mt2 is True but mt2_object_types is empty; no MT2 branches will be generated."
+            )
+
+        if self.multiObjects_include_mt2 and "MET" not in self.multiObjects_combo_objects_set:
+            self._warnings.append(
+                "include_mt2 is True but 'MET' is not in combo_set. "
+                "MT2 requires MET (Px, Py) and may not be meaningful."
+            )
+
+        if self.multiObjects_include_trival_kinematics and not self.multiObject_trival_kinematics:
+            self._warnings.append(
+                "include_trival_kinematics is True but trival_kinematics list is empty."
+            )
+
+        # ----------------------------------------------------------------
+        # Validate kinematics and representations against the allowed lists
+        # documented in branches_config.yml. Invalid entries are removed
+        # from the in-memory config so that downstream consumers
+        # (make_dataset.py) never see them. A warning is emitted per
+        # removal so the user knows exactly what was dropped.
+        # ----------------------------------------------------------------
+        self._validate_allowed_representations_and_kinematics()
+
+    def _validate_allowed_representations_and_kinematics(self):
+        """
+        Check every object's `representations` and `kinematics` (and the
+        multi-object kinematics lists) against the allowed lists that are
+        documented as comments in branches_config.yml.
+
+        For every invalid entry:
+            - a warning is appended to self._warnings
+            - the entry is removed from the in-memory configuration
+              (self.objects[...] / self.multiObject_*).
+
+        After cleaning, if a list becomes empty, an error is raised so the
+        user is forced to fix the YAML card.
+        """
+
+        # ---------- per-object representations / kinematics ----------
+        for obj_name, obj_def in self.objects.items():
+            if not isinstance(obj_def, dict):
+                continue  # structural error already recorded
+
+            # --- representations ---
+            reprs = obj_def.get("representations")
+            if isinstance(reprs, list) and all(isinstance(r, str) for r in reprs):
+                allowed_r = self._ALLOWED_REPRESENTATIONS.get(obj_name)
+                if allowed_r is not None:
+                    invalid_reprs = [r for r in reprs if r not in allowed_r]
+                    if invalid_reprs:
+                        self._warnings.append(
+                            f"Object '{obj_name}': removing invalid representation(s) "
+                            f"{invalid_reprs}. Allowed: {allowed_r}."
+                        )
+                        obj_def["representations"] = [r for r in reprs if r in allowed_r]
+                        if not obj_def["representations"]:
+                            self._errors.append(
+                                f"Object '{obj_name}': all representations were invalid; "
+                                f"the cleaned list is empty. Please fix branches_config.yml."
+                            )
+
+            # --- kinematics ---
+            kins = obj_def.get("kinematics")
+            if isinstance(kins, list) and all(isinstance(k, str) for k in kins):
+                allowed_k = self._ALLOWED_KINEMATICS.get(obj_name)
+                if allowed_k is not None:
+                    invalid_kins = [k for k in kins if k not in allowed_k]
+                    if invalid_kins:
+                        self._warnings.append(
+                            f"Object '{obj_name}': removing invalid kinematic(s) "
+                            f"{invalid_kins}. Allowed kinematics are the documented "
+                            f"TLorentzVector methods plus object-specific direct "
+                            f"attributes (see branches_config.yml comments)."
+                        )
+                        obj_def["kinematics"] = [k for k in kins if k in allowed_k]
+                        if not obj_def["kinematics"]:
+                            self._errors.append(
+                                f"Object '{obj_name}': all kinematics were invalid; "
+                                f"the cleaned list is empty. Please fix branches_config.yml."
+                            )
+                    future_only = [k for k in obj_def.get("kinematics", []) if k in self._FATJET_MVA_TAGS]
+                    if future_only:
+                        self._warnings.append(
+                            f"Object 'FatJet': kinematics {future_only} are documented as "
+                            f"'available soon' and will remain NaN in the output."
+                        )
+
+        # ---------- multi-object kinematics ----------
+        # basic_kinematics: must be TLorentzVector methods (applied to the
+        # summed 4-vector of the N-body combination)
+        if isinstance(self.multiObject_basic_kinematics, list) and \
+           all(isinstance(k, str) for k in self.multiObject_basic_kinematics):
+            invalid = [k for k in self.multiObject_basic_kinematics
+                       if k not in self._ALLOWED_MULTIOBJ_BASIC_KIN]
+            if invalid:
+                self._warnings.append(
+                    f"multi-objects.basic_kinematics: removing invalid entries {invalid}. "
+                    f"Allowed: TLorentzVector methods only "
+                    f"({self._ALLOWED_MULTIOBJ_BASIC_KIN})."
+                )
+                self.multiObject_basic_kinematics = [k for k in self.multiObject_basic_kinematics
+                                                     if k in self._ALLOWED_MULTIOBJ_BASIC_KIN]
+                if not self.multiObject_basic_kinematics:
+                    self._errors.append(
+                        "multi-objects.basic_kinematics: all entries were invalid; "
+                        "the cleaned list is empty. Please fix branches_config.yml."
+                    )
+
+        # 2body_kinematics: must be one of DeltaR / DeltaPhi / DeltaEta / MtW
+        if isinstance(self.multiObject_2body_kinematics, list) and \
+           all(isinstance(k, str) for k in self.multiObject_2body_kinematics):
+            invalid = [k for k in self.multiObject_2body_kinematics
+                       if k not in self._ALLOWED_MULTIOBJ_2BODY_KIN]
+            if invalid:
+                self._warnings.append(
+                    f"multi-objects.2body_kinematics: removing invalid entries {invalid}. "
+                    f"Allowed: {self._ALLOWED_MULTIOBJ_2BODY_KIN}."
+                )
+                self.multiObject_2body_kinematics = [k for k in self.multiObject_2body_kinematics
+                                                     if k in self._ALLOWED_MULTIOBJ_2BODY_KIN]
+                if not self.multiObject_2body_kinematics and self.multiObjects_Nmax >= 2:
+                    self._errors.append(
+                        "multi-objects.2body_kinematics: all entries were invalid; "
+                        "the cleaned list is empty. Please fix branches_config.yml."
+                    )
+
+        # trival_kinematics: must be one of the event-shape / sum-PT variables
+        if isinstance(self.multiObject_trival_kinematics, list) and \
+           all(isinstance(k, str) for k in self.multiObject_trival_kinematics):
+            invalid = [k for k in self.multiObject_trival_kinematics
+                       if k not in self._ALLOWED_MULTIOBJ_TRIVAL_KIN]
+            if invalid:
+                self._warnings.append(
+                    f"multi-objects.trival_kinematics: removing invalid entries {invalid}. "
+                    f"Allowed: {self._ALLOWED_MULTIOBJ_TRIVAL_KIN}."
+                )
+                self.multiObject_trival_kinematics = [k for k in self.multiObject_trival_kinematics
+                                                      if k in self._ALLOWED_MULTIOBJ_TRIVAL_KIN]
+                if self.multiObjects_include_trival_kinematics and not self.multiObject_trival_kinematics:
+                    self._errors.append(
+                        "multi-objects.trival_kinematics: include_trival_kinematics is True "
+                        "but the cleaned list is empty. Please fix branches_config.yml."
+                    )
+
+    def _count_combo_particles(self):
+        """Count total available particles from combo_set objects."""
+        total = 0
+        for obj in self.multiObjects_combo_objects_set:
+            if obj not in self.objects:
+                continue
+            count = self.objects[obj].get("count", 0)
+            reprs = self.objects[obj].get("representations", [])
+            if count == 1 and reprs == [obj]:
+                total += 1
+            else:
+                total += count * len(reprs)
+        return total
+
+    def is_valid(self):
+        """Return True if no validation errors were found."""
+        return len(self._errors) == 0
+
+    def print_validation(self):
+        """Print validation errors and warnings."""
+        if self._errors:
+            print("\n" + "=" * 50)
+            print("VALIDATION ERRORS")
+            print("=" * 50)
+            for e in self._errors:
+                print(f"  ✗ [ERROR] {e}")
+
+        if self._warnings:
+            print("\n" + "=" * 50)
+            print("VALIDATION WARNINGS")
+            print("=" * 50)
+            for w in self._warnings:
+                print(f"  ⚠ [WARN]  {w}")
+
+        if not self._errors and not self._warnings:
+            print("\n✓ Configuration is valid. No errors or warnings.")
+
+    # ==============================
+    # Object Accessors
+    # ==============================
+
+    def get_obj_count(self, obj):
+        return self.objects[obj]["count"] if obj in self.objects else 0
+
+    def get_obj_repr(self, obj):
+        return self.objects[obj]["representations"] if obj in self.objects else []
+
+    def get_obj_kinematics(self, obj):
+        return self.objects[obj]["kinematics"] if obj in self.objects else []
+
+    def get_obj_instances(self, obj):
+        if obj in self.objects:
+            count = self.get_obj_count(obj)
+            reprs = self.get_obj_repr(obj)
+            if count == 1 and reprs == [obj]:
+                return [obj]
+            else:
+                return [f"{r}{i}" for r in reprs for i in range(count)]
+        else:
+            return []
+
+    def get_mt2_obj_instances(self):
+        """Return the configured visible-object instances eligible for MT2."""
+        return [
+            instance
+            for obj in self.multiObjects_mt2_object_types
+            for instance in self.get_obj_instances(obj)
+        ]
+
+    def get_obj_branch_names(self, obj):
+        if obj not in self.objects:
+            return []
+
+        count      = self.get_obj_count(obj)
+        reprs      = self.get_obj_repr(obj)
+        kinematics = self.get_obj_kinematics(obj)
+
+        # Singleton with no index (e.g. MET)
+        if count == 1 and reprs == [obj]:
+            return [f"{k}_{obj}" for k in kinematics]
+
+        out = []
+        for rep in reprs:
+            # Should tau substructure be skipped for this representation?
+            skip_tau = rep in self._GROOMED_REPRESENTATIONS
+            for i in range(count):
+                inst = f"{rep}{i}"
+                for k in kinematics:
+                    if skip_tau and k in self._TAU_SUBSTRUCTURE_KINEMATICS:
+                        continue
+                    # Groomed representations only have TLorentzVector methods
+                    if skip_tau and k not in self._TLORENTZVECTOR_METHODS:
+                        continue
+                    out.append(f"{k}_{inst}")
+        return out
+
+    def get_obj_number_branch_names(self):
+        """
+        Return counts of all physical objects, pre quality selections, pre event selection,
+        and post event selection, regardless of the representations required.
+        """
+        branch_names = []
+        for sel in self._SELECTION_STAGES:
+            branch_names.extend([f"{sel}_{pObj}" for pObj in self._PHYSICS_OBJECTS])
+        return branch_names
+
+    # ==============================
+    # N-body Kinematics
+    # ==============================
+
+    def get_nbody_combinations(self, N):
+        # Build all possible particles as (name, obj_type, slot_index)
+        particles = []
+        for obj in self.multiObjects_combo_objects_set:
+            reprs = self.get_obj_repr(obj)
+            count = self.get_obj_count(obj)
+
+            if count == 0 or not reprs:
+                continue
+
+            # For MET (or any singleton with no index) we treat slot as 0
+            if count == 1 and reprs == [obj]:
+                for r in reprs:
+                    particles.append((r, obj, 0))
+            else:
+                for slot in range(count):
+                    for r in reprs:
+                        particles.append((f"{r}{slot}", obj, slot))
+
+        result = []
+        for combo in combinations(particles, N):
+            names, types, slots = zip(*combo)
+            # Rule 1: no two particles from same (object type, slot index)
+            if len(set(zip(types, slots))) != N:
+                continue
+            # Rule 2 (optional): all object types must be different
+            if self.multiObjects_include_same_represenations == False and len(set(types)) != N:
+                continue
+            result.append(names)
+
+        return result
+
+    def get_nbody_kinematics(self, N, return_basic=False):
+        kinematics = list(self.multiObject_basic_kinematics)
+        if N < 2:
+            return []
+
+        if return_basic:
+            return kinematics
+
+        if N == 2:
+            kinematics.extend(self.multiObject_2body_kinematics)
+
+        if self.multiObjects_include_trival_kinematics:
+            kinematics.extend(self.multiObject_trival_kinematics)
+
+        if N == 2 and self.multiObjects_include_mt2:
+            kinematics.append("MT2")
+
+        return kinematics
+
+    def get_nbody_branch_names(self, N):
+        """
+        Return a list of branch names for N-body combinations.
+        Example: for N=2, combo=('Lepton0','Lepton1'), kinematic='M' -> 'M_Lepton0_Lepton1'
+        """
+        combos = self.get_nbody_combinations(N)
+        kinematics = self.get_nbody_kinematics(N)
+        branch_names = []
+        lepton_instances = set(self.get_obj_instances("Lepton"))
+        mt2_instances = set(self.get_mt2_obj_instances())
+        
+        for combo in combos:
+            combo_str = "_".join(combo)
+            for kin in kinematics:
+                # MtW is only meaningful for an object and MET
+                if kin == "MtW" and "MET" not in combo:
+                    continue
+                # MT2 uses two configured visible-object legs; MET enters
+                # separately through its transverse-momentum components.
+                if kin == "MT2" and not all(name in mt2_instances for name in combo):
+                    continue
+                # OS/SS and SF/OF tags only make sense for two leptons
+                if kin in ["isOSSF", "isOSOF", "isSSOF", "isSSSF"]:
+                    if N != 2:
+                        continue
+                    if combo[0] not in lepton_instances or combo[1] not in lepton_instances:
+                        continue
+                branch_names.append(f"{kin}_{combo_str}")
+        return branch_names
+
+    # ==============================
+    # Main Methods
+    # ==============================
+
+    def get_int_branch_names(self):
+        return self.get_obj_number_branch_names()
+
+    def get_float_branch_names(self):
+        branch_names = []
+
+        # Single object branches
+        for obj in self.objects:
+            branch_names.extend(self.get_obj_branch_names(obj))
+
+        # N-body branches
+        for N in range(2, self.multiObjects_Nmax + 1, 1):
+            branch_names.extend(self.get_nbody_branch_names(N))
+
+        # Others
+        branch_names.extend(self.global_scalars)
+        branch_names.extend(self.event_shapes)
+        branch_names.append("gen_weight")   # generator-level weight
+        branch_names.append("weight")       # analysis weight (NLO norm, Lumi, ...)
+
+        return branch_names
+
+    # ==============================
+    # Printing / Inspection
+    # ==============================
+
+    def print_branch_names(self, branches, nCols=4):
+        nRows = math.ceil(len(branches) / nCols)
+
+        # Build an empty grid
+        grid = [[""] * nCols for _ in range(nRows)]
+
+        # Fill column by column, top to bottom
+        idx = 1
+        for col in range(nCols):
+            for row in range(nRows):
+                if idx > len(branches):
+                    break
+                grid[row][col] = f"{idx}: {branches[idx - 1]}"
+                idx += 1
+
+        print(tabulate(grid, headers=[f"C{c + 1}" for c in range(nCols)], tablefmt="default"))
+
+    def print_config(self):
+        """Print the parsed configuration for inspection (triggered by --inspect)."""
+        print("=" * 60)
+        print("CONFIGURATION INSPECTION")
+        print("=" * 60)
+
+        # --- Objects ---
+        print("\n--- Objects ---\n")
+        obj_data = []
+        for name, obj_def in self.objects.items():
+            obj_data.append([
+                name,
+                obj_def.get("count", "N/A"),
+                ", ".join(obj_def.get("representations", [])),
+                len(obj_def.get("kinematics", [])),
+            ])
+        print(tabulate(obj_data, headers=["Object", "Count", "Representations", "# Kinematics"],
+                       tablefmt="grid"))
+
+        # --- Detailed kinematics per object ---
+        print("\n--- Object Kinematics ---\n")
+        for name, obj_def in self.objects.items():
+            kins = obj_def.get("kinematics", [])
+            print(f"  {name} ({len(kins)}): {kins}")
+
+        # --- Event variables ---
+        print("\n--- Event Variables ---\n")
+        print(f"  global_scalars ({len(self.global_scalars)}): {self.global_scalars}")
+        print(f"  event_shapes   ({len(self.event_shapes)}): {self.event_shapes}")
+
+        # --- Multi-object settings ---
+        print("\n--- Multi-Object Settings ---\n")
+        mo_data = [
+            ["Nmax", self.multiObjects_Nmax],
+            ["combo_set", list(self.multiObjects_combo_objects_set)],
+            ["include_same_represenations", self.multiObjects_include_same_represenations],
+            ["include_trival_kinematics", self.multiObjects_include_trival_kinematics],
+            ["include_mt2", self.multiObjects_include_mt2],
+            ["mt2_object_types", self.multiObjects_mt2_object_types],
+            ["basic_kinematics", self.multiObject_basic_kinematics],
+            ["2body_kinematics", self.multiObject_2body_kinematics],
+            ["trival_kinematics", self.multiObject_trival_kinematics],
+        ]
+        print(tabulate(mo_data, headers=["Setting", "Value"], tablefmt="grid"))
+
+        # --- Available particles ---
+        print("\n--- Available Particles for N-body Combinations ---\n")
+        particles = []
+        for obj in self.multiObjects_combo_objects_set:
+            if obj in self.objects:
+                count = self.objects[obj].get("count", 0)
+                reprs = self.objects[obj].get("representations", [])
+                if count == 1 and reprs == [obj]:
+                    particles.append(obj)
+                else:
+                    for slot in range(count):
+                        for r in reprs:
+                            particles.append(f"{r}{slot}")
+        print(f"  Particles ({len(particles)}): {particles}")
+
+        # --- Combination summary ---
+        print("\n--- N-body Combination Summary ---\n")
+        combo_data = []
+        for N in range(2, self.multiObjects_Nmax + 1):
+            combos = self.get_nbody_combinations(N)
+            all_kins = self.get_nbody_kinematics(N)
+            n_branches = len(combos) * len(all_kins)
+            combo_data.append([N, len(combos), len(all_kins), n_branches])
+        print(tabulate(combo_data,
+                       headers=["N", "# Combos", "# Kinematics", "# Branches"],
+                       tablefmt="grid"))
+
+        # --- Branch count summary ---
+        print("\n--- Branch Count Summary ---\n")
+        int_branches = self.get_int_branch_names()
+        float_branches = self.get_float_branch_names()
+        summary_data = [
+            ["Integer branches", len(int_branches)],
+            ["Float branches", len(float_branches)],
+            ["  - Single-object", sum(len(self.get_obj_branch_names(obj)) for obj in self.objects)],
+        ]
+        for N in range(2, self.multiObjects_Nmax + 1):
+            nbody = self.get_nbody_branch_names(N)
+            summary_data.append([f"  - {N}-body", len(nbody)])
+        summary_data.extend([
+            ["  - Global scalars", len(self.global_scalars)],
+            ["  - Event shapes", len(self.event_shapes)],
+            ["  - Weights", 2],
+            ["TOTAL", len(int_branches) + len(float_branches)],
+        ])
+        print(tabulate(summary_data, headers=["Category", "Count"], tablefmt="grid"))
+
+    def print_summary(self):
+        """Print a summary of all defined branches."""
+        int_branch_names = self.get_int_branch_names()
+        float_branch_names = self.get_float_branch_names()
+
+        print(f"\nDefined {len(int_branch_names)} integer branches for physics.")
+        print(f"Defined {len(float_branch_names)} float branches for physics.")
+        print(f"\nBelow we show the defined branch_names:\n")
+        self.print_branch_names(int_branch_names + float_branch_names, nCols=3)
+
+        Ntot_branches = len(int_branch_names) + len(float_branch_names)
+        msg = f"\nGoing to fill {Ntot_branches} data branches."
+        if Ntot_branches > 100:
+            msg += " This might take a while ! (Around 15 mins per 1M events)"
+            print(msg)
+            print(" > Note that whether these branches will be filled with data or not")
+            print("   entirely depends on your samples.")
+            print(" > In many cases, large amounts of branches will contain NaN everywhere.")
+            print(" > Cleansing of large amounts of NaN entries in tabular data could lead")
+            print("   to loss of valuable data if not done carefully.")
+
+
+def main():
+
+    parser = argparse.ArgumentParser(
+        description="Read, check, and validate branch configuration from a YAML file."
+    )
+    parser.add_argument(
+        "config",
+        nargs="?",
+        default="branch_config.yml",
+        help="Path to the YAML configuration file (default: branch_config.yml)",
+    )
+    parser.add_argument(
+        "--inspect",
+        action="store_true",
+        help="Print detailed configuration inspection before the branch summary.",
+    )
+    args = parser.parse_args()
+
+    reader = BranchesHandler(args.config)
+
+    # Always print validation results
+    reader.print_validation()
+
+    if args.inspect:
+        reader.print_config()
+
+    reader.print_summary()
+
+    # Exit with error code if validation failed
+    if not reader.is_valid():
+        print("\n✗ Configuration has errors. Please fix them before proceeding.")
+        sys.exit(1)
+    else:
+        print("\n✓ Configuration validated successfully.")
+
+
+if __name__ == "__main__":
+    main()
