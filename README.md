@@ -236,11 +236,3 @@ python -m pytest
 ```
 
 Before using a generated dataset for a physics result, confirm that input trees and branches are correct, verify cross-section and luminosity units, inspect event weights and missing-object conventions, compare serial and parallel output on a controlled sample, and compare selection yields with an independent implementation when possible.
-
-## Contributing
-
-Contributions are welcome through issues and pull requests. Changes to physics definitions should include numerical tests or controlled examples. Changes to configuration schemas should update the example cards and this README. Please do not commit generated ROOT files, private data paths, credentials, or machine-specific build artifacts.
-
-## License and citation
-
-HEPDataset is distributed under the MIT License; see [`LICENSE`](LICENSE). The manuscript and bibliography are available in [`paper/paper.md`](paper/paper.md) and [`paper/paper.bib`](paper/paper.bib).
