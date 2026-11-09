@@ -20,8 +20,8 @@ detector = Delphes
 analysis = OFF
 done
 set ebeam 6800
-./cards/pythia8_card_TuneA14.dat
-./cards/delphes_card_ATLAS_FatJetPTMin50.tcl
+../cards/pythia8_card_TuneA14.dat
+../cards/delphes_card_ATLAS_FatJetPTMin50.tcl
 set pdlabel lhapdf
 set lhaid 331900 # NNPDF40_lo_as_01180
 set use_syst True
