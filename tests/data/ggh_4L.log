@@ -1,0 +1,386 @@
+nohup: ignoring input
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*              http://madgraph.phys.ucl.ac.be/             *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from /home/ammelsayed/.config/mg5_configuration.txt 
+load MG5 configuration from ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt 
+fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
+ MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+eMELA-config does not seem to correspond to a valid eMELA-config executable.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/eMELA-config (including eMELA-config).
+ MG5_aMC> set eMELA /PATH/TO/eMELA-config
+
+set lhapdf to lhapdf-config
+set lhapdf to /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools/lhapdf6_py3/bin/lhapdf-config
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+import /mnt/e/Apps/hepdataset/tests/data/ggh_4L.mg5
+The import format was not given, so we guess it as command
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 12 --no_save
+set nb_core_pythia8 12 --no_save
+set nb_core_delphes 12 --no_save
+import model loop_sm
+INFO: Restrict model loop_sm with file ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/models/loop_sm/restrict_default.dat . 
+INFO: Run "set stdout_level DEBUG" before import for more information. 
+INFO: Change particles name to pass to MG5 convention 
+Defined multiparticle p = g u c d s u~ c~ d~ s~
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+Defined multiparticle all = g gh gh~ d u s c d~ u~ s~ c~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ b t b~ t~ z w+ h w- ta- ta+
+define p = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle p = g u c d s u~ c~ d~ s~ b b~
+define j = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle j = g u c d s u~ c~ d~ s~ b b~
+define l+ = e+ mu+
+Defined multiparticle l+ = e+ mu+
+define l- = e- mu-
+Defined multiparticle l- = e- mu-
+define vl = ve vm
+Defined multiparticle vl = ve vm
+define vl~ = ve~ vm~
+Defined multiparticle vl~ = ve~ vm~
+generate g g > h > l- l+ l- l+ QED=4 QCD=2 [QCD]
+[1;34mInterpreting 'QCD=2' as 'QCD<=2'[0m
+[1;34mInterpreting 'QED=4' as 'QED<=4'[0m
+[1;34mOrder QCD is not constrained as squared_orders. Using: QCD^2=4[0m
+[1;34mOrder QED is not constrained as squared_orders. Using: QED^2=8[0m
+[1m---------------------------------------------------------------------------[0m
+[1m No Born diagrams found. Now switching to the loop-induced mode.        [0m
+[1m Please also cite ref. 'arXiv:1507.00020' when using results from this mode. [0m
+[1m---------------------------------------------------------------------------[0m
+[1;34mInterpreting 'QCD=2' as 'QCD<=2'[0m
+[1;34mInterpreting 'QED=4' as 'QED<=4'[0m
+3 processes with 20 diagrams generated in 11.094 s
+Total: 3 processes with 20 diagrams
+output ggh_4L -f
+INFO: initialize a new directory: ggh_4L 
+INFO: remove old information in ggh_4L 
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: g g > h > e- e+ e- e+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Processing color information for loop process: g g > h > e- e+ e- e+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Creating color matrix  loop process: g g > h > e- e+ e- e+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Combined process g g > h > mu- mu+ mu- mu+ QCD<=2 QED<=4 [ noborn = QCD ] with process g g > h > e- e+ e- e+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Generating Helas calls for process: g g > h > e- e+ mu- mu+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Processing color information for loop process: g g > h > e- e+ mu- mu+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Creating color matrix  loop process: g g > h > e- e+ mu- mu+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Creating files in directory /mnt/e/Apps/hepdataset/tests/data/ggh_4L/SubProcesses/PV0_0_1_gg_h_emepemep 
+INFO: Computing diagram color coefficients 
+INFO: Particles with .true. are generated off-shell: ['.false.', '.false.', '.false.', '.false.', '.false.', '.false.'] 
+INFO: Drawing loop Feynman diagrams for Process: g g > h > e- e+ e- e+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Creating files in directory /mnt/e/Apps/hepdataset/tests/data/ggh_4L/SubProcesses/PV0_0_2_gg_h_emepmummup 
+INFO: Computing diagram color coefficients 
+INFO: Particles with .true. are generated off-shell: ['.false.', '.false.', '.false.', '.false.', '.false.', '.false.'] 
+INFO: Drawing loop Feynman diagrams for Process: g g > h > e- e+ mu- mu+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Creating files in directory P0_gg_llll 
+INFO: Generating Feynman diagrams for Process: g g > h > e- e+ e- e+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Generating Feynman diagrams for Process: g g > h > e- e+ mu- mu+ QCD<=2 QED<=4 [ noborn = QCD ] 
+INFO: Finding symmetric diagrams for subprocess group gg_llll 
+Generated helas calls for 2 subprocesses (12 diagrams) in 0.058 s
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates 10 routines in  0.399 s
+The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
+If you want to make this value the default for future session, you can run 'save options --all'
+save configuration file to /mnt/e/Apps/hepdataset/tests/data/ggh_4L/Cards/me5_configuration.txt
+INFO: Use Fortran compiler gfortran 
+INFO: Use c++ compiler g++ 
+INFO: Generate jpeg diagrams 
+INFO: Generate web pages 
+Output to directory /mnt/e/Apps/hepdataset/tests/data/ggh_4L done.
+Type "launch" to generate events from this process, or see
+/mnt/e/Apps/hepdataset/tests/data/ggh_4L/README
+Run "open index.html" to see more information about this process.
+launch ggh_4L --name=test1
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /home/ammelsayed/.config/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/tests/data/ggh_4L/Cards/me5_configuration.txt  
+INFO: load configuration from /home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/tests/data/ggh_4L/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+generate_events test1
+stty: 'standard input': Inappropriate ioctl for device
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+set ebeam 6800
+[1mINFO: modify parameter ebeam1 of the run_card.dat to 6800.0 [0m
+[1mINFO: modify parameter ebeam2 of the run_card.dat to 6800.0 [0m
+INFO: copy ./cards/pythia8_card_TuneA14.dat as pythia8_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param         : [32mparam_card.dat[0m                         |
+|  [31m2[0m. run           : [32mrun_card.dat[0m                           |
+|  [31m3[0m. pythia8       : [32mpythia8_card.dat[0m                       |
+|  [31m4[0m. delphes       : [32mdelphes_card.dat[0m                       |
+|  [31m5[0m. MadLoopParams : [32mMadLoopParams.dat[0m                      |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+INFO: copy ./cards/delphes_card_ATLAS_FatJetPTMin50.tcl as delphes_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param         : [32mparam_card.dat[0m                         |
+|  [31m2[0m. run           : [32mrun_card.dat[0m                           |
+|  [31m3[0m. pythia8       : [32mpythia8_card.dat[0m                       |
+|  [31m4[0m. delphes       : [32mdelphes_card.dat[0m                       |
+|  [31m5[0m. MadLoopParams : [32mMadLoopParams.dat[0m                      |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+set pdlabel lhapdf
+[1mINFO: modify parameter pdlabel of the run_card.dat to lhapdf [0m
+set lhaid 331700 
+[1mINFO: modify parameter lhaid of the run_card.dat to 331700 [0m
+set use_syst True
+[1mINFO: modify parameter use_syst of the run_card.dat to True [0m
+set systematics_program systematics
+[1mINFO: modify parameter systematics_program of the run_card.dat to systematics [0m
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+[1mINFO: modify parameter systematics_arguments of the run_card.dat to ['--together=mur,muf,dyn', '--pdf=errorset'] [0m
+set nevents 1000
+[1mINFO: modify parameter nevents of the run_card.dat to 1000 [0m
+INFO: Update the dependent parameter of the param_card.dat 
+[1;34mWARNING: update the strong coupling value (alpha_s) to the value from the pdf selected: 0.11800216951342939 [0m
+[1;34mvalue '[]' for entry 'bypass_check' is not valid. Preserving previous value: '[]'.
+allowed values are any list composed of the following entries: partonshower[0m
+Generating 1000 events with run name test1
+survey  test1 
+INFO: compile directory 
+INFO: Using LHAPDF v6.5.5 interface for PDFs 
+initMadLoop -r -f
+Initializing MadLoop loop-induced matrix elements (this can take some time)...
+MadLoop initialization finished.
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P0_gg_llll  
+INFO:  Idle: 9,  Running: 12,  Completed: 0 [ current time: 21h33 ] 
+INFO:  Idle: 8,  Running: 12,  Completed: 1 [  3.3s  ] 
+INFO: P0_gg_llll/G1.17 is at 8.34e-05 +- 3.96e-06 pb. Now submitting iteration #2. 
+INFO: P0_gg_llll/G1.22 is at 0.000145 +- 5.85e-06 pb. Now submitting iteration #2. 
+INFO: P0_gg_llll/G1.16 is at 8.46e-05 +- 2.69e-06 pb. Now submitting iteration #2. 
+INFO: P0_gg_llll/G1.14 is at 8.73e-05 +- 2.96e-06 pb. Now submitting iteration #2. 
+INFO:  Idle: 8,  Running: 12,  Completed: 17 [  7.1s  ] 
+INFO: P0_gg_llll/G1.25 is at 1.34e-05 +- 2.53e-06 pb. Now submitting iteration #2. 
+INFO: P0_gg_llll/G1.23 is at 1.16e-05 +- 1.26e-06 pb. Now submitting iteration #2. 
+INFO: P0_gg_llll/G1.26 is at 1.38e-06 +- 2.89e-07 pb. Now submitting iteration #2. 
+INFO:  Idle: 6,  Running: 12,  Completed: 32 [  12.8s  ] 
+INFO: P0_gg_llll/G1.17 is at 8.218e-05 +- 5.47e-07 pb. Now submitting iteration #3. 
+INFO: P0_gg_llll/G1.22 is at 0.0001469 +- 6.56e-07 pb. Now submitting iteration #3. 
+INFO: P0_gg_llll/G1.16 is at 8.429e-05 +- 1.61e-07 pb. Now submitting iteration #3. 
+INFO: P0_gg_llll/G1.14 is at 8.53e-05 +- 1.19e-06 pb. Now submitting iteration #3. 
+INFO:  Idle: 6,  Running: 12,  Completed: 48 [  15.9s  ] 
+INFO:  Idle: 2,  Running: 12,  Completed: 54 [  21.3s  ] 
+INFO: P0_gg_llll/G1.25 is at 1.11e-05 +- 7.19e-07 pb. Now submitting iteration #3. 
+INFO: P0_gg_llll/G1.23 is at 1.31e-05 +- 3.35e-06 pb. Now submitting iteration #3. 
+INFO: P0_gg_llll/G1.26 is at 2.1e-06 +- 9.27e-07 pb. Now submitting iteration #3. 
+INFO: Survey finished for P0_gg_llll/G1.17 at 8.17e-05 +- 3.26e-07 pb 
+INFO:  Idle: 2,  Running: 12,  Completed: 64 [  25.7s  ] 
+INFO: Survey finished for P0_gg_llll/G1.16 at 8.564e-05 +- 7.42e-07 pb 
+INFO: Survey finished for P0_gg_llll/G1.14 at 8.622e-05 +- 7.24e-07 pb 
+INFO: Survey finished for P0_gg_llll/G1.22 at 0.0001477 +- 4.79e-07 pb 
+INFO:  Idle: 0,  Running: 8,  Completed: 73 [  29.7s  ] 
+INFO: P0_gg_llll/G1.25 is at 1.3e-05 +- 1e-06 pb. Now submitting iteration #4. 
+INFO: P0_gg_llll/G1.23 is at 1.42e-05 +- 1.04e-06 pb. Now submitting iteration #4. 
+INFO:  Idle: 0,  Running: 8,  Completed: 81 [  33.1s  ] 
+INFO: P0_gg_llll/G1.26 is at 4.87e-06 +- 1.62e-06 pb. Now submitting iteration #4. 
+INFO:  Idle: 0,  Running: 8,  Completed: 85 [  43.6s  ] 
+INFO: P0_gg_llll/G1.25 is at 1.34e-05 +- 4.44e-07 pb. Now submitting iteration #5. 
+INFO: P0_gg_llll/G1.23 is at 1.4e-05 +- 4.53e-07 pb. Now submitting iteration #5. 
+INFO: P0_gg_llll/G1.26 is at 5.67e-06 +- 4.19e-07 pb. Now submitting iteration #5. 
+INFO:  Idle: 0,  Running: 8,  Completed: 97 [  1m 9s  ] 
+INFO: Survey finished for P0_gg_llll/G1.25 at 1.38e-05 +- 2.75e-07 pb 
+INFO: Survey finished for P0_gg_llll/G1.23 at 1.38e-05 +- 2.51e-07 pb 
+INFO: Survey finished for P0_gg_llll/G1.26 at 6.07e-06 +- 1.73e-07 pb 
+INFO:  Idle: 0,  Running: 0,  Completed: 108 [  1m 11s  ] 
+INFO: End survey 
+refine 1000
+Creating Jobs
+INFO: Refine results to 1000 
+INFO: Generating 1000.0 unweighted events. 
+sum of cpu time of last step: 0 second
+INFO: Effective Luminosity 2643853.8100577258 pb^-1 
+INFO: need to improve 0 channels 
+- Current estimate of cross-section: 0.0004349711 +- 1.2562031988098104e-06
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 21h34 ] 
+INFO: Combining runs 
+sum of cpu time of last step: 0 second
+INFO: finish refine 
+refine 1000 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 1.6310229301452637 s 
+ 
+ 
+ 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cumulative sequential time for this run: 9m29s
+     Cross-section :   0.000435 +- 1.256e-06 pb
+     Nb of events :  1000
+ 
+INFO: Running Systematics computation 
+INFO: # Events generated with PDF: NNPDF40_nlo_as_01180 (331700) 
+INFO: # Will compute 145 weights per event. 
+INFO: # Currently at event 0 [elapsed time: 0.0064 s] 
+INFO: #***************************************************************************
+#
+# original cross-section: 0.0004349711000000025
+#     scale variation: +23.3% -18.1%
+#     central scheme variation: +25.2% - 0%
+# PDF variation: +0.81% -0.81%
+#
+# dynamical scheme # 1 : 0.000456277 +24.4% -18.8% # \sum ET
+# dynamical scheme # 2 : 0.000456277 +24.4% -18.8% # \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 3 : 0.000544619 +29.1% -21.8% # 0.5 \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 4 : 0.000434971 +23.3% -18.1% # \sqrt{\hat s}
+#***************************************************************************
+ 
+INFO: End of systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight --mode=OFF -from_cards
+decay_events -from_cards
+INFO: [92mRunning Pythia8 [arXiv:1410.3012][0m 
+Splitting .lhe event file for PY8 parallelization...
+Submitting Pythia8 jobs...
+Pythia8 shower jobs: 1 Idle, 9 Running, 0 Done [2 seconds]
+Pythia8 shower jobs: 0 Idle, 9 Running, 1 Done [7 seconds]
+Pythia8 shower jobs: 0 Idle, 8 Running, 2 Done [7 seconds]
+Pythia8 shower jobs: 0 Idle, 7 Running, 3 Done [7 seconds]
+Pythia8 shower jobs: 0 Idle, 6 Running, 4 Done [7 seconds]
+Pythia8 shower jobs: 0 Idle, 5 Running, 5 Done [8 seconds]
+Pythia8 shower jobs: 0 Idle, 4 Running, 6 Done [8 seconds]
+Pythia8 shower jobs: 0 Idle, 3 Running, 7 Done [8 seconds]
+Pythia8 shower jobs: 0 Idle, 2 Running, 8 Done [8 seconds]
+Pythia8 shower jobs: 0 Idle, 1 Running, 9 Done [8 seconds]
+Pythia8 shower jobs: 0 Idle, 0 Running, 10 Done [8 seconds]
+Merging results from the split PY8 runs...
+INFO: Running Delphes on Pythia8 splits 
+Submitting Delphes jobs...
+Delphes jobs: 2 Idle, 8 Running, 0 Done [0 second]
+Delphes jobs: 0 Idle, 5 Running, 5 Done [9 seconds]
+Delphes jobs: 0 Idle, 4 Running, 6 Done [9 seconds]
+Delphes jobs: 0 Idle, 3 Running, 7 Done [9 seconds]
+Delphes jobs: 0 Idle, 2 Running, 8 Done [9 seconds]
+Delphes jobs: 0 Idle, 1 Running, 9 Done [9 seconds]
+Delphes jobs: 0 Idle, 0 Running, 10 Done [9 seconds]
+Merging Delphes ROOT files with hadd...
+Skipping HepMC merge (Delphes already ran on the splits and HepMC output is set to autoremove).
+INFO: Pythia8 shower finished after 25 seconds. 
+INFO: delphes done 
+ 
+ 
+ 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cumulative sequential time for this run: 9m29s
+     Cross-section :   0.000435 +- 1.256e-06 pb
+     Nb of events :  1000
+ 
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+more information in /mnt/e/Apps/hepdataset/tests/data/ggh_4L/index.html
+quit

@@ -1,0 +1,30 @@
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 12 --no_save
+set nb_core_pythia8 12 --no_save
+set nb_core_delphes 12 --no_save
+import model loop_sm
+define p = g u c d s b u~ c~ d~ s~ b~
+define j = g u c d s b u~ c~ d~ s~ b~
+define l+ = e+ mu+
+define l- = e- mu-
+define vl = ve vm
+define vl~ = ve~ vm~
+generate g g > l+ l- l+ l- / h QED=4 QCD=2 [QCD]
+output ggZZ_4L -f
+launch ggZZ_4L --name=test1
+shower = Pythia8
+detector = Delphes
+analysis = OFF
+done
+set ebeam 6800
+./cards/pythia8_card_TuneA14.dat
+./cards/delphes_card_ATLAS_FatJetPTMin50.tcl
+set pdlabel lhapdf
+set lhaid 331700 # NNPDF40_nlo_as_01180
+set use_syst True
+set systematics_program systematics
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+set nevents 1000
+done

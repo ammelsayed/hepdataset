@@ -1,0 +1,595 @@
+nohup: ignoring input
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*              http://madgraph.phys.ucl.ac.be/             *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from /home/ammelsayed/.config/mg5_configuration.txt 
+load MG5 configuration from ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt 
+fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
+ MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+eMELA-config does not seem to correspond to a valid eMELA-config executable.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/eMELA-config (including eMELA-config).
+ MG5_aMC> set eMELA /PATH/TO/eMELA-config
+
+set lhapdf to lhapdf-config
+set lhapdf to /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools/lhapdf6_py3/bin/lhapdf-config
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+import /mnt/e/Apps/hepdataset/tests/data/qqZZ_4L.mg5
+The import format was not given, so we guess it as command
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 12 --no_save
+set nb_core_pythia8 12 --no_save
+set nb_core_delphes 12 --no_save
+import model sm-full
+INFO: Change particles name to pass to MG5 convention 
+Defined multiparticle p = g u d s u~ d~ s~ c c~
+Defined multiparticle j = g u d s u~ d~ s~ c c~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+[1;34mPass the definition of 'j' and 'p' to 3 flavour scheme.[0m
+Defined multiparticle all = g u d s u~ d~ s~ a ve vm vt ve~ vm~ vt~ c t b c~ t~ b~ z w+ h w- e- mu- ta- e+ mu+ ta+
+define p = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle p = g u d s u~ d~ s~ c b c~ b~
+define j = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle j = g u d s u~ d~ s~ c b c~ b~
+define l+ = e+ mu+
+Defined multiparticle l+ = e+ mu+
+define l- = e- mu-
+Defined multiparticle l- = e- mu-
+define vl = ve vm
+Defined multiparticle vl = ve vm
+define vl~ = ve~ vm~
+Defined multiparticle vl~ = ve~ vm~
+generate p p > l+ l- l+ l- / h QED=4 QCD=0
+[1;34mInterpreting 'QED=4' as 'QED<=4'[0m
+INFO: Trying process: g g > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: g g > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: g g > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: g g > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: g g > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: g g > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: g g > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: g g > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: g g > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u u~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: u u~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u u~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: u u~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u u~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u u~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u u~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u u~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: u c~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u c~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u c~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u c~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u c~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u c~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u c~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u c~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d d~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: d d~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d d~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: d d~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d d~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d d~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d d~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d d~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: d s~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d s~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d s~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d s~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d s~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d s~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d s~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d s~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d s~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s s~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: s s~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s s~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s s~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: s s~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s s~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s s~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s s~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s s~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: s b~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s b~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s b~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s b~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s b~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s b~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s b~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s b~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process u~ u > e+ e- e+ e- added to mirror process u u~ > e+ e- e+ e- 
+INFO: Process u~ u > e+ e- mu+ mu- added to mirror process u u~ > e+ e- mu+ mu- 
+INFO: Process u~ u > mu+ mu- mu+ mu- added to mirror process u u~ > mu+ mu- mu+ mu- 
+INFO: Trying process: u~ c > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u~ c > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u~ c > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u~ c > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u~ c > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u~ c > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u~ c > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u~ c > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u~ c > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process d~ d > e+ e- e+ e- added to mirror process d d~ > e+ e- e+ e- 
+INFO: Process d~ d > e+ e- mu+ mu- added to mirror process d d~ > e+ e- mu+ mu- 
+INFO: Process d~ d > mu+ mu- mu+ mu- added to mirror process d d~ > mu+ mu- mu+ mu- 
+INFO: Trying process: d~ b > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d~ b > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d~ b > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d~ b > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d~ b > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d~ b > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d~ b > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d~ b > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d~ b > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process s~ s > e+ e- e+ e- added to mirror process s s~ > e+ e- e+ e- 
+INFO: Process s~ s > e+ e- mu+ mu- added to mirror process s s~ > e+ e- mu+ mu- 
+INFO: Process s~ s > mu+ mu- mu+ mu- added to mirror process s s~ > mu+ mu- mu+ mu- 
+INFO: Trying process: s~ b > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s~ b > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s~ b > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s~ b > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s~ b > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s~ b > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s~ b > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s~ b > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s~ b > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: c c~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: c c~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: c c~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: c c~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: c c~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: c c~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: c c~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: c c~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: b b~ > e+ e- e+ e- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Trying process: b b~ > e+ e- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: b b~ > e+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: b b~ > e+ mu- e+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: b b~ > e+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: b b~ > mu+ e- mu+ e- QCD=0 QED<=4 / h @1  
+INFO: Trying process: b b~ > mu+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: b b~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 48 diagrams 
+INFO: Process c~ c > e+ e- e+ e- added to mirror process c c~ > e+ e- e+ e- 
+INFO: Process c~ c > e+ e- mu+ mu- added to mirror process c c~ > e+ e- mu+ mu- 
+INFO: Process c~ c > mu+ mu- mu+ mu- added to mirror process c c~ > mu+ mu- mu+ mu- 
+INFO: Process b~ b > e+ e- e+ e- added to mirror process b b~ > e+ e- e+ e- 
+INFO: Process b~ b > e+ e- mu+ mu- added to mirror process b b~ > e+ e- mu+ mu- 
+INFO: Process b~ b > mu+ mu- mu+ mu- added to mirror process b b~ > mu+ mu- mu+ mu- 
+15 processes with 600 diagrams generated in 0.985 s
+Total: 15 processes with 600 diagrams
+output qqZZ_4L -f
+INFO: initialize a new directory: qqZZ_4L 
+INFO: remove old information in qqZZ_4L 
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: u u~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: u u~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: d d~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Reusing existing color information for process: d d~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Combined process s s~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 with process d d~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: u u~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: u u~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: d d~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Reusing existing color information for process: d d~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Combined process s s~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 with process d d~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: c c~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: c c~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: c c~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: c c~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: b b~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: b b~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: b b~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: b b~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Reusing existing color information for process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Combined process s s~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 with process d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Creating files in directory P1_qq_epemepem 
+INFO: Generating Feynman diagrams for Process: u u~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Generating Feynman diagrams for Process: d d~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group qq_epemepem 
+INFO: Creating files in directory P1_qq_mupmummupmum 
+INFO: Generating Feynman diagrams for Process: u u~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Feynman diagrams for Process: d d~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group qq_mupmummupmum 
+INFO: Creating files in directory P1_ccx_epemepem 
+INFO: Generating Feynman diagrams for Process: c c~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group ccx_epemepem 
+INFO: Creating files in directory P1_ccx_mupmummupmum 
+INFO: Generating Feynman diagrams for Process: c c~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group ccx_mupmummupmum 
+INFO: Creating files in directory P1_bbx_epemepem 
+INFO: Generating Feynman diagrams for Process: b b~ > e+ e- e+ e- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group bbx_epemepem 
+INFO: Creating files in directory P1_bbx_mupmummupmum 
+INFO: Generating Feynman diagrams for Process: b b~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group bbx_mupmummupmum 
+INFO: Creating files in directory P1_qq_epemmupmum 
+INFO: Generating Feynman diagrams for Process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Feynman diagrams for Process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group qq_epemmupmum 
+INFO: Creating files in directory P1_ccx_epemmupmum 
+INFO: Generating Feynman diagrams for Process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group ccx_epemmupmum 
+INFO: Creating files in directory P1_bbx_epemmupmum 
+INFO: Generating Feynman diagrams for Process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group bbx_epemmupmum 
+Generated helas calls for 12 subprocesses (480 diagrams) in 0.564 s
+Wrote files for 832 helas calls in 49.545 s
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates 5 routines in  1.821 s
+The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
+If you want to make this value the default for future session, you can run 'save options --all'
+save configuration file to /mnt/e/Apps/hepdataset/tests/data/qqZZ_4L/Cards/me5_configuration.txt
+INFO: Use Fortran compiler gfortran 
+INFO: Use c++ compiler g++ 
+INFO: Generate jpeg diagrams 
+INFO: Generate web pages 
+INFO: Generating MadAnalysis5 default cards tailored to this process 
+INFO: MadAnalysis5 instalation not python3 compatible 
+Output to directory /mnt/e/Apps/hepdataset/tests/data/qqZZ_4L done.
+Type "launch" to generate events from this process, or see
+/mnt/e/Apps/hepdataset/tests/data/qqZZ_4L/README
+Run "open index.html" to see more information about this process.
+display diagrams ./diagrams/qqZZ_4L --no_open --merge
+Drawing Process: u u~ > e+ e- e+ e- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_uux_epemepem_no_h.eps
+Drawing Process: d d~ > e+ e- e+ e- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_ddx_epemepem_no_h.eps
+Drawing Process: u u~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_uux_mupmummupmum_no_h.eps
+Drawing Process: d d~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_ddx_mupmummupmum_no_h.eps
+Drawing Process: c c~ > e+ e- e+ e- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_ccx_epemepem_no_h.eps
+Drawing Process: c c~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_ccx_mupmummupmum_no_h.eps
+Drawing Process: b b~ > e+ e- e+ e- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_bbx_epemepem_no_h.eps
+Drawing Process: b b~ > mu+ mu- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_bbx_mupmummupmum_no_h.eps
+Drawing Process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_uux_epemmupmum_no_h.eps
+Drawing Process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_ddx_epemmupmum_no_h.eps
+Drawing Process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_ccx_epemmupmum_no_h.eps
+Drawing Process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_4L/diagrams_1_bbx_epemmupmum_no_h.eps
+Merged diagrams into ./diagrams/qqZZ_4L/all_diagrams.pdf
+time to draw 1.1440114974975586
+launch qqZZ_4L --name=test1
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /home/ammelsayed/.config/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/tests/data/qqZZ_4L/Cards/me5_configuration.txt  
+INFO: load configuration from /home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/tests/data/qqZZ_4L/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+generate_events test1
+stty: 'standard input': Inappropriate ioctl for device
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+set ebeam 6800
+[1mINFO: modify parameter ebeam1 of the run_card.dat to 6800.0 [0m
+[1mINFO: modify parameter ebeam2 of the run_card.dat to 6800.0 [0m
+INFO: copy ./cards/pythia8_card_TuneA14.dat as pythia8_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param   : [32mparam_card.dat[0m                               |
+|  [31m2[0m. run     : [32mrun_card.dat[0m                                 |
+|  [31m3[0m. pythia8 : [32mpythia8_card.dat[0m                             |
+|  [31m4[0m. delphes : [32mdelphes_card.dat[0m                             |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+INFO: copy ./cards/delphes_card_ATLAS_FatJetPTMin50.tcl as delphes_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param   : [32mparam_card.dat[0m                               |
+|  [31m2[0m. run     : [32mrun_card.dat[0m                                 |
+|  [31m3[0m. pythia8 : [32mpythia8_card.dat[0m                             |
+|  [31m4[0m. delphes : [32mdelphes_card.dat[0m                             |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+set pdlabel lhapdf
+[1mINFO: modify parameter pdlabel of the run_card.dat to lhapdf [0m
+set lhaid 331900 
+[1mINFO: modify parameter lhaid of the run_card.dat to 331900 [0m
+set use_syst True
+[1mINFO: modify parameter use_syst of the run_card.dat to True [0m
+set systematics_program systematics
+[1mINFO: modify parameter systematics_program of the run_card.dat to systematics [0m
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+[1mINFO: modify parameter systematics_arguments of the run_card.dat to ['--together=mur,muf,dyn', '--pdf=errorset'] [0m
+set nevents 1000
+[1mINFO: modify parameter nevents of the run_card.dat to 1000 [0m
+[1;34mWARNING: Particle 15 with small width detected (2.27e-12): See https://answers.launchpad.net/mg5amcnlo/+faq/3053 to learn the special handling of that case [0m
+INFO: Update the dependent parameter of the param_card.dat 
+[1;34mWARNING: update the strong coupling value (alpha_s) to the value from the pdf selected: 0.11800212445926275 [0m
+[1;34mvalue '[]' for entry 'bypass_check' is not valid. Preserving previous value: '[]'.
+allowed values are any list composed of the following entries: partonshower[0m
+Generating 1000 events with run name test1
+survey  test1 
+INFO: compile directory 
+INFO: Using LHAPDF v6.5.5 interface for PDFs 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO: Compiling for process 1/9. 
+INFO:     P1_qq_epemepem  
+INFO: Compiling for process 2/9. 
+INFO:     P1_qq_mupmummupmum  
+INFO: Compiling for process 3/9. 
+INFO:     P1_ccx_epemepem  
+INFO: Compiling for process 4/9. 
+INFO:     P1_ccx_mupmummupmum  
+INFO: Compiling for process 5/9. 
+INFO:     P1_bbx_epemepem  
+INFO: Compiling for process 6/9. 
+INFO:     P1_bbx_mupmummupmum  
+INFO: Compiling for process 7/9. 
+INFO:     P1_qq_epemmupmum  
+INFO: Compiling for process 8/9. 
+INFO:     P1_ccx_epemmupmum  
+INFO: Compiling for process 9/9. 
+INFO:     P1_bbx_epemmupmum  
+INFO:     P1_qq_epemepem  
+INFO:     P1_qq_mupmummupmum  
+INFO:     P1_ccx_epemepem  
+INFO:     P1_ccx_mupmummupmum  
+INFO:     P1_bbx_epemepem  
+INFO:     P1_bbx_mupmummupmum  
+INFO:     P1_qq_epemmupmum  
+INFO:     P1_ccx_epemmupmum  
+INFO:     P1_bbx_epemmupmum  
+INFO:  Idle: 1,  Running: 7,  Completed: 40 [ current time: 21h39 ] 
+INFO:  Idle: 0,  Running: 8,  Completed: 40 [  0.087s  ] 
+INFO:  Idle: 0,  Running: 7,  Completed: 41 [  10.1s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 47 [  17s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 48 [  17.6s  ] 
+INFO: End survey 
+refine 1000
+Creating Jobs
+INFO: Refine results to 1000 
+INFO: Generating 1000.0 unweighted events. 
+sum of cpu time of last step: 6m57s
+INFO: Effective Luminosity 34678.84872886455 pb^-1 
+INFO: need to improve 2 channels 
+- Current estimate of cross-section: 0.034603224847 +- 0.00028381618142097627
+    P1_qq_epemepem 
+    P1_qq_mupmummupmum 
+    P1_ccx_epemepem 
+    P1_ccx_mupmummupmum 
+    P1_bbx_epemepem 
+    P1_bbx_mupmummupmum 
+    P1_qq_epemmupmum 
+    P1_ccx_epemmupmum 
+    P1_bbx_epemmupmum 
+INFO:  Idle: 0,  Running: 2,  Completed: 0 [ current time: 21h39 ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 1 [  10.5s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 2 [  19.4s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 2 [  19.5s  ] 
+INFO: Combining runs 
+sum of cpu time of last step: 7m17s
+INFO: finish refine 
+refine 1000 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 19.24474310874939 s 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cross-section :   0.03474 +- 0.0002398 pb
+     Nb of events :  1000
+ 
+INFO: Running Systematics computation 
+INFO: # Events generated with PDF: NNPDF40_lo_as_01180 (331900) 
+INFO: # Will compute 145 weights per event. 
+INFO: # Currently at event 0 [elapsed time: 0.013 s] 
+INFO: #***************************************************************************
+#
+# original cross-section: 0.034738044882999634
+#     scale variation: +4.94% -5.61%
+#     central scheme variation: +3.52% -3.3%
+# PDF variation: +1.76% -1.76%
+#
+# dynamical scheme # 1 : 0.0354183 +4.54% -5.16% # \sum ET
+# dynamical scheme # 2 : 0.0354183 +4.54% -5.16% # \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 3 : 0.0335921 +5.44% -6.14% # 0.5 \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 4 : 0.03596 +4.27% -4.85% # \sqrt{\hat s}
+#***************************************************************************
+ 
+INFO: End of systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight --mode=OFF -from_cards
+decay_events -from_cards
+INFO: [92mRunning Pythia8 [arXiv:1410.3012][0m 
+Splitting .lhe event file for PY8 parallelization...
+Submitting Pythia8 jobs...
+Pythia8 shower jobs: 1 Idle, 9 Running, 0 Done [5 seconds]
+Pythia8 shower jobs: 0 Idle, 9 Running, 1 Done [10 seconds]
+Pythia8 shower jobs: 0 Idle, 7 Running, 3 Done [10 seconds]
+Pythia8 shower jobs: 0 Idle, 6 Running, 4 Done [10 seconds]
+Pythia8 shower jobs: 0 Idle, 5 Running, 5 Done [11 seconds]
+Pythia8 shower jobs: 0 Idle, 4 Running, 6 Done [11 seconds]
+Pythia8 shower jobs: 0 Idle, 3 Running, 7 Done [11 seconds]
+Pythia8 shower jobs: 0 Idle, 2 Running, 8 Done [11 seconds]
+Pythia8 shower jobs: 0 Idle, 1 Running, 9 Done [11 seconds]
+Pythia8 shower jobs: 0 Idle, 0 Running, 10 Done [11 seconds]
+Merging results from the split PY8 runs...
+INFO: Running Delphes on Pythia8 splits 
+Submitting Delphes jobs...
+Delphes jobs: 1 Idle, 9 Running, 0 Done [0 second]
+Delphes jobs: 0 Idle, 9 Running, 1 Done [17 seconds]
+Delphes jobs: 0 Idle, 8 Running, 2 Done [17 seconds]
+Delphes jobs: 0 Idle, 7 Running, 3 Done [17 seconds]
+Delphes jobs: 0 Idle, 6 Running, 4 Done [17 seconds]
+Delphes jobs: 0 Idle, 5 Running, 5 Done [17 seconds]
+Delphes jobs: 0 Idle, 4 Running, 6 Done [18 seconds]
+Delphes jobs: 0 Idle, 3 Running, 7 Done [18 seconds]
+Delphes jobs: 0 Idle, 2 Running, 8 Done [18 seconds]
+Delphes jobs: 0 Idle, 1 Running, 9 Done [16 seconds]
+Delphes jobs: 0 Idle, 0 Running, 10 Done [16 seconds]
+Merging Delphes ROOT files with hadd...
+Skipping HepMC merge (Delphes already ran on the splits and HepMC output is set to autoremove).
+INFO: Pythia8 shower finished after 45 seconds. 
+INFO: delphes done 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cross-section :   0.03474 +- 0.0002398 pb
+     Nb of events :  1000
+ 
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+more information in /mnt/e/Apps/hepdataset/tests/data/qqZZ_4L/index.html
+quit

@@ -8,3 +8,23 @@ HepDataset_Old/
 HepDataset/
 HepDatasetSplitFlavour/
 *.pid
+
+# Ignore everything in these dirs, except *.root files (and the dirs that hold them)
+tests/data/ggh_4L/**
+!tests/data/ggh_4L/**/
+!tests/data/ggh_4L/**/*.root
+!tests/data/ggh_4L/**/*.lhe.gz
+!tests/data/ggh_4L/**/parton_systematics.log
+tests/data/ggZZ_4L/**
+!tests/data/ggZZ_4L/**/
+!tests/data/ggZZ_4L/**/*.root
+!tests/data/ggZZ_4L/**/*.lhe.gz
+!tests/data/ggZZ_4L/**/parton_systematics.log
+tests/data/qqZZ_4L/**
+!tests/data/qqZZ_4L/**/
+!tests/data/qqZZ_4L/**/*.root
+!tests/data/qqZZ_4L/**/*.lhe.gz
+!tests/data/qqZZ_4L/**/parton_systematics.log
+
+# Ignore .eps files 
+*.eps

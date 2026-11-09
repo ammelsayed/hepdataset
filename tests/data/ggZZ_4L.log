@@ -1,0 +1,328 @@
+nohup: ignoring input
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*              http://madgraph.phys.ucl.ac.be/             *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from /home/ammelsayed/.config/mg5_configuration.txt 
+load MG5 configuration from ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt 
+fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
+ MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+eMELA-config does not seem to correspond to a valid eMELA-config executable.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/eMELA-config (including eMELA-config).
+ MG5_aMC> set eMELA /PATH/TO/eMELA-config
+
+set lhapdf to lhapdf-config
+set lhapdf to /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools/lhapdf6_py3/bin/lhapdf-config
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+import /mnt/e/Apps/hepdataset/tests/data/ggZZ_4L.mg5
+The import format was not given, so we guess it as command
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 12 --no_save
+set nb_core_pythia8 12 --no_save
+set nb_core_delphes 12 --no_save
+import model loop_sm
+INFO: Restrict model loop_sm with file ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/models/loop_sm/restrict_default.dat . 
+INFO: Run "set stdout_level DEBUG" before import for more information. 
+INFO: Change particles name to pass to MG5 convention 
+Defined multiparticle p = g u c d s u~ c~ d~ s~
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+Defined multiparticle all = g gh gh~ d u s c d~ u~ s~ c~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ b t b~ t~ z w+ h w- ta- ta+
+define p = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle p = g u c d s u~ c~ d~ s~ b b~
+define j = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle j = g u c d s u~ c~ d~ s~ b b~
+define l+ = e+ mu+
+Defined multiparticle l+ = e+ mu+
+define l- = e- mu-
+Defined multiparticle l- = e- mu-
+define vl = ve vm
+Defined multiparticle vl = ve vm
+define vl~ = ve~ vm~
+Defined multiparticle vl~ = ve~ vm~
+generate g g > l+ l- l+ l- / h QED=4 QCD=2 [QCD]
+[1;34mInterpreting 'QCD=2' as 'QCD<=2'[0m
+[1;34mInterpreting 'QED=4' as 'QED<=4'[0m
+[1;34mOrder QCD is not constrained as squared_orders. Using: QCD^2=4[0m
+[1;34mOrder QED is not constrained as squared_orders. Using: QED^2=8[0m
+[1m---------------------------------------------------------------------------[0m
+[1m No Born diagrams found. Now switching to the loop-induced mode.        [0m
+[1m Please also cite ref. 'arXiv:1507.00020' when using results from this mode. [0m
+[1m---------------------------------------------------------------------------[0m
+[1;34mInterpreting 'QCD=2' as 'QCD<=2'[0m
+[1;34mInterpreting 'QED=4' as 'QED<=4'[0m
+3 processes with 800 diagrams generated in 15.667 s
+Total: 3 processes with 800 diagrams
+output ggZZ_4L -f
+INFO: initialize a new directory: ggZZ_4L 
+INFO: remove old information in ggZZ_4L 
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: g g > e+ e- e+ e- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Processing color information for loop process: g g > e+ e- e+ e- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Creating color matrix  loop process: g g > e+ e- e+ e- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Combined process g g > mu+ mu- mu+ mu- QCD<=2 QED<=4 [ noborn = QCD ] / h with process g g > e+ e- e+ e- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Generating Helas calls for process: g g > e+ e- mu+ mu- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Processing color information for loop process: g g > e+ e- mu+ mu- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Creating color matrix  loop process: g g > e+ e- mu+ mu- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Creating files in directory /mnt/e/Apps/hepdataset/tests/data/ggZZ_4L/SubProcesses/PV0_0_1_gg_epemepem_no_h 
+INFO: Computing diagram color coefficients 
+INFO: Particles with .true. are generated off-shell: ['.false.', '.false.', '.false.', '.false.', '.false.', '.false.'] 
+INFO: Drawing loop Feynman diagrams for Process: g g > e+ e- e+ e- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Creating files in directory /mnt/e/Apps/hepdataset/tests/data/ggZZ_4L/SubProcesses/PV0_0_2_gg_epemmupmum_no_h 
+INFO: Computing diagram color coefficients 
+INFO: Particles with .true. are generated off-shell: ['.false.', '.false.', '.false.', '.false.', '.false.', '.false.'] 
+INFO: Drawing loop Feynman diagrams for Process: g g > e+ e- mu+ mu- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Creating files in directory P0_gg_llll 
+INFO: Generating Feynman diagrams for Process: g g > e+ e- e+ e- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Generating Feynman diagrams for Process: g g > e+ e- mu+ mu- QCD<=2 QED<=4 [ noborn = QCD ] / h 
+INFO: Finding symmetric diagrams for subprocess group gg_llll 
+Generated helas calls for 2 subprocesses (480 diagrams) in 2.243 s
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates 18 routines in  1.029 s
+The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
+If you want to make this value the default for future session, you can run 'save options --all'
+save configuration file to /mnt/e/Apps/hepdataset/tests/data/ggZZ_4L/Cards/me5_configuration.txt
+INFO: Use Fortran compiler gfortran 
+INFO: Use c++ compiler g++ 
+INFO: Generate jpeg diagrams 
+INFO: Generate web pages 
+Output to directory /mnt/e/Apps/hepdataset/tests/data/ggZZ_4L done.
+Type "launch" to generate events from this process, or see
+/mnt/e/Apps/hepdataset/tests/data/ggZZ_4L/README
+Run "open index.html" to see more information about this process.
+launch ggZZ_4L --name=test1
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /home/ammelsayed/.config/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/tests/data/ggZZ_4L/Cards/me5_configuration.txt  
+INFO: load configuration from /home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/tests/data/ggZZ_4L/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+generate_events test1
+stty: 'standard input': Inappropriate ioctl for device
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+set ebeam 6800
+[1mINFO: modify parameter ebeam1 of the run_card.dat to 6800.0 [0m
+[1mINFO: modify parameter ebeam2 of the run_card.dat to 6800.0 [0m
+INFO: copy ./cards/pythia8_card_TuneA14.dat as pythia8_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param         : [32mparam_card.dat[0m                         |
+|  [31m2[0m. run           : [32mrun_card.dat[0m                           |
+|  [31m3[0m. pythia8       : [32mpythia8_card.dat[0m                       |
+|  [31m4[0m. delphes       : [32mdelphes_card.dat[0m                       |
+|  [31m5[0m. MadLoopParams : [32mMadLoopParams.dat[0m                      |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+INFO: copy ./cards/delphes_card_ATLAS_FatJetPTMin50.tcl as delphes_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param         : [32mparam_card.dat[0m                         |
+|  [31m2[0m. run           : [32mrun_card.dat[0m                           |
+|  [31m3[0m. pythia8       : [32mpythia8_card.dat[0m                       |
+|  [31m4[0m. delphes       : [32mdelphes_card.dat[0m                       |
+|  [31m5[0m. MadLoopParams : [32mMadLoopParams.dat[0m                      |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+set pdlabel lhapdf
+[1mINFO: modify parameter pdlabel of the run_card.dat to lhapdf [0m
+set lhaid 331700 
+[1mINFO: modify parameter lhaid of the run_card.dat to 331700 [0m
+set use_syst True
+[1mINFO: modify parameter use_syst of the run_card.dat to True [0m
+set systematics_program systematics
+[1mINFO: modify parameter systematics_program of the run_card.dat to systematics [0m
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+[1mINFO: modify parameter systematics_arguments of the run_card.dat to ['--together=mur,muf,dyn', '--pdf=errorset'] [0m
+set nevents 1000
+[1mINFO: modify parameter nevents of the run_card.dat to 1000 [0m
+INFO: Update the dependent parameter of the param_card.dat 
+[1;34mWARNING: update the strong coupling value (alpha_s) to the value from the pdf selected: 0.11800216951342939 [0m
+[1;34mvalue '[]' for entry 'bypass_check' is not valid. Preserving previous value: '[]'.
+allowed values are any list composed of the following entries: partonshower[0m
+Generating 1000 events with run name test1
+survey  test1 
+INFO: compile directory 
+INFO: Using LHAPDF v6.5.5 interface for PDFs 
+initMadLoop -r -f
+Initializing MadLoop loop-induced matrix elements (this can take some time)...
+MadLoop initialization finished.
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P0_gg_llll  
+INFO:  Idle: 1,  Running: 8,  Completed: 0 [ current time: 21h35 ] 
+INFO:  Idle: 0,  Running: 8,  Completed: 1 [  1m 55s  ] 
+INFO:  Idle: 1,  Running: 6,  Completed: 3 [  2m 1s  ] 
+INFO: P0_gg_llll/G3.01 is at 0.00324 +- 0.00114 pb. Now submitting iteration #2. 
+INFO:  Idle: 0,  Running: 8,  Completed: 5 [  3m 0s  ] 
+INFO:  Idle: 1,  Running: 6,  Completed: 7 [  3m 4s  ] 
+INFO: P0_gg_llll/G3.02 is at 1.05e-05 +- 2.2e-06 pb. Now submitting iteration #2. 
+INFO:  Idle: 0,  Running: 8,  Completed: 9 [  3m 12s  ] 
+INFO:  Idle: 1,  Running: 6,  Completed: 11 [  3m 28s  ] 
+INFO: P0_gg_llll/G1 is at 0.000101 +- 2.62e-05 pb. Now submitting iteration #2. 
+INFO:  Idle: 0,  Running: 8,  Completed: 13 [  5m 39s  ] 
+INFO:  Idle: 1,  Running: 6,  Completed: 15 [  5m 44s  ] 
+INFO: P0_gg_llll/G3.01 is at 0.00203 +- 0.000508 pb. Now submitting iteration #3. 
+INFO:  Idle: 0,  Running: 8,  Completed: 17 [  5m 55s  ] 
+INFO: P0_gg_llll/G3.02 is at 2.09e-05 +- 1.6e-05 pb. Now submitting iteration #3. 
+INFO:  Idle: 0,  Running: 8,  Completed: 21 [  6m 37s  ] 
+INFO: P0_gg_llll/G1 is at 0.000151 +- 0.000116 pb. Now submitting iteration #3. 
+INFO:  Idle: 0,  Running: 8,  Completed: 25 [  9m 54s  ] 
+INFO: P0_gg_llll/G3.02 is at 2.96e-05 +- 7.6e-06 pb. Now submitting iteration #4. 
+INFO:  Idle: 0,  Running: 8,  Completed: 29 [  10m 51s  ] 
+INFO: P0_gg_llll/G3.01 is at 0.00211 +- 0.000202 pb. Now submitting iteration #4. 
+INFO:  Idle: 0,  Running: 8,  Completed: 33 [  10m 58s  ] 
+INFO:  Idle: 1,  Running: 6,  Completed: 35 [  11m 3s  ] 
+INFO: P0_gg_llll/G1 is at 0.000286 +- 0.000133 pb. Now submitting iteration #4. 
+INFO:  Idle: 1,  Running: 6,  Completed: 39 [  17m 21s  ] 
+INFO: P0_gg_llll/G3.02 is at 3.6e-05 +- 1.07e-05 pb. Now submitting iteration #5. 
+INFO:  Idle: 0,  Running: 9,  Completed: 40 [  17m 39s  ] 
+INFO:  Idle: 1,  Running: 6,  Completed: 43 [  20m 41s  ] 
+INFO: P0_gg_llll/G1 is at 0.00036 +- 0.000127 pb. Now submitting iteration #5. 
+INFO:  Idle: 1,  Running: 6,  Completed: 47 [  21m 15s  ] 
+INFO: P0_gg_llll/G3.01 is at 0.00219 +- 0.000219 pb. Now submitting iteration #5. 
+INFO:  Idle: 0,  Running: 9,  Completed: 48 [  21m 49s  ] 
+INFO:  Idle: 1,  Running: 6,  Completed: 51 [  33m 28s  ] 
+INFO: Survey finished for P0_gg_llll/G3.02 at 5.06e-05 +- 1.46e-05 pb 
+INFO:  Idle: 0,  Running: 6,  Completed: 52 [  34m 33s  ] 
+INFO:  Idle: 1,  Running: 3,  Completed: 55 [  36m 47s  ] 
+INFO: Survey finished for P0_gg_llll/G1 at 0.000419 +- 8.06e-05 pb 
+INFO:  Idle: 1,  Running: 0,  Completed: 59 [  37m 56s  ] 
+INFO: Survey finished for P0_gg_llll/G3.01 at 0.0023 +- 0.000176 pb 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  39m 8s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  39m 8s  ] 
+INFO: End survey 
+refine 1000
+Creating Jobs
+INFO: Refine results to 1000 
+INFO: Generating 1000.0 unweighted events. 
+sum of cpu time of last step: 0 second
+INFO: Effective Luminosity 414759.6738185661 pb^-1 
+INFO: need to improve 3 channels 
+- Current estimate of cross-section: 0.00277269 +- 0.00019396636749704832
+INFO:  Idle: 2,  Running: 12,  Completed: 0 [ current time: 22h14 ] 
+INFO:  Idle: 2,  Running: 12,  Completed: 1 [  11m 10s  ] 
+INFO:  Idle: 1,  Running: 12,  Completed: 2 [  1h 23m  ] 
+INFO:  Idle: 0,  Running: 12,  Completed: 3 [  1h 23m  ] 
+Start waiting for update. (more info in debug mode)
+INFO:  Idle: 0,  Running: 1,  Completed: 16 [  1h 28m  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 17 [  1h 28m  ] 
+Function <bound method gen_ximprove_share.combine_iteration of <madgraph.madevent.gen_ximprove.gen_ximprove_share object at 0x78df4e925270>> raised the following exception: <class 'ZeroDivisionError'>
+ float division by zero
+Cluster Error detected. Do you want to clean the queue? ("c"=continue the run anyway) [[4my[0m, n, c]
+[1mThe answer to the previous question is not set in your input file[0m
+[1mUse y value[0m
+[1;31mCommand "generate_events test1" interrupted with error:
+Exception : Function <bound method gen_ximprove_share.combine_iteration of <madgraph.madevent.gen_ximprove.gen_ximprove_share object at 0x78df4e925270>> raised the following exception: <class 'ZeroDivisionError'>
+	 float division by zero
+Please report this bug on https://bugs.launchpad.net/mg5amcnlo
+More information is found in '/mnt/e/Apps/hepdataset/tests/data/ggZZ_4L/test1_tag_1_debug.log'.
+Please attach this file to your report.[0m
+INFO:  
+INFO:  
+quit
+INFO:  
+quit
