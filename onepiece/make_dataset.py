@@ -81,7 +81,7 @@ def loop_tree(
     output_file_name = "events.root", 
     overwrite_output_dir = False,
     branches_config_path = None,
-    split_by_flavour = False,
+    event_selection_config_path=None,
     write_metadata = True,
     return_trees = True,
     ):
@@ -151,7 +151,7 @@ def loop_tree(
     int_branch_names = BR.get_int_branch_names()
 
     # Analysis channel bookkeeping
-    eventSel = EventSelector(splitByFlavour=split_by_flavour)
+    eventSel = EventSelector(config_file=event_selection_config_path)
     ac_keys, ac_dict = eventSel.ac_keys, eventSel.ac_dict
 
     # Initialize object selector
@@ -202,7 +202,7 @@ def loop_tree(
             b[branch_name][0] = -1
         for branch_name in float_branch_names:
             b[branch_name][0] = np.nan
-        b["weight"][0] = 0.0
+        b["flat_weight"][0] = 0.0
         b["gen_weight"][0] = 0.0
 
         # ================================================================
@@ -528,7 +528,7 @@ def loop_tree(
         # fill weight branches 
         w_gen = Weight_branch.At(0).Weight
         b["gen_weight"][0] = w_gen
-        b["weight"][0] = eventWeight
+        b["flat_weight"][0] = eventWeight
 
         # Fill the trees
         trees[ac_key].Fill()
@@ -668,7 +668,6 @@ def split_range(total, n):
         start += size
     return out
 
-
 def loop_tree_parallel(
     inputRootFile , 
     treeName = "Delphes", 
@@ -683,7 +682,7 @@ def loop_tree_parallel(
     output_file_name = "events.root", 
     overwrite_output_dir = False,
     branches_config_path = None,
-    split_by_flavour = False,
+    event_selection_config_path=None,
     n_chunks = None, 
     max_workers = None
     ):
@@ -707,7 +706,7 @@ def loop_tree_parallel(
             f"tmp_split{i}_{output_file_name}", 
             True, # overwrite_output_dir
             branches_config_path,
-            split_by_flavour,
+            event_selection_config_path,
             False, # write_metadata
             False  # return_trees
         ))
@@ -724,7 +723,7 @@ def loop_tree_parallel(
     merged_trees  = None
     merged_paths  = hadd_chunks(results, max_workers, output_file_name)
     merged_objSel = ObjectSelector.Merge([r["ObjectSelector"] for r in results])
-    merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results],splitByFlavour=split_by_flavour)
+    merged_evtSel = EventSelector.Merge([r["EventSelector"] for r in results])
         
     return {
         "trees": merged_trees,
@@ -740,14 +739,14 @@ def resolve_category_name(category):
 def make_dataset(
     samples_file,
     branches_config_file = None, 
+    event_selection_config_file=None,
     output_dir = "HepDataset", 
     working_luminosity = 500.0,
     max_workers = None, 
     n_chunks = None,
     show_progress=False,
     merge_proc_samples = True,
-    run_in_parallel = True,
-    split_by_flavour = False,
+    serial = False,
     ):
 
     precompile_numba()
@@ -761,13 +760,12 @@ def make_dataset(
             proc_RootFiles      = proc_meta["files"]
             proc_NbRootFiles    = len(proc_RootFiles)
             proc_totalNbEvents  = proc_meta["nb_events"]
-            proc_CrossSection   = proc_meta["fiducial_cross_section"] * 1000
-            proc_flat_k_factor  = proc_meta["flat_k_factor"]
+            proc_CrossSection   = proc_meta["fiducial_cross_section"]
 
             if not proc_RootFiles or not proc_totalNbEvents:
                 continue
 
-            proc_eventWeight = (proc_CrossSection * proc_flat_k_factor * working_luminosity )/ proc_totalNbEvents
+            proc_eventWeight = (proc_CrossSection * working_luminosity ) / proc_totalNbEvents
             proc_treeName    = f"{prefix}_{proc_name}"
 
             print("-" * 80)
@@ -789,7 +787,7 @@ def make_dataset(
                 sample_fileName = f"{proc_treeName}_sample{i}.root"
             
 
-                if run_in_parallel:
+                if not serial:
                     result = loop_tree_parallel(
                         inputRootFile = str(sampleRootFile), 
                         treeName = proc_treeName,
@@ -803,7 +801,7 @@ def make_dataset(
                         output_file_name = sample_fileName, 
                         overwrite_output_dir = True,
                         branches_config_path = branches_config_file,
-                        split_by_flavour = split_by_flavour,
+                        event_selection_config_path = event_selection_config_file,
                         n_chunks = n_chunks, 
                         max_workers = max_workers
                     )
@@ -823,7 +821,7 @@ def make_dataset(
                         output_file_name = sample_fileName, 
                         overwrite_output_dir = True,
                         branches_config_path = branches_config_file,
-                        split_by_flavour = split_by_flavour,
+                        event_selection_config_path = event_selection_config_file,
                         write_metadata = True,
                         return_trees = True
                     )
@@ -854,7 +852,7 @@ def make_dataset(
             # Merge the selectors across samples and print 
             if proc_objSel and proc_evtSel:
                 merged_objSel = ObjectSelector.Merge(proc_objSel)
-                merged_evtSel = EventSelector.Merge(proc_evtSel, splitByFlavour=split_by_flavour)
+                merged_evtSel = EventSelector.Merge(proc_evtSel)
                 merged_objSel.PrintObjectSelectionSummary(lum=working_luminosity, event_weight=proc_eventWeight)
                 merged_evtSel.PrintEventSelectionSummary(proc_treeName, event_weight=proc_eventWeight, lum=working_luminosity)
                 
@@ -877,15 +875,15 @@ def make_dataset(
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("samples_file", help="Samples YAML file.")
-    p.add_argument("--branches-config-file", default="/data/ammelsayed/hepdataset/src/defaults/branches_config_minimal.yml", help="Branch configuration YAML file.")
+    p.add_argument("--event-selection-config-file", default="./event_selection_0to3L.yml", help="Event selection configuration YAML file.")
+    p.add_argument("--branches-config-file", default="./branches_config_minimal.yml", help="Branch configuration YAML file.")
     p.add_argument("--output-dir", default="HepDataset", help="Output directory.")
     p.add_argument("--working-luminosity", type=float, default=500.0)
     p.add_argument("--max-workers", type=int, default=os.cpu_count())
     p.add_argument("--n-chunks", type=int, default=os.cpu_count())
     p.add_argument("--show-progress", action="store_true")
     p.add_argument("--no-merge-proc-samples", dest="merge_proc_samples", action="store_false", default=True)
-    p.add_argument("--run-in-parallel", dest="run_in_parallel", action="store_false", default=True)
-    p.add_argument("--split-by-flavour", action="store_true",  help="Split analysis channels by lepton flavour (e/mu) instead of merging them into a single 'lep'.")
+    p.add_argument("--serial", dest="serial", action="store_true", default=False)
     args = p.parse_args()
 
     started = datetime.now()

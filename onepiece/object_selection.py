@@ -17,6 +17,9 @@ class ObjectSelector:
         }
         self.hist = self.BookObjectSelectionHistograms()
 
+        self.mW, self.mZ, self.mH = 80.3, 91.1, 125.0
+        self.mTop = 172.6
+
     def __getstate__(self):
         # Prevent ROOT histograms from crashing the Pickler
         state = self.__dict__.copy()
@@ -129,12 +132,12 @@ class ObjectSelector:
         # Muons
         for i in range(Muon_branch.GetEntries()):
             lep = Muon_branch.At(i)
-            if fabs(lep.Eta) <= 2.7 and lep.PT > 10.0:
+            if fabs(lep.Eta) < 2.5 and lep.PT > 10.0:
                 leps.append(lep)
         # Electrons
         for i in range(Electron_branch.GetEntries()):
             lep = Electron_branch.At(i)
-            if fabs(lep.Eta) <= 2.7 and lep.PT > 10.0:
+            if fabs(lep.Eta) < 2.5 and lep.PT > 10.0:
                 leps.append(lep)
         # Hadronic tau 
         # (not considered in this analysis, but can be added here if needed)
@@ -147,9 +150,9 @@ class ObjectSelector:
         # Isolation requirements
         leps = []
         for lep in lep_stages[-1]:
-            if lep.ClassName() == "Muon" and lep.IsolationVar < 0.15:
+            if lep.ClassName() == "Muon" and lep.IsolationVar < 0.10:
                 leps.append(lep)
-            elif lep.ClassName() == "Electron" and lep.IsolationVar < 0.20:
+            elif lep.ClassName() == "Electron" and lep.IsolationVar < 0.12:
                 leps.append(lep)
         leps.sort(key=lambda lep: lep.PT, reverse=True)
         lep_stages.append(leps)
@@ -180,7 +183,7 @@ class ObjectSelector:
         fjs = []
         for i in range(FatJet_branch.GetEntries()):
             fj = FatJet_branch.At(i)
-            if fabs(fj.Eta) <= 2.5 and fj.PT > 30.0:
+            if fabs(fj.Eta) < 2.5 and fj.PT > 50.0:
                 fjs.append(fj)
         fjs.sort(key=lambda fj: fj.PT, reverse=True)
         fj_stages.append(fjs)
@@ -190,9 +193,9 @@ class ObjectSelector:
 
         # Mass window selections
         fjs = []
-        mWin, mLow, mHigh = 20.0, 80.0, 125.0
+        mWin= 25.0
         for fj in fj_stages[-1]:
-            massOk = (mLow - mWin <= fj.SoftDroppedP4[0].M() <= mHigh + mWin)
+            massOk = (self.mW - mWin <= fj.SoftDroppedP4[0].M() <= self.mH + mWin)
             if massOk:
                 fjs.append(fj)
         fjs.sort(key=lambda fj: fj.PT, reverse=True)
@@ -258,11 +261,11 @@ class ObjectSelector:
 
         # Apply transverse momentum requirements to fatjets
         fjs = []
-        fj_pt_cuts = {0: 200.0, 1: 150.0, 2: 30.0}
+        fj_pt_cuts = {0: 200.0, 1: 150.0}
         current_fjs = sorted(fj_stages[-1], key=lambda f: f.PT, reverse=True)
         for idx, fj in enumerate(current_fjs):
             idx = len(fjs)
-            min_pt = fj_pt_cuts.get(idx, 30.0)
+            min_pt = fj_pt_cuts.get(idx, 150.0)
             if fj.PT > min_pt:
                 fjs.append(fj)
         fj_stages.append(fjs)

@@ -1,6 +1,14 @@
-void collect_trees()
+#include <set>
+
+void collect_trees(const char *excludeList = "")
 {
     TFile *out = new TFile("events.root", "RECREATE");
+
+    std::set<TString> exclude;
+    TObjArray *tokens = TString(excludeList).Tokenize(",");
+    for (int i = 0; i < tokens->GetEntries(); i++)
+        exclude.insert(((TObjString*)tokens->At(i))->GetString());
+    delete tokens;
 
     void *dirp = gSystem->OpenDirectory(".");
     const char *name;
@@ -8,6 +16,7 @@ void collect_trees()
         TString fname = name;
         if (!fname.EndsWith(".root")) continue;
         if (fname == "events.root")   continue;
+        if (exclude.find(fname) != exclude.end()) continue;
 
         TString treeName = fname;
         treeName.Remove(treeName.Length() - 5);

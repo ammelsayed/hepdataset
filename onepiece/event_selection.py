@@ -1,98 +1,140 @@
 # event_selection.py
 import ROOT
 import pandas as pd
+from yaml import safe_load as yml_safe_load
+from pathlib import Path
 from tabulate import tabulate
+from itertools import combinations_with_replacement as cwr
+
+class Lepton:
+    """Simple class to mimic the Delphes Electron/Muon objects"""
+    def __init__(self, flavour, charge):
+        self._flavour = flavour
+        self.Charge   = charge
+    def ClassName(self):
+        return self._flavour
 
 class EventSelector:
 
-    def __init__(self, splitByFlavour=False):
-        self.splitByFlavour = splitByFlavour
+    def __init__(self, config_file=None):
+        self.ReadConfigFile(config_file)
+
+        # Regions must be mutually exclusive
+        self.CheckExclusivity()
+        
+        # Classify search catagories into channels and regions
         self.ac_keys, self.ac_dict = self.GetChannelKeys()
         self.ac_counts = dict.fromkeys(["initial", *self.ac_keys, "dropped"], 0)
     
-    @classmethod
-    def Merge(cls, selectors, splitByFlavour=False):
-        """Return a new EventSelector with the ac_counts of `selectors` summed."""
-        merged = cls(splitByFlavour=splitByFlavour)
-        for sel in selectors:
-            for k, v in sel.ac_counts.items():
-                merged.ac_counts[k] = merged.ac_counts.get(k, 0) + v
-        return merged
-        
-    def LeptonFlavour(self, lep):
-        """
-        Return 'lep' if we don't split by flavour, else 'e' / 'mu'.
-        """
-        return ("e" if lep.ClassName() == "Electron" else "mu") if self.splitByFlavour else "lep"
-
-    def GetChannelKeys(self):
-        if self.splitByFlavour:
-            ac_dict = {
-                "0L"   : ["Nothing", "J", "JJ", "JJJ"],
-                "1L"   : ["e", "mu", "eJ", "muJ", "eJJ", "muJJ"],
-                "2OSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
-                "2SSL" : ["ee", "emu", "mumu", "eeJ", "emuJ", "mumuJ"],
-                "3L"   : ["eee", "eemu", "emumu", "mumumu"],
-                # "4L": ["eeee", "eeemu", "eemumu", "emumumu", "mumumumu"],
+    def ReadConfigFile(self, config_file):
+        # default config file
+        if config_file == None:
+            config_file = {
+                "Channels" : {
+                    "2OSL": {
+                        "Regions" : {
+                            "leplep": {
+                                "requirement" : "(nL == 2) & (QL == 0)"
+                            }
+                        }
+                    },
+                    "2SSL": {
+                        "Regions" : {
+                            "leplep": {
+                                "requirement" : "(nL == 2) & (QL == 2)"
+                            }
+                        }
+                    }
+                }
             }
+
+        # a dict is accepted too, for cards that carry the Event-Selection block inline
+        if isinstance(config_file, dict):
+            self.config_path = None
+            try:
+                self.config_file = config_file["Channels"]
+            except (KeyError, TypeError) as e:
+                raise ValueError(f"Invalid event-selection block: {e}")
         else:
-            ac_dict = {
-                "0L"   : ["Nothing", "J", "JJ", "JJJ"],
-                "1L"   : ["lep", "lepJ", "lepJJ"],
-                "2OSL" : ["leplep", "leplepJ"],
-                "2SSL" : ["leplep", "leplepJ"],
-                "3L"   : ["lepleplep"],
-                # "4L": ["leplepleplep"],
-            }
+            # Require a valid YAML card path
+            config_file = Path(config_file)
+            if not config_file.is_file():
+                raise FileNotFoundError(f"YAML card not found: {config_file}")
+            self.config_path = config_file
 
-        ac_keys = [f"{ac}_{r}" for ac, acr in ac_dict.items() for r in acr]
+            # Load the config file
+            with open(config_file) as f:
+                try:
+                    self.config_file = yml_safe_load(f)["Channels"]
+                except (KeyError, TypeError) as e:
+                    raise ValueError(f"Invalid YAML card '{config_file}': {e}")
+        
+        return None
+    
+    def GetChannelKeys(self):
+        ac_dict = {ch: list(data["Regions"]) for ch, data in self.config_file.items()}
+        ac_keys = [f"{ch}_{r}" for ch, rs in ac_dict.items() for r in rs]
         return ac_keys, ac_dict
 
+    @staticmethod
+    def _event_vars(goodLeptons, goodFatJets, n_leading=5):
+        # each entry is {"value": <number>, "description": <help text>}; eval uses the "value"
+        _vars = {
+            "nL":    {
+                "value": len(goodLeptons), 
+                "description": "Total number of leptons"
+            },
+            "nEle":  {
+                "value": sum(1 for l in goodLeptons if l.ClassName() == "Electron"),
+                "description": "Number of electrons"
+            },
+            "nMu":   {
+                "value": sum(1 for l in goodLeptons if l.ClassName() == "Muon"),
+                "description": "Number of muons"
+            },
+            "QL":    {
+                "value": abs(sum(l.Charge for l in goodLeptons)),
+                "description": "Absolute total charge of the leptons"
+            },
+            "nFatJ": {
+                "value": len(goodFatJets),
+                "description": "Number of fat-jets"
+            },
+            "nJ": {
+                "value": 0,
+                "description": "Number of jets (not filled yet)"
+            },
+            "nBJ": {
+                "value": 0,
+                "description": "Number of b-jets (not filled yet)"
+            },
+            "nCJ": {
+                "value": 0,
+                "description": "Number of c-jets (not filled yet)"
+            },
+            "nTauJ": {
+                "value": 0,
+                "description": "Number of tau-jets (not filled yet)"
+            },
+        }
+        # leading-N flavour counts; assumes goodLeptons is pT-descending (object_selection.py)
+        for n in range(1, n_leading + 1):
+            _vars[f"nEle{n}"] = {
+                "value": sum(1 for l in goodLeptons[:n] if l.ClassName() == "Electron"),
+                "description": f"Number of electrons among the leading {n} lepton(s) in pT"
+            }
+            _vars[f"nMu{n}"] = {
+                "value": sum(1 for l in goodLeptons[:n] if l.ClassName() == "Muon"),
+                "description": f"Number of muons among the leading {n} lepton(s) in pT"
+            }
+        return _vars
 
     def ClassifyChannelKey(self, goodLeptons, goodFatJets):
-        n_lep = len(goodLeptons)
-        n_fj  = len(goodFatJets)
-
-        # 0 leptons
-        if n_lep == 0:
-            if n_fj == 0: return "0L_Nothing"
-            if n_fj == 1: return "0L_J"
-            if n_fj == 2: return "0L_JJ"
-            if n_fj >= 3: return "0L_JJJ"
-            return None
-
-        # 1 lepton
-        if n_lep == 1:
-            f = self.LeptonFlavour(goodLeptons[0])
-            if n_fj == 0: return f"1L_{f}"
-            if n_fj == 1: return f"1L_{f}J"
-            if n_fj >= 2: return f"1L_{f}JJ"
-            return None
-
-        # 2 leptons
-        if n_lep == 2:
-            lep1, lep2 = goodLeptons[0], goodLeptons[1]
-            q_tot_abs  = abs(lep1.Charge + lep2.Charge)
-            fs = "".join(sorted(self.LeptonFlavour(l) for l in (lep1, lep2)))
-
-            # opposite sign lepton pair (no requirment on the flavour)
-            if q_tot_abs == 0: 
-                if n_fj == 0: return f"2OSL_{fs}"
-                if n_fj >= 1: return f"2OSL_{fs}J"
-                return None
-
-            # same sign lepton pair (no requirment on the flavour)
-            if q_tot_abs == 2: 
-                if n_fj == 0: return f"2SSL_{fs}"
-                if n_fj >= 1: return f"2SSL_{fs}J"
-                return None
-
-        # 3 leptons
-        if n_lep >= 3:
-            fs = "".join(sorted(self.LeptonFlavour(l) for l in goodLeptons[:3]))
-            if n_fj >= 0: return f"3L_{fs}"
-            return None
-        
+        v = {k: d["value"] for k, d in self._event_vars(goodLeptons, goodFatJets).items()}
+        for ch, data in self.config_file.items():
+            for r, spec in data["Regions"].items():
+                if eval(spec["requirement"], {}, v):
+                    return f"{ch}_{r}"
         return None
 
     def Select(self, goodLeptons, goodFatJets, valid_keys = None):
@@ -107,6 +149,47 @@ class EventSelector:
         self.ac_counts[ac_key] += 1
         return ac_key
 
+    def CheckExclusivity(self, n_lep_max = 4, n_fj_max = 2):
+        """Raise if any two regions match the same event."""
+        L = [Lepton(f, q) for f in ("Electron", "Muon") for q in (1, -1)]
+        J = [object()]  # a "jet" — only len() matters
+        for nlp in range(n_lep_max + 1):
+            for leps in cwr(L, nlp):
+                for nj in range(n_fj_max + 1):
+                    v = {k: d["value"] for k, d in self._event_vars(leps, nj * J).items()}
+                    matches = [f"{ch}_{r}" for ch, data in self.config_file.items()
+                               for r, spec in data["Regions"].items()
+                               if eval(spec["requirement"], {}, v)]
+                    if len(matches) > 1:
+                        raise ValueError(f"Non-exclusive regions matched by the same event: {matches}")
+
+    def Inspect(self, nb_lep = 4, nb_fj = 2):
+        """Print ClassifyChannelKey output for all small event combinations."""
+        L = [Lepton(f, q) for f in ("Electron", "Muon") for q in (1, -1)]
+        J = [object()]  # a "jet" — only len() matters
+        headers = ["Possible Combinations", "Selected Output"]
+        rows = []
+        for nlp in range(nb_lep + 1):
+            for leps in cwr(L, nlp):
+                for nj in range(nb_fj + 1):
+                    jets = nj * J
+                    tag = f"{' '.join([l.ClassName()[0].lower() + ('+' if l.Charge > 0 else '-') for l in leps])}".replace("m", "mu")
+                    seperator = "" if tag == "" else ", "
+                    tag += f"{seperator}{nj}J" if nj > 0 else ""
+                    rows.append([tag, self.ClassifyChannelKey(leps, jets)])
+        print(tabulate(rows, headers, tablefmt="github", colalign=("left",)*2))
+        print("Check every selected output and compare it with your expected output.")
+
+    @classmethod
+    def Merge(cls, selectors, splitByFlavour=False):
+        """Return a new EventSelector with the ac_counts of `selectors` summed."""
+        # reuse the parsed config: config_path is None when the caller passed a dict
+        merged = cls(selectors[0].config_path if selectors[0].config_path else {"Channels": selectors[0].config_file})
+        for sel in selectors:
+            for k, v in sel.ac_counts.items():
+                merged.ac_counts[k] = merged.ac_counts.get(k, 0) + v
+        return merged
+
     def WriteEventSelectionSummary(self, root_file, treeName):
         root_file.cd()
         stages = list(self.ac_counts.keys())
@@ -116,6 +199,29 @@ class EventSelector:
             h.SetBinContent(i, count)
             h.GetXaxis().SetBinLabel(i, stage)
         h.Write()
+
+    def ReadEventSelectionSummary(self, root_file, treeName):
+        f = ROOT.TFile.Open(str(root_file), "READ")
+        if not f or f.IsZombie():
+            raise OSError(f"Could not open ROOT file: {root_file}")
+        h = f.Get(f"cutflow_{treeName}")
+        if not h:
+            f.Close()
+            raise KeyError(f"Histogram cutflow_{treeName} not found in {root_file}")
+        self.ac_counts = {
+            h.GetXaxis().GetBinLabel(i): h.GetBinContent(i)
+            for i in range(1, h.GetNbinsX() + 1)
+        }
+        f.Close()
+        return self
+
+    def EventSelectionSummaryMarkdown(self):
+        total_events = self.ac_counts["initial"]
+        rows = [
+            [stage, f"{count:,.0f}", f"{count / total_events:.2%}" if total_events else "—"]
+            for stage, count in self.ac_counts.items()
+        ]
+        return tabulate(rows, headers=["Analysis Channel/Region", "Events", "Fraction"], tablefmt="github")
 
     def PrintEventSelectionSummary(self, treeName, event_weight = None, lum = None):
         total_events = self.ac_counts["initial"]
@@ -127,46 +233,40 @@ class EventSelector:
             df[f"Cross Section (fb)"] = df[f"Yield ({int(lum)} fb^-1)"] / lum
         df["Fraction"] = df["Events"] / total_events
         df["Fraction"] = df["Fraction"].map(lambda x: f"{x*100:.2f}%")
+        
         print(f"\n*** Analysis channels yields for {treeName} ***")
         print(tabulate(df, headers='keys', tablefmt="simple", showindex=False, colalign=("left",) * len(df.columns)))
 
 if __name__ == "__main__":
 
     import argparse
-    from itertools import combinations_with_replacement as cwr
 
-    # Simple class to mimic the Delphes Electron/Muon objects
-    class Lepton:
-        def __init__(self, flavour, charge):
-            self._flavour = flavour
-            self.Charge   = charge
-        def ClassName(self):
-            return self._flavour
-
-    def _check(n_lep_max = 3, n_fj_max = 2):
-        L = [Lepton(f, q) for f in ("Electron", "Muon") for q in (1, -1)]
-        J = [object()]  # a "jet" — only len() matters
-
-        samples = [(lp, nj * [J]) for nlp in range(n_lep_max + 1) for lp in cwr(L, nlp) for nj in range(n_fj_max + 1)]
-
-        headers = ["Possible Combinations", "`splitByFlavour`=False", "`splitByFlavour`=True"]
-        rows = []
-        sel = EventSelector()
-        rows = []
-        sel_false = EventSelector(splitByFlavour=False)
-        sel_true  = EventSelector(splitByFlavour=True)
-        for leps, jets in samples:
-            tag = f"{' '.join([l.ClassName()[0].lower() + ('+' if l.Charge > 0 else '-') for l in leps])}".replace("m", "mu")
-            seperator = "" if tag == "" else ", "
-            tag += f"{seperator}{len(jets)}J" if len(jets) > 0 else ""
-            r_false = sel_false.ClassifyChannelKey(leps, jets)
-            r_true  = sel_true .ClassifyChannelKey(leps, jets)
-            rows.append([tag, r_false, r_true])
-        
-        print(tabulate(rows, headers, tablefmt="github", colalign=("left",)*3))
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true", help="Run channel-classification self-tests")
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="Event variables usable in a card's 'requirement:' expressions\n"
+               "(these are NOT command-line arguments, do not pass them on the command line):\n\n"
+               + tabulate([[k, d["description"]] for k, d in EventSelector._event_vars([], []).items()], headers=["variable", "meaning"], tablefmt="plain"))
+    parser.add_argument("config_file", help=(
+        "YAML card with channel/region definitions, for example:\n"
+        "--- config_file.yml ----------------\n"
+        "|Channels:\n"
+        "|  2OSL:\n"
+        "|    Regions:\n"
+        "|      leplep:\n"
+        "|        requirement: (nL == 2) & (QL == 0)\n"
+        "|  2SSL:\n"
+        "|    Regions:\n"
+        "|      leplep:\n"
+        "|        requirement: (nL == 2) & (QL == 2)\n"
+        "--- config_file.yml ----------------\n"))
+    parser.add_argument("--nb_lep", type=int, default=4, help="Maximum number of leptons used in classification inspection")
+    parser.add_argument("--nb_fj", type=int, default=2, help="Maximum number of fatjets used in classification inspection")
+    parser.add_argument("--check", action="store_true", help="Print classification output for all small event combinations")
     args = parser.parse_args()
+
+    sel = EventSelector(args.config_file)
+    print(f"Loaded {len(sel.ac_keys)} channels/regions from {args.config_file}")
+
     if args.check:
-        _check()
+        sel.Inspect()
+

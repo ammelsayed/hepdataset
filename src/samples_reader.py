@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.dom import minidom
 from ROOT import TFile
+import yaml
 from yaml import safe_load
 from tqdm import tqdm
 
@@ -87,10 +88,10 @@ def print_table(data, fmt="plain", lumi = 400):
             print(category)
             print("-" * len(header))
             for name, info in processes.items():
-                nb_events = info['nb_events']
-                sigma     = info['fiducial_cross_section']        * 1e3
-                sigma_eh  = info['fiducial_cross_section_err_high'] * 1e3
-                sigma_el  = info['fiducial_cross_section_err_low']  * 1e3
+                nb_events = info['nb_events'] 
+                sigma     = info['fiducial_cross_section']   
+                sigma_eh  = info['fiducial_cross_section_err_high'] 
+                sigma_el  = info['fiducial_cross_section_err_low']  
                 k_factor  = info['flat_k_factor']
                 w         = (sigma * k_factor * lumi) / nb_events
                 print(f"{name:<20} {nb_events:>8,} {sigma:>10.5f} {sigma_eh:>8.5f} {sigma_el:>8.5f} {k_factor:>6.3f} {w:>10.5g}")
@@ -103,12 +104,12 @@ def print_table(data, fmt="plain", lumi = 400):
         for category, processes in data.items():
             rows.append([f"**{category}**", "", "", "", "", "", ""])
             for name, info in processes.items():
-                s  = info['fiducial_cross_section']          * 1e3
-                sh = info['fiducial_cross_section_err_high'] * 1e3
-                sl = info['fiducial_cross_section_err_low']  * 1e3
+                s  = info['fiducial_cross_section']    
+                sh = info['fiducial_cross_section_err_high'] 
+                sl = info['fiducial_cross_section_err_low']  
                 k  = info['flat_k_factor']
                 n  = info['nb_events']
-                w  = (s * k * lumi) / n
+                w  = (s * k * lumi) / n 
                 rows.append([name, f"{n:,}", f"{s:.5f}", f"{sh:.5f}", f"{sl:.5f}", f"{k:.3f}", f"{w:.5g}"])
         print(tabulate(rows, headers=headers, tablefmt="github"))
         return None
@@ -149,9 +150,9 @@ def print_table(data, fmt="plain", lumi = 400):
             out.append(r"\midrule")   
             for name, info in processes.items():
                 nb_events = info['nb_events']
-                sigma     = info['fiducial_cross_section']        * 1e3
-                sigma_eh  = info['fiducial_cross_section_err_high'] * 1e3
-                sigma_el  = info['fiducial_cross_section_err_low']  * 1e3
+                sigma     = info['fiducial_cross_section']      
+                sigma_eh  = info['fiducial_cross_section_err_high']
+                sigma_el  = info['fiducial_cross_section_err_low'] 
                 k_factor  = info['flat_k_factor']
                 w         = (sigma * k_factor * lumi) / nb_events
                 sigma_str = fmt_with_err(sigma, sigma_eh, sigma_el)
@@ -165,15 +166,43 @@ def print_table(data, fmt="plain", lumi = 400):
 
 #######################################################
 #######################################################
+# eval(...) support
+######################################################
+#######################################################
+
+def _str_constructor(loader, node):
+    # shortcut: whole-string eval() only, and it can execute arbitrary code
+    # -> only point it at samples.yml files you trust
+    text = loader.construct_scalar(node)
+    if not re.match(r"\s*eval\s*\(", text):
+        return text
+    try:
+        return round(eval(text[text.index("(") + 1:text.rindex(")")],
+                          {"__builtins__": {}},
+                          {"abs": abs, "min": min, "max": max}), 12)
+    except Exception as e:
+        raise ValueError(f"Bad eval() field '{text}': {e}")
+
+yaml.SafeLoader.add_constructor("tag:yaml.org,2002:str", _str_constructor)
+
+
+#######################################################
+#######################################################
 # Main Class
 ######################################################
 #######################################################
 
 class SamplesReader:
 
-    def __init__(self, path):
+    def __init__(self, path=None, data=None):
+        # data= : samples already parsed out of a combined card; no file, nothing to auto-save
+        self.data = data
+        self.auto_save = data is None
+        if data is not None:
+            self.path, self.fmt = None, "yaml"
+            return
+
         self.path = Path(path).resolve()
-        self.auto_save = True
 
         # Must exist and be a regular file
         if not self.path.exists():
@@ -239,6 +268,26 @@ class SamplesReader:
             #     valid.append(path)
             # except Exception:
             #     rejected.append(path)
+            
+            # # Must be openable by Delphes (PyROOT) and expose a Delphes tree
+            # try:
+            #     f = TFile.Open(path)
+            #     if not f or f.IsZombie():
+            #         rejected.append(path)
+            #         continue
+            #     tree = f.Get("Delphes")
+            #     if not tree:
+            #         rejected.append(path)
+            #         continue
+            #     n = tree.GetEntries()
+            #     if n == 0:
+            #         rejected.append(path)
+            #         continue
+            # except Exception as e:
+            #     rejected.append(path)
+            # finally:
+            #     if f is not None:
+            #         f.Close()
         
             valid.append(path)
 
@@ -253,7 +302,9 @@ class SamplesReader:
 
     def read(self):
 
-        if self.fmt == "yaml":
+        if self.data is not None:
+            data = self.data
+        elif self.fmt == "yaml":
             with open(self.path, "r") as f:
                 data = safe_load(f)
         else: 

@@ -139,8 +139,12 @@ class BranchesHandler:
     def _load_config(self, config_path):
         """Load and parse the YAML configuration file."""
         try:
-            with open(config_path, "r") as f:
-                config = safe_load(f)
+            # a dict is accepted too, for cards that carry the branch config inline
+            if isinstance(config_path, dict):
+                config = config_path
+            else:
+                with open(config_path, "r") as f:
+                    config = safe_load(f)
         except FileNotFoundError:
             self._errors.append(f"Configuration file not found: {config_path}")
             return
@@ -667,7 +671,7 @@ class BranchesHandler:
         branch_names.extend(self.global_scalars)
         branch_names.extend(self.event_shapes)
         branch_names.append("gen_weight")   # generator-level weight
-        branch_names.append("weight")       # analysis weight (NLO norm, Lumi, ...)
+        branch_names.append("flat_weight")       # analysis weight (NLO norm, Lumi, ...)
 
         return branch_names
 
