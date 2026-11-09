@@ -90,7 +90,7 @@ Tune:pp = 21
 ! By default, Pythia8 generates multi-parton interaction events. This is
 ! often irrelevant for phenomenology and very slow. You can turn this 
 ! feature off by uncommenting the line below if so desired.
-PartonLevel:MPI = off
+PartonLevel:MPI = on
 ! 
 ! Disable/Enable Initial State Radiation (ISR) and Final State Radiation (FSR)
 PartonLevel:ISR = on
