@@ -2261,3 +2261,10 @@ Initialized on-the-fly reweighting
 Calculating xs for '2_4__j__j__l__l__l__l' (Amegic) ...
 Integration parameters: n_{min} = 5000, n_{max} = 5000000, N_{opt} = 10, N_{max} = 1, exponent = 0.5
 Starting the calculation at 08:18:40. Lean back and enjoy ... .
+
+[1mTerminator_Object_Handler::HandleSignal: [0m[34mSignal [0m[1m([31m2[0m[1m)[0m[34m caught. [0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
