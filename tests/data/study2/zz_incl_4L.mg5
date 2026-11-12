@@ -1,0 +1,33 @@
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 12 --no_save
+set nb_core_pythia8 12 --no_save
+set nb_core_delphes 12 --no_save
+import model sm-full
+define p = g u c d s b u~ c~ d~ s~ b~
+define l+ = e+ mu+
+define l- = e- mu-
+# tree level only: gg > ZZ is loop induced and is not generated in sm-full.
+# all tree-level diagrams kept, including the q q~ > h > ZZ s-channel.
+generate p p > z z
+output zz_incl_4L -f
+display diagrams ./diagrams/zz_incl_4L --no_open --merge
+launch zz_incl_4L --name=test1
+madspin = ON
+shower = Pythia8
+detector = Delphes
+analysis = OFF
+done
+set ebeam 6800
+../cards/pythia8_card_TuneA14_noMPI.dat
+../cards/delphes_card_ATLAS_FatJetPTMin50.tcl
+set spinmode full
+decay z > l+ l-
+set pdlabel lhapdf
+set lhaid 331900 # NNPDF40_lo_as_01180
+set use_syst True
+set systematics_program systematics
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+set nevents 1000
+done

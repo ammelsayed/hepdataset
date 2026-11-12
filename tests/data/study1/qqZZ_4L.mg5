@@ -4,6 +4,13 @@ set zerowidth_tchannel False --no_save
 set nb_core 12 --no_save
 set nb_core_pythia8 12 --no_save
 set nb_core_delphes 12 --no_save
+set heptools_install_dir /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools
+set lhapdf /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools/lhapdf6_py3/bin/lhapdf-config 
+set lhapdf_py3 /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools/lhapdf6_py3/bin/lhapdf-config 
+set madanalysis5_path /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools/madanalysis5/madanalysis5 
+set mg5amc_py8_interface_path /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools/MG5aMC_PY8_interface 
+set pythia8_path  /home/ammelsayed/softwares/MG5_aMC_v3_8_1/HEPTools/pythia8
+set delphes_path /home/ammelsayed/softwares/Delphes-3.5.1
 import model sm-full
 define p = g u c d s b u~ c~ d~ s~ b~
 define j = g u c d s b u~ c~ d~ s~ b~

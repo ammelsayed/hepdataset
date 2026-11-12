@@ -26,5 +26,35 @@ tests/data/study1/qqZZ_4L/**
 !tests/data/study1/qqZZ_4L/**/*.lhe.gz
 !tests/data/study1/qqZZ_4L/**/parton_systematics.log
 
-# Ignore .eps files 
+tests/data/study1/ggZZ_4L_sherpa/**
+!tests/data/study1/ggZZ_4L_sherpa/ggZZ_4L.yaml
+!tests/data/study1/ggZZ_4L_sherpa/sherpa.log
+!tests/data/study1/ggZZ_4L_sherpa/Events/
+
+tests/data/study2/zz_incl_4L/**
+!tests/data/study2/zz_incl_4L/**/
+!tests/data/study2/zz_incl_4L/**/*.root
+!tests/data/study2/zz_incl_4L/**/*.lhe.gz
+!tests/data/study2/zz_incl_4L/**/parton_systematics.log
+tests/data/study2/zz_ll_4L/**
+!tests/data/study2/zz_ll_4L/**/
+!tests/data/study2/zz_ll_4L/**/*.root
+!tests/data/study2/zz_ll_4L/**/*.lhe.gz
+!tests/data/study2/zz_ll_4L/**/parton_systematics.log
+tests/data/study2/zz_lt_4L/**
+!tests/data/study2/zz_lt_4L/**/
+!tests/data/study2/zz_lt_4L/**/*.root
+!tests/data/study2/zz_lt_4L/**/*.lhe.gz
+!tests/data/study2/zz_lt_4L/**/parton_systematics.log
+tests/data/study2/zz_tt_4L/**
+!tests/data/study2/zz_tt_4L/**/
+!tests/data/study2/zz_tt_4L/**/*.root
+!tests/data/study2/zz_tt_4L/**/*.lhe.gz
+!tests/data/study2/zz_tt_4L/**/parton_systematics.log
+
+# from madgraph runs
+py.py
+nsqso_born.inc
+
+# Ignore .eps files from diagrams drawing
 *.eps

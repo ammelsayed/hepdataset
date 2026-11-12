@@ -1,0 +1,2263 @@
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 06:56:49 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (1 ME generators, 1 process blocks) ...
+Setting up processes  done (79 MB, 0s/0s)
+[1m[31mNormal exit[0m[1m thrown[0m:
+[31mNo hard process found[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m0[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:06:48 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7fffa4820170){
+  cls = <unknown>, hls = sum
+  mincpl = (4,8)/(0,0), maxcpl = (4,8)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = '',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{V} (2,4), ASS{none} {4,4}: {
+    e- 
+    mu- 
+    e+ 
+    mu+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:08:34 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7fff8e64f330){
+  cls = <unknown>, hls = sum
+  mincpl = (3,6)/(0,0), maxcpl = (3,6)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = '',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{V} (2,4), ASS{none} {4,4}: {
+    e- 
+    mu- 
+    e+ 
+    mu+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:09:18 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7ffdf8e708f0){
+  cls = <unknown>, hls = sum
+  mincpl = (3,6)/(0,0), maxcpl = (3,6)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = '',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{V} (2,4), ASS{none} {4,4}: {
+    e- 
+    mu- 
+    e+ 
+    mu+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:09:46 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7ffdfe52fce0){
+  cls = <unknown>, hls = sum
+  mincpl = (2,4)/(0,0), maxcpl = (2,4)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = '',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{V} (2,4), ASS{none} {4,4}: {
+    e- 
+    mu- 
+    e+ 
+    mu+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:10:16 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7ffdf8676d10){
+  cls = <unknown>, hls = sum
+  mincpl = (2,4)/(0,0), maxcpl = (2,4)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = '',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{V} (2,4), ASS{none} {4,4}: {
+    e- 
+    mu- 
+    e+ 
+    mu+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:10:52 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7ffcdf882160){
+  cls = <unknown>, hls = sum
+  mincpl = (2,4)/(0,0), maxcpl = (2,4)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = 'Comix',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{V} (2,4), ASS{none} {4,4}: {
+    e- 
+    mu- 
+    e+ 
+    mu+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:11:22 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7ffcb4950eb0){
+  cls = <unknown>, hls = sum
+  mincpl = (2,4)/(0,0), maxcpl = (2,4)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = 'Comix',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{V} (2,4), ASS{none} {4,4}: {
+    e- 
+    e- 
+    e+ 
+    e+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:11:51 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7fff2af551f0){
+  cls = <unknown>, hls = sum
+  mincpl = (2,4)/(0,0), maxcpl = (2,4)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = 'Comix',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{V} (2,4), ASS{none} {4,4}: {
+    e- 
+    e- 
+    e+ 
+    e+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:13:11 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        0        1             0 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+, tau-, tau+                                        │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     tau-, tau+, ve, veb, vmu, vmub, vtau, vtaub                         │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Massive PS flavours for Amegic: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+,tau-,tau+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+OpenLoops_Interface::Initialize(): OpenLoops will use the Standard Model even if you set a different model without warning.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (3 ME generators, 1 process blocks) ...
+Setting up processes No such process:
+(0x7ffe23a83df0){
+  cls = <unknown>, hls = sum
+  mincpl = (2,4)/(0,0), maxcpl = (2,4)/(99,99)
+  ckkw = 0, nlo = fixedorder, mhv = 1
+  scale = 'METS{MU_F2}{MU_R2}{MU_Q2}', kfactor = 'None'
+  megenerator = 'Amegic',  loopgenerator = 'OpenLoops'
+  gpath = '', min t-channels = 0', max t-channels = 99
+  no_particle  (2), NLO{} (0,0), ASS{none}: {
+    G 
+    G 
+  }
+  no_particle  (4), NLO{BVI} (2,4), ASS{none} {4,4}: {
+    e- 
+    mu- 
+    e+ 
+    mu+ 
+  }
+}
+[1m[31mCritical error[0m[1m thrown[0m:
+[31mFailed to intialize process[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:17:58 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        1        1         1.777 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+                                                    │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Initializing Comix ...
+Massive PS flavours for Comix: (c,cb,b,bb,e-,e+,mu-,mu+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes  done (80 MB, 0s/0s)
+[1m[31mNormal exit[0m[1m thrown[0m:
+[31mNo hard process found[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m0[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:30:07 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+Library_Loader::LoadLibrary(): Failed to load library 'libProc_fsrchannels4.so'.
+[1m[31mFatal error[0m[1m thrown[0m:
+[31mCannot load extra library.[0m
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:31:14 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels4.so loaded.
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        1        1         1.777 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+                                                    │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Massive PS flavours for Amegic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes  done (83 MB, 0s/0s)
+[1m[31mNormal exit[0m[1m thrown[0m:
+[31mNo hard process found[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m0[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:32:11 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels4.so loaded.
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        1        1         1.777 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+                                                    │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Massive PS flavours for Amegic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes Process_Base::Process_Base(): Disable process mapping.
+[1m[31mFatal error[0m[1m thrown[0m:
+[31mCorrupted map file '/mnt/e/Apps/hepdataset/tests/data/study1/ggZZ_4L_sherpa/Process/Sherpa/2_4__j__j__e-__mu-__e+__mu+.map'[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:33:02 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels4.so loaded.
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        1        1         1.777 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+                                                    │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Massive PS flavours for Amegic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes Process_Base::Process_Base(): Disable process mapping.
+[1m[31mFatal error[0m[1m thrown[0m:
+[31mCorrupted map file '/mnt/e/Apps/hepdataset/tests/data/study1/ggZZ_4L_sherpa/Process/Sherpa/2_4__j__j__e-__mu-__e+__mu+.map'[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:34:02 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels4.so loaded.
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        1        1         1.777 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+                                                    │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Massive PS flavours for Amegic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes Process_Base::Process_Base(): Disable process mapping.
+ done (109 MB, 34s/11s)
+[1m[31mNormal exit[0m[1m thrown[0m:
+[31mNo hard process found[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m0[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:40:19 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels4.so loaded.
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels5.so loaded.
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        1        1         1.777 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+                                                    │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Massive PS flavours for Amegic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes Process_Base::Process_Base(): Disable process mapping.
+... done (134 MB, 2m 19s/1m 53s)
+Performing tests  done (134 MB, 0s/0s)
+Initializing scales done (134 MB, 0s/0s)
+Initializing the beam remnants ...
+Massive PS flavours for Amisic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Multiple interactions initialized
+  id = 2, name = Amisic, type = 1
+Underlying event/multiple interactions initialized
+  MI[2]: on = 1 (type = 1, Amisic)
+Soft-collision handlers:
+  Type[2]: None
+Initialized fragmentation
+Initialized hadron decays (model = HADRONS++)
+Initialized soft photons
+Library_Loader::LoadLibrary(): Failed to load library 'libSherpaHepMCOutput.so'.
+[1m[31mMissing module[0m[1m thrown[0m:
+[31mCannot load output library SherpaHepMCOutput.[0m
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+┌──────────────────────────────────────────────────────────┐
+│ [1m[32mPlease cite the publications listed in 'References.tex'.[0m │
+└──────────────────────────────────────────────────────────┘
+[1mTerminator_Object_Handler::Exit: [0m[34mExiting Sherpa with code [0m[1m([31m1[0m[1m)[0m[?25h
+Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 07:45:01 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels4.so loaded.
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels5.so loaded.
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        1        1         1.777 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+                                                    │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Massive PS flavours for Amegic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes Process_Base::Process_Base(): Disable process mapping.
+...Welcome to Sherpa,  on Elsayed.
+Initialization of framework underway ...
+Local time: Thu Nov 12 08:18:36 2026
+Memory limit: 7.5253 GB
+Seed: 1234
+Initialization_Handler::LoadLibraries(): Library libProc_fsrchannels4.so loaded.
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [32m                   .[0m_                                                        │
+│ [32m                  .-[0m#.                                                       │
+│ [32m                 .--[0m+@.     .                                                │
+│ [32m                .----[0m@@.[31m   +[0m#-                                               │
+│ [32m               .-----[0m+@@.[31m +**[0m@-         SHERPA v3.0.5 (Erebus)               │
+│ [34m       :[0m-[32m     .-------[0m@@@[31m+***[0m#@-                                             │
+│ [34m      :=[0m#*[32m   .--------[0m+@[31m+*****[0m@@-       Monte Carlo event generator          │
+│ [34m     :===[0m@*[32m .----------[31m+******[0m#@@-                                           │
+│ [34m    :====[0m#@*[32m----------[31m+********[0m@@@-     https://sherpa-team.gitlab.io        │
+│ [34m   :======[0m@@*[32m--------[31m+*********[0m#@@@-                                         │
+│                                                                              │
+│          Authors:  Enrico Bothmann, Lois Flower, Christian Gutschow,         │
+│                    Stefan Hoeche, Mareen Hoppe, Joshua Isaacson,             │
+│                    Max Knobbe, Frank Krauss, Peter Meinzinger,               │
+│                    Davide Napoletano, Alan Price, Daniel Reichelt,           │
+│                    Marek Schoenherr, Steffen Schumann, Frank Siegert         │
+│   Former Authors:  Gurpreet Singh Chahal, Timo Fischer, Tanju Gleisberg,     │
+│                    Hendrik Hoeth, Johannes Krause, Silvan Kuttimalai,        │
+│                    Ralf Kuhn, Thomas Laubrich, Sebastian Liebschner,         │
+│                    Andreas Schaelicke, Holger Schulz, Jan Winter             │
+│                                                                              │
+│ Users are kindly asked to cite [1mJHEP 12 (2024) 156[0m.                           │
+│                                                                              │
+│ This program uses a lot of genuine and original research work by others.     │
+│ Users are encouraged to also cite the various original publications.         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+[1m[33mWARNING[0m: You are using an unsupported development branch.
+Git branch: unknownurl
+Revision: unknownrevision.
+Initializing hadron particle information ...
+Initializing beam spectra ...
+  Type: Collider Setup
+  Beam 1: P+ (enabled = 0, momentum = (6800,0,0,6800))
+  Beam 2: P+ (enabled = 0, momentum = (6800,0,0,-6800))
+Initializing PDFs ...
+  Hard scattering:    NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+  MPI:                NNPDF40_nlo_as_01180 + NNPDF40_nlo_as_01180
+Fixed electroweak parameters
+  Input scheme: Gmu scheme, input: GF, m_W, m_Z, m_h, widths
+  Ren. scheme:  Gmu
+  Parameters:   sin^2(\theta_W) = 0.223043 - 0.00110541 i
+                vev             = 246.218
+Set \alpha according to EW scheme
+  1/\alpha(0)   = 137.036
+  1/\alpha(def) = 132.119
+Particle data:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code          Mass         Width   Stable  Massive   Active        Yukawa │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         d        1          0.01             0        1        0        1             0 │
+│         u        2         0.005             0        1        0        1             0 │
+│         s        3           0.2             0        1        0        1             0 │
+│         c        4          1.42             0        1        0        1             0 │
+│         b        5          4.92             0        1        0        1             0 │
+│         t        6         172.5          1.32        0        1        1         172.5 │
+│        e-       11      0.000511             0        1        0        1             0 │
+│        ve       12             0             0        1        0        1             0 │
+│       mu-       13         0.105             0        1        0        1             0 │
+│       vmu       14             0             0        1        0        1             0 │
+│      tau-       15         1.777   2.26735e-12        0        1        1         1.777 │
+│      vtau       16             0             0        1        0        1             0 │
+│         G       21             0             0        1        0        1             0 │
+│         P       22             0             0        1        0        1             0 │
+│         Z       23       91.1876        2.4952        0        1        1       91.1876 │
+│        W+       24        80.379         2.085        0        1        1        80.379 │
+│        h0       25        125.09        0.0041        0        1        1        125.09 │
+│ Instanton      999             0             0        0        0        1             0 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Particle containers:
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│      Name  Kf-code  Constituents                                                        │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│         l       90  e-, e+, mu-, mu+                                                    │
+│         v       91  ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         f       92  d, db, u, ub, s, sb, c, cb, b, bb, e-, e+, mu-, mu+,                │
+│                     ve, veb, vmu, vmub, vtau, vtaub                                     │
+│         j       93  d, db, u, ub, s, sb, c, cb, b, bb, G                                │
+│         Q       94  d, db, u, ub, s, sb, c, cb, b, bb                                   │
+│       ewj       98  d, db, u, ub, s, sb, c, cb, b, bb, G, P                             │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+Initializing primordial transverse momentum ...
+Initializing remnants ...
+  Hard process: P+ (Hadron) + P+ (Hadron)
+Initializing showers ...
+Initializing matrix elements for the hard processes ...
+ME_Generators::ME_Generators(): Try loading 'OpenLoops' from 'libSherpaOpenLoops'.
+Massive PS flavours for Amegic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Initialising OpenLoops generator from /home/ammelsayed/softwares/openloops/.
+####################################################################
+#        ___  ___  ____  _  _       __   __  ___   __    ___       #
+#       /   \ |__| |__   |\ |  |   /  \ /  \ |__| /__    __/       #
+#       \___/ |    |___  | \|  |__ \__/ \__/ |    __/   /__        #
+#       You are using OpenLoops 2 to evaluate loop amplitudes      #
+#        F. Buccioni, J.-N. Lang, J. Lindert, P. Maierhoefer,      #
+#               S. Pozzorini, M. Zoller, H. Zhang                  #
+#               Eur.Phys.J. C79 (2019) no.10, 866                  #
+#                        arXiv:1907.13071                          #
+####################################################################
+Building processes (2 ME generators, 1 process blocks) ...
+Setting up processes Process_Base::Process_Base(): Disable process mapping.
+... done (116 MB, 0s/0s)
+Performing tests  done (116 MB, 0s/0s)
+Initializing scales done (116 MB, 0s/0s)
+Initializing the beam remnants ...
+Massive PS flavours for Amisic: (c,cb,b,bb,e-,e+,mu-,mu+)
+Multiple interactions initialized
+  id = 2, name = Amisic, type = 1
+Underlying event/multiple interactions initialized
+  MI[2]: on = 1 (type = 1, Amisic)
+Soft-collision handlers:
+  Type[2]: None
+Initialized fragmentation
+Initialized hadron decays (model = HADRONS++)
+Initialized soft photons
+Initialized on-the-fly reweighting
+Calculating xs for '2_4__j__j__l__l__l__l' (Amegic) ...
+Integration parameters: n_{min} = 5000, n_{max} = 5000000, N_{opt} = 10, N_{max} = 1, exponent = 0.5
+Starting the calculation at 08:18:40. Lean back and enjoy ... .

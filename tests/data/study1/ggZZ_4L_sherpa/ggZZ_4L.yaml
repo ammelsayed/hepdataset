@@ -1,0 +1,30 @@
+BEAMS: 2212
+BEAM_ENERGIES: 6800
+
+PDF_SET: NNPDF40_nlo_as_01180
+MPI_PDF_SET: NNPDF40_nlo_as_01180
+
+ME_GENERATORS: [Amegic, OpenLoops]
+AMEGIC: { ALLOW_MAPPING: 0 }
+SHERPA_LDADD: [Proc_fsrchannels4]
+
+PARTICLE_DATA:
+  15: {Massive: 1}
+
+PROCESSES:
+- 93 93 -> 90 90 90 90:
+    Enable_MHV: 10
+    Loop_Generator: OpenLoops
+    2->4:
+      Order: {QCD: 2, EW: 4}
+      Integrator: fsrchannels4
+
+SELECTORS:
+- [Mass, 11, -11, 10.0, E_CMS]
+- [Mass, 13, -13, 10.0, E_CMS]
+
+EVENTS: 1000
+EVENT_OUTPUT: HepMC3_GenEvent[events]
+EVENT_FILE_PATH: /mnt/e/Apps/hepdataset/tests/data/study1/ggZZ_4L_sherpa/Events
+RESULT_DIRECTORY: /mnt/e/Apps/hepdataset/tests/data/study1/ggZZ_4L_sherpa/Results
+LOG_FILE: /mnt/e/Apps/hepdataset/tests/data/study1/ggZZ_4L_sherpa/sherpa.log

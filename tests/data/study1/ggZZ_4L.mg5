@@ -1,10 +1,11 @@
+set group_subprocesses False --no_save
 set automatic_html_opening False --no_save
 set notification_center False --no_save
 set zerowidth_tchannel False --no_save
 set nb_core 12 --no_save
 set nb_core_pythia8 12 --no_save
 set nb_core_delphes 12 --no_save
-import model loop_sm
+import model loop_sm-no_b_mass
 define p = g u c d s b u~ c~ d~ s~ b~
 define j = g u c d s b u~ c~ d~ s~ b~
 define l+ = e+ mu+
@@ -23,8 +24,11 @@ set ebeam 6800
 ../cards/delphes_card_ATLAS_FatJetPTMin50.tcl
 set pdlabel lhapdf
 set lhaid 331700 # NNPDF40_nlo_as_01180
-set use_syst True
-set systematics_program systematics
-set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+set use_syst False # disable for now
+# set systematics_program systematics
+# set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
 set nevents 1000
+set ptllmin 20.0
+set sde_strategy 2
+set hard_survey 1
 done
