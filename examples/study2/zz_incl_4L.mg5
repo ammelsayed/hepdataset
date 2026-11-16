@@ -23,6 +23,7 @@ set ebeam 6800
 ../cards/pythia8_card_TuneA14_noMPI.dat
 ../cards/delphes_card_ATLAS_FatJetPTMin50.tcl
 set spinmode full
+add madspin_card --before_line="launch" set keep_weight_for_polarization_vector [0, T] # v3.8.1 MadSpin option
 decay z > l+ l-
 set pdlabel lhapdf
 set lhaid 331900 # NNPDF40_lo_as_01180

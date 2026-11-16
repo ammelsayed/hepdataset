@@ -1,0 +1,24 @@
+objects:
+  Lepton:
+    count: 4
+    representations: ["Lepton"]
+    kinematics: ["Pt", "Eta", "Phi", "Charge", "IsolationVar"]
+  Jet:
+    count: 2
+    representations: ["Jet"]
+    kinematics: ["Pt", "Eta", "Phi", "M"]
+
+event-variables:
+  global_scalars: ["HT", "LT", "ST"]
+  event_shapes: ["Sphericity", "Aplanarity", "Circularity", "Centrality"]
+
+multi-objects:
+  Nmax: 2
+  combo_set: ["Lepton"]
+  include_same_represenations: True
+  basic_kinematics  : ["Pt", "Phi", "Eta", "M"]
+  2body_kinematics  : ["DeltaR", "DeltaPhi", "DeltaEta", "isOSSF"]
+  include_mt2: False
+  mt2_object_types: ["Lepton"]
+  include_trival_kinematics: False
+  trival_kinematics : ["Sphericity", "Aplanarity", "Circularity", "Centrality", "ScalarSumPT"]

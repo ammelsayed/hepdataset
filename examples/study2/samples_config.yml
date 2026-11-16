@@ -1,0 +1,27 @@
+Signal:
+  ZLZL:
+    fiducial_cross_section: 0.003373
+    files:
+      - ./zz_ll_4L/Events/test1_decayed_1/tag_1_delphes_events.root
+
+Background:
+  ZLZT:
+    fiducial_cross_section: 0.01337
+    files:
+      - ./zz_lt_4L/Events/test1_decayed_1/tag_1_delphes_events.root
+
+  ZTZT:
+    fiducial_cross_section: 0.04122
+    files:
+      - ./zz_tt_4L/Events/test1_decayed_1/tag_1_delphes_events.root
+
+  ZZ_Interference:
+    fiducial_cross_section: eval(0.05837 - 0.04122 - 0.01337 - 0.003373)
+    files:
+      - ./zz_incl_4L/Events/test1_decayed_1/tag_1_delphes_events.root
+
+Reference:
+  ZZ_inclusive:
+    fiducial_cross_section: 0.05837
+    files:
+      - ./zz_incl_4L/Events/test1_decayed_1/tag_1_delphes_events.root

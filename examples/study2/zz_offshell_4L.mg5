@@ -1,0 +1,31 @@
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 12 --no_save
+set nb_core_pythia8 12 --no_save
+set nb_core_delphes 12 --no_save
+import model sm-full
+define p = g u c d s b u~ c~ d~ s~ b~
+define l+ = e+ mu+
+define l- = e- mu-
+# reference: same amplitude class as the braced targets (double-resonant ZZ), but with
+# the decay in the matrix element so the Z propagators are not at the pole
+generate p p > z z, z > l+ l-
+output zz_offshell_4L -f
+display diagrams ./diagrams/zz_offshell_4L --no_open --merge
+launch zz_offshell_4L --name=test1
+reweight = ON
+shower = OFF
+detector = OFF
+analysis = OFF
+done
+set ebeam 6800
+../cards/reweight_card.dat
+set pdlabel lhapdf
+set lhaid 331900 # NNPDF40_lo_as_01180
+set bwcutoff 15
+set use_syst True
+set systematics_program systematics
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+set nevents 1000
+done

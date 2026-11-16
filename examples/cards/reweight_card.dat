@@ -1,0 +1,7 @@
+change mode LO
+change process p p > z{0} z{0}, z > l+ l-
+launch --rwgt_name=LL
+change process p p > z{0} z{T}, z > l+ l-
+launch --rwgt_name=LT
+change process p p > z{T} z{T}, z > l+ l-
+launch --rwgt_name=TT

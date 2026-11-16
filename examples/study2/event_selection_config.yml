@@ -1,0 +1,9 @@
+Channels:
+  4L:
+    Regions:
+      eeee:
+        requirement: (nL == 4) & (nEle == 4) & (QL == 0)
+      eemumu:
+        requirement: (nL == 4) & (nEle == 2) & (nMu == 2) & (QL == 0)
+      mumumumu:
+        requirement: (nL == 4) & (nMu == 4) & (QL == 0)
