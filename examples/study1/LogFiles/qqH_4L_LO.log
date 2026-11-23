@@ -37,180 +37,9 @@ Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 No valid web browser found. Please set in ./input/mg5_configuration.txt
 Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
-import /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO.mg5
+import /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO.yml
 The import format was not given, so we guess it as command
-set automatic_html_opening False --no_save
-set notification_center False --no_save
-set zerowidth_tchannel False --no_save
-set nb_core 12 --no_save
-set nb_core_pythia8 12 --no_save
-set nb_core_delphes 12 --no_save
-import model sm-full
-INFO: Change particles name to pass to MG5 convention 
-Defined multiparticle p = g u d s u~ d~ s~ c c~
-Defined multiparticle j = g u d s u~ d~ s~ c c~
-Defined multiparticle l+ = e+ mu+
-Defined multiparticle l- = e- mu-
-Defined multiparticle vl = ve vm vt
-Defined multiparticle vl~ = ve~ vm~ vt~
-[1;34mPass the definition of 'j' and 'p' to 3 flavour scheme.[0m
-Defined multiparticle all = g u d s u~ d~ s~ a ve vm vt ve~ vm~ vt~ c t b c~ t~ b~ z w+ h w- e- mu- ta- e+ mu+ ta+
-define p = g u c d s b u~ c~ d~ s~ b~
-Defined multiparticle p = g u d s u~ d~ s~ c b c~ b~
-define j = g u c d s b u~ c~ d~ s~ b~
-Defined multiparticle j = g u d s u~ d~ s~ c b c~ b~
-define l+ = e+ mu+
-Defined multiparticle l+ = e+ mu+
-define l- = e- mu-
-Defined multiparticle l- = e- mu-
-define vl = ve vm
-Defined multiparticle vl = ve vm
-define vl~ = ve~ vm~
-Defined multiparticle vl~ = ve~ vm~
-generate p p > h > z z, z > l+ l-
-INFO: Checking for minimal orders which gives processes. 
-INFO: Please specify coupling orders to bypass this step. 
-INFO: Trying process: g g > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: u u~ > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: u c~ > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: d d~ > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: d s~ > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: d b~ > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: s d~ > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: s s~ > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: s b~ > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: u~ u > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: u~ c > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: d~ d > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: d~ b > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: s~ s > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: s~ b > h > z z WEIGHTED<=4 @1  
-INFO: Trying process: c c~ > h > z z WEIGHTED<=4 @1  
-INFO: Process has 1 diagrams 
-INFO: Trying process: b b~ > h > z z WEIGHTED<=4 @1  
-INFO: Process has 1 diagrams 
-INFO: Process c~ c > z z added to mirror process c c~ > z z 
-INFO: Process b~ b > z z added to mirror process b b~ > z z 
-INFO: Checking for minimal orders which gives processes. 
-INFO: Please specify coupling orders to bypass this step. 
-INFO: Trying process: z > e+ e- WEIGHTED<=2  
-INFO: Process has 1 diagrams 
-INFO: Trying process: z > e+ mu- WEIGHTED<=2  
-INFO: Trying process: z > mu+ e- WEIGHTED<=2  
-INFO: Trying process: z > mu+ mu- WEIGHTED<=2  
-INFO: Process has 1 diagrams 
-1 processes with 4 diagrams generated in 0.080 s
-Total: 1 processes with 4 diagrams
-output qqH_4L_LO -f
-INFO: initialize a new directory: qqH_4L_LO 
-INFO: remove old information in qqH_4L_LO 
-INFO: Organizing processes into subprocess groups 
-INFO: Organizing processes into subprocess groups 
-INFO: Generating Helas calls for process: c c~ > h > z z WEIGHTED<=4 @1 
-INFO: Generating Helas calls for process: b b~ > h > z z WEIGHTED<=4 @1 
-INFO: Generating Helas calls for process: z > e+ e- WEIGHTED<=2 
-INFO: Generating Helas calls for process: z > mu+ mu- WEIGHTED<=2 
-INFO: Combine c c~ > h > z z WEIGHTED<=4 @1 with decays z > e+ e- WEIGHTED<=2, z > e+ e- WEIGHTED<=2 
-INFO: Combine c c~ > h > z z WEIGHTED<=4 @1 with decays z > e+ e- WEIGHTED<=2, z > mu+ mu- WEIGHTED<=2 
-INFO: Combine c c~ > h > z z WEIGHTED<=4 @1 with decays z > mu+ mu- WEIGHTED<=2, z > mu+ mu- WEIGHTED<=2 
-INFO: Combine b b~ > h > z z WEIGHTED<=4 @1 with decays z > e+ e- WEIGHTED<=2, z > e+ e- WEIGHTED<=2 
-INFO: Combine b b~ > h > z z WEIGHTED<=4 @1 with decays z > e+ e- WEIGHTED<=2, z > mu+ mu- WEIGHTED<=2 
-INFO: Combine b b~ > h > z z WEIGHTED<=4 @1 with decays z > mu+ mu- WEIGHTED<=2, z > mu+ mu- WEIGHTED<=2 
-INFO: Processing color information for process: c c~ > h > z z @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > e+ e- WEIGHTED<=2 
-INFO: Reusing existing color information for process: c c~ > h > z z @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2 
-INFO: Reusing existing color information for process: c c~ > h > z z @1
-  Decay: z > mu+ mu- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2 
-INFO: Reusing existing color information for process: b b~ > h > z z @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > e+ e- WEIGHTED<=2 
-INFO: Reusing existing color information for process: b b~ > h > z z @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2 
-INFO: Reusing existing color information for process: b b~ > h > z z @1
-  Decay: z > mu+ mu- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2 
-INFO: Creating files in directory P1_ccx_zz_z_epem_z_epem 
-INFO: Generating Feynman diagrams for Process: c c~ > h > z z WEIGHTED<=4 @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > e+ e- WEIGHTED<=2 
-INFO: Finding symmetric diagrams for subprocess group ccx_zz_z_epem_z_epem 
-INFO: Creating files in directory P1_ccx_zz_z_epem_z_mupmum 
-INFO: Generating Feynman diagrams for Process: c c~ > h > z z WEIGHTED<=4 @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2 
-INFO: Finding symmetric diagrams for subprocess group ccx_zz_z_epem_z_mupmum 
-INFO: Creating files in directory P1_ccx_zz_z_mupmum_z_mupmum 
-INFO: Generating Feynman diagrams for Process: c c~ > h > z z WEIGHTED<=4 @1
-  Decay: z > mu+ mu- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2 
-INFO: Finding symmetric diagrams for subprocess group ccx_zz_z_mupmum_z_mupmum 
-INFO: Creating files in directory P1_bbx_zz_z_epem_z_epem 
-INFO: Generating Feynman diagrams for Process: b b~ > h > z z WEIGHTED<=4 @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > e+ e- WEIGHTED<=2 
-INFO: Finding symmetric diagrams for subprocess group bbx_zz_z_epem_z_epem 
-INFO: Creating files in directory P1_bbx_zz_z_epem_z_mupmum 
-INFO: Generating Feynman diagrams for Process: b b~ > h > z z WEIGHTED<=4 @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2 
-INFO: Finding symmetric diagrams for subprocess group bbx_zz_z_epem_z_mupmum 
-INFO: Creating files in directory P1_bbx_zz_z_mupmum_z_mupmum 
-INFO: Generating Feynman diagrams for Process: b b~ > h > z z WEIGHTED<=4 @1
-  Decay: z > mu+ mu- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2 
-INFO: Finding symmetric diagrams for subprocess group bbx_zz_z_mupmum_z_mupmum 
-Generated helas calls for 6 subprocesses (6 diagrams) in 0.247 s
-Wrote files for 60 helas calls in 26.373 s
-ALOHA: aloha starts to compute helicity amplitudes
-ALOHA: aloha creates 4 routines in  0.625 s
-The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
-If you want to make this value the default for future session, you can run 'save options --all'
-save configuration file to /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/Cards/me5_configuration.txt
-INFO: Use Fortran compiler gfortran 
-INFO: Use c++ compiler g++ 
-INFO: Generate jpeg diagrams 
-INFO: Generate web pages 
-INFO: Generating MadAnalysis5 default cards tailored to this process 
-[1;34mWARNING: MadAnalysis5 failed to write a hadron-level default analysis card for this process. [0m
-[1;34mWARNING: Therefore, hadron-level default analysis with MadAnalysis5 will be empty. [0m
-INFO: Cards created in 3.26s 
-Output to directory /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO done.
-Type "launch" to generate events from this process, or see
-/mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/README
-Run "open index.html" to see more information about this process.
-display diagrams ./diagrams/qqH_4L_LO --no_open --merge
-Drawing Process: c c~ > h > z z WEIGHTED<=4 @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > e+ e- WEIGHTED<=2
-Wrote file ./diagrams/qqH_4L_LO/diagrams_1_ccx_h_zz_z_epem_z_epem.eps
-Drawing Process: c c~ > h > z z WEIGHTED<=4 @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2
-Wrote file ./diagrams/qqH_4L_LO/diagrams_1_ccx_h_zz_z_epem_z_mupmum.eps
-Drawing Process: c c~ > h > z z WEIGHTED<=4 @1
-  Decay: z > mu+ mu- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2
-Wrote file ./diagrams/qqH_4L_LO/diagrams_1_ccx_h_zz_z_mupmum_z_mupmum.eps
-Drawing Process: b b~ > h > z z WEIGHTED<=4 @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > e+ e- WEIGHTED<=2
-Wrote file ./diagrams/qqH_4L_LO/diagrams_1_bbx_h_zz_z_epem_z_epem.eps
-Drawing Process: b b~ > h > z z WEIGHTED<=4 @1
-  Decay: z > e+ e- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2
-Wrote file ./diagrams/qqH_4L_LO/diagrams_1_bbx_h_zz_z_epem_z_mupmum.eps
-Drawing Process: b b~ > h > z z WEIGHTED<=4 @1
-  Decay: z > mu+ mu- WEIGHTED<=2
-  Decay: z > mu+ mu- WEIGHTED<=2
-Wrote file ./diagrams/qqH_4L_LO/diagrams_1_bbx_h_zz_z_mupmum_z_mupmum.eps
-Merged diagrams into ./diagrams/qqH_4L_LO/all_diagrams.pdf
-time to draw 0.31271934509277344
-launch qqH_4L_LO --name=test1
+launch qqH_4L_LO --name=test1_more_data
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -238,295 +67,81 @@ INFO: load configuration from /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/C
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 No valid web browser found. Please set in ./input/mg5_configuration.txt
 Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
-generate_events test1
+generate_events test1_more_data
 stty: 'standard input': Inappropriate ioctl for device
-The following switches determine which programs are run:
-/==============================================================================\
-| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
-| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
-| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
-| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
-| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
-\==============================================================================/
-Either type the switch number (1 to 5) to change its setting,
-Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
-Type 'help' for the list of all valid option
-Type '0', 'auto', 'done' or just press enter when you are done.
-The following switches determine which programs are run:
-/==============================================================================\
-| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
-| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
-| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
-| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
-| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
-\==============================================================================/
-Either type the switch number (1 to 5) to change its setting,
-Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
-Type 'help' for the list of all valid option
-Type '0', 'auto', 'done' or just press enter when you are done.
-[1;34m"ON" not valid option for "analysis"[0m
-The following switches determine which programs are run:
-/==============================================================================\
-| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
-| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
-| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
-| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
-| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
-\==============================================================================/
-Either type the switch number (1 to 5) to change its setting,
-Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
-Type 'help' for the list of all valid option
-Type '0', 'auto', 'done' or just press enter when you are done.
-The following switches determine which programs are run:
-/==============================================================================\
-| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
-| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
-| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
-| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
-| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
-\==============================================================================/
-Either type the switch number (1 to 5) to change its setting,
-Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
-Type 'help' for the list of all valid option
-Type '0', 'auto', 'done' or just press enter when you are done.
-The following switches determine which programs are run:
-/==============================================================================\
-| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
-| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
-| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
-| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
-| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
-\==============================================================================/
-Either type the switch number (1 to 5) to change its setting,
-Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
-Type 'help' for the list of all valid option
-Type '0', 'auto', 'done' or just press enter when you are done.
-set ebeam 6800
-[1mINFO: modify parameter ebeam1 of the run_card.dat to 6800.0 [0m
-[1mINFO: modify parameter ebeam2 of the run_card.dat to 6800.0 [0m
-INFO: copy ../cards/pythia8_card_TuneA14_noMPI.dat as pythia8_card.dat 
-Do you want to edit a card (press enter to bypass editing)?
-/------------------------------------------------------------\
-|  [31m1[0m. param               : [32mparam_card.dat[0m                   |
-|  [31m2[0m. run                 : [32mrun_card.dat[0m                     |
-|  [31m3[0m. pythia8             : [32mpythia8_card.dat[0m                 |
-|  [31m4[0m. delphes             : [32mdelphes_card.dat[0m                 |
-|  [31m5[0m. madanalysis5_parton : [32mmadanalysis5_parton_card.dat[0m     |
-|  [31m6[0m. madanalysis5_hadron : [32mmadanalysis5_hadron_card.dat[0m     |
-\------------------------------------------------------------/
- you can also
-   - enter the path to a valid card or banner.
-   - use the 'set' command to modify a parameter directly.
-     The set option works only for param_card and run_card.
-     Type 'help set' for more information on this command.
-   - call an external program (ASperGE/MadWidth/...).
-     Type 'help' for the list of available command
- [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
-INFO: copy ../cards/delphes_card_ATLAS_FatJetPTMin50.tcl as delphes_card.dat 
-Do you want to edit a card (press enter to bypass editing)?
-/------------------------------------------------------------\
-|  [31m1[0m. param               : [32mparam_card.dat[0m                   |
-|  [31m2[0m. run                 : [32mrun_card.dat[0m                     |
-|  [31m3[0m. pythia8             : [32mpythia8_card.dat[0m                 |
-|  [31m4[0m. delphes             : [32mdelphes_card.dat[0m                 |
-|  [31m5[0m. madanalysis5_parton : [32mmadanalysis5_parton_card.dat[0m     |
-|  [31m6[0m. madanalysis5_hadron : [32mmadanalysis5_hadron_card.dat[0m     |
-\------------------------------------------------------------/
- you can also
-   - enter the path to a valid card or banner.
-   - use the 'set' command to modify a parameter directly.
-     The set option works only for param_card and run_card.
-     Type 'help set' for more information on this command.
-   - call an external program (ASperGE/MadWidth/...).
-     Type 'help' for the list of available command
- [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
-set pdlabel lhapdf
-[1mINFO: modify parameter pdlabel of the run_card.dat to lhapdf [0m
-set lhaid 331700 
-[1mINFO: modify parameter lhaid of the run_card.dat to 331700 [0m
-set use_syst True
-[1mINFO: modify parameter use_syst of the run_card.dat to True [0m
-set systematics_program systematics
-[1mINFO: modify parameter systematics_program of the run_card.dat to systematics [0m
-set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
-[1mINFO: modify parameter systematics_arguments of the run_card.dat to ['--together=mur,muf,dyn', '--pdf=errorset'] [0m
-set nevents 1000
-[1mINFO: modify parameter nevents of the run_card.dat to 1000 [0m
+set nevents 25000
+[1mINFO: modify parameter nevents of the run_card.dat to 25000 [0m
 [1;34mWARNING: Particle 15 with small width detected (2.27e-12): See https://answers.launchpad.net/mg5amcnlo/+faq/3053 to learn the special handling of that case [0m
 INFO: Update the dependent parameter of the param_card.dat 
 [1;34mWARNING: update the strong coupling value (alpha_s) to the value from the pdf selected: 0.11800216951342939 [0m
 [1;34mvalue '[]' for entry 'bypass_check' is not valid. Preserving previous value: '[]'.
 allowed values are any list composed of the following entries: partonshower[0m
-Generating 1000 events with run name test1
-survey  test1 
+Generating 25000 events with run name test1_more_data
+survey  test1_more_data 
 INFO: compile directory 
+[1;34mNot able to open file /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
 INFO: Using LHAPDF v6.5.6 interface for PDFs 
 compile Source Directory
-Using random number seed offset = 21
+Using random number seed offset = 30
 INFO: Running Survey 
 Creating Jobs
 Working on SubProcesses
 INFO: Compiling for process 1/6. 
 INFO:     P1_ccx_zz_z_epem_z_epem  
-  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 50240.53it/s]
+  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 124444.00it/s]
 INFO: Compiling for process 2/6. 
 INFO:     P1_ccx_zz_z_epem_z_mupmum  
-  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 81939.88it/s]
+  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 25522.05it/s]
 INFO: Compiling for process 3/6. 
 INFO:     P1_ccx_zz_z_mupmum_z_mupmum  
-  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 27419.99it/s]
+  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 56436.30it/s]
 INFO: Compiling for process 4/6. 
 INFO:     P1_bbx_zz_z_epem_z_epem  
-  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 88357.75it/s]
+  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 16573.72it/s]
 INFO: Compiling for process 5/6. 
 INFO:     P1_bbx_zz_z_epem_z_mupmum  
-  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 89626.64it/s]
+  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 18618.84it/s]
 INFO: Compiling for process 6/6. 
 INFO:     P1_bbx_zz_z_mupmum_z_mupmum  
-  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 33890.90it/s]
+  0%|          | 0/805 [00:00<?, ?it/s]100%|██████████| 805/805 [00:00<00:00, 15753.13it/s]
 INFO:     P1_ccx_zz_z_epem_z_epem  
 INFO:     P1_ccx_zz_z_epem_z_mupmum  
 INFO:     P1_ccx_zz_z_mupmum_z_mupmum  
 INFO:     P1_bbx_zz_z_epem_z_epem  
 INFO:     P1_bbx_zz_z_epem_z_mupmum  
 INFO:     P1_bbx_zz_z_mupmum_z_mupmum  
-INFO:  Idle: 1,  Running: 0,  Completed: 5 [ current time: 09h33 ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 5 [  0.029s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 6 [  14s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 6 [  14.1s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 5 [ current time: 13h11 ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 5 [  0.15s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 6 [  43.3s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 6 [  43.4s  ] 
 INFO: End survey 
-refine 1000
+refine 25000
 Creating Jobs
-INFO: Refine results to 1000 
-INFO: Generating 1000.0 unweighted events. 
-sum of cpu time of last step: 1m27s
-INFO: Effective Luminosity 501842178.99874127 pb^-1 
-INFO: need to improve 4 channels 
-- Current estimate of cross-section: 2.39119e-06 +- 1.430967361787473e-07
+INFO: Refine results to 25000 
+INFO: Generating 25000.0 unweighted events. 
+sum of cpu time of last step: 3m40s
+INFO: Effective Luminosity 6308795343.940803 pb^-1 
+INFO: need to improve 5 channels 
+- Current estimate of cross-section: 4.7552659999999995e-06 +- 4.6014257999233237e-07
     P1_ccx_zz_z_epem_z_epem 
     P1_ccx_zz_z_epem_z_mupmum 
     P1_ccx_zz_z_mupmum_z_mupmum 
     P1_bbx_zz_z_epem_z_epem 
     P1_bbx_zz_z_epem_z_mupmum 
     P1_bbx_zz_z_mupmum_z_mupmum 
-INFO:  Idle: 1,  Running: 3,  Completed: 0 [ current time: 09h33 ] 
-INFO:  Idle: 0,  Running: 3,  Completed: 1 [  47.4s  ] 
-INFO:  Idle: 0,  Running: 2,  Completed: 2 [  5m 20s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 3 [  9m 33s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 4 [  14m 17s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 4 [  14m 18s  ] 
-INFO: Combining runs 
-sum of cpu time of last step: 15m31s
-INFO: finish refine 
-refine 1000 --treshold=0.9
-Creating Jobs
-INFO: Refine results to 1000 
-INFO: Generating 1000.0 unweighted events. 
-sum of cpu time of last step: 15m31s
-INFO: Effective Luminosity 389644546.76221615 pb^-1 
-INFO: need to improve 1 channels 
-- Current estimate of cross-section: 3.07973e-06 +- 1.9396922891788788e-08
-    P1_ccx_zz_z_epem_z_epem 
-    P1_ccx_zz_z_epem_z_mupmum 
-    P1_ccx_zz_z_mupmum_z_mupmum 
-    P1_bbx_zz_z_epem_z_epem 
-    P1_bbx_zz_z_epem_z_mupmum 
-    P1_bbx_zz_z_mupmum_z_mupmum 
-INFO:  Idle: 0,  Running: 1,  Completed: 0 [ current time: 09h48 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  8m 45s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  8m 45s  ] 
-INFO: Combining runs 
-sum of cpu time of last step: 24m10s
-INFO: finish refine 
-INFO: Combining Events 
-combination of events done in 3.8657522201538086 s 
-  === Results Summary for run: test1 tag: tag_1 ===
-
-     Cross-section :   3.075e-06 +- 1.95e-08 pb
-     Nb of events :  1000
- 
-INFO: Running Systematics computation 
-INFO: # Events generated with PDF: NNPDF40_nlo_as_01180 (331700) 
-INFO: # Will compute 145 weights per event. 
-INFO: # Currently at event 0 [elapsed time: 0.0038 s] 
-INFO: #***************************************************************************
-#
-# original cross-section: 3.0753500178999705e-06
-#     scale variation: +19% -20.1%
-#     central scheme variation: +4.9e-10% -28.2%
-# PDF variation: +1.86% -1.86%
-#
-# dynamical scheme # 1 : 2.83447e-06 +21.1% -22% # \sum ET
-# dynamical scheme # 2 : 2.83447e-06 +21.1% -22% # \sum\sqrt{m^2+pt^2}
-# dynamical scheme # 3 : 2.20963e-06 +28.3% -28.5% # 0.5 \sum\sqrt{m^2+pt^2}
-# dynamical scheme # 4 : 3.07535e-06 +19% -20.1% # \sqrt{\hat s}
-#***************************************************************************
- 
-INFO: End of systematics computation 
-store_events
-INFO: Storing parton level results 
-INFO: End Parton 
-reweight --mode=OFF -from_cards
-decay_events -from_cards
-INFO: [92mRunning MadAnalysis5 [arXiv:1206.1599][0m 
-INFO: Parton input file considered: 
-INFO:   --> ['/mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/Events/test1/unweighted_events.lhe.gz'] 
-[1;32mINFO: MadAnalysis5 now running the 'analysis1' analysis... [0m
-INFO: Follow Madanalysis5 run with the following command in a separate terminal: 
-INFO:   tail -f /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/Events/test1/tag_1_MA5_analysis1.log 
-INFO: MadAnalysis5 successfully completed the analysis 'analysis1'. Reported results are placed in: 
-INFO:   --> /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/Events/test1/tag_1_MA5_parton_analysis_analysis1.pdf 
-INFO: Finished MA5 analyses. 
-[1;34mmain164 not found (or not compiled). Will try the old interface instead.[0m
-INFO: [92mRunning Pythia8 [arXiv:1410.3012][0m 
-Splitting .lhe event file for PY8 parallelization...
-Submitting Pythia8 jobs...
-Pythia8 shower jobs: 1 Idle, 9 Running, 0 Done [2 seconds]
-Pythia8 shower jobs: 0 Idle, 9 Running, 1 Done [1m00s]
-Pythia8 shower jobs: 0 Idle, 8 Running, 2 Done [1m00s]
-Pythia8 shower jobs: 0 Idle, 7 Running, 3 Done [1m00s]
-Pythia8 shower jobs: 0 Idle, 6 Running, 4 Done [1m01s]
-Pythia8 shower jobs: 0 Idle, 5 Running, 5 Done [1m01s]
-Pythia8 shower jobs: 0 Idle, 4 Running, 6 Done [1m01s]
-Pythia8 shower jobs: 0 Idle, 3 Running, 7 Done [1m01s]
-Pythia8 shower jobs: 0 Idle, 2 Running, 8 Done [1m01s]
-Pythia8 shower jobs: 0 Idle, 1 Running, 9 Done [1m01s]
-Pythia8 shower jobs: 0 Idle, 0 Running, 10 Done [1m02s]
-Merging results from the split PY8 runs...
-INFO: Running Delphes on Pythia8 splits 
-Submitting Delphes jobs...
-Delphes jobs: 1 Idle, 9 Running, 0 Done [0 second]
-Delphes jobs: 0 Idle, 9 Running, 1 Done [4 seconds]
-Delphes jobs: 0 Idle, 8 Running, 2 Done [4 seconds]
-Delphes jobs: 0 Idle, 7 Running, 3 Done [4 seconds]
-Delphes jobs: 0 Idle, 6 Running, 4 Done [4 seconds]
-Delphes jobs: 0 Idle, 5 Running, 5 Done [4 seconds]
-Delphes jobs: 0 Idle, 4 Running, 6 Done [4 seconds]
-Delphes jobs: 0 Idle, 3 Running, 7 Done [4 seconds]
-Delphes jobs: 0 Idle, 2 Running, 8 Done [4 seconds]
-Delphes jobs: 0 Idle, 1 Running, 9 Done [4 seconds]
-Delphes jobs: 0 Idle, 0 Running, 10 Done [4 seconds]
-Merging Delphes ROOT files with hadd...
-Skipping HepMC merge (Delphes already ran on the splits and HepMC output is set to autoremove).
-INFO: Pythia8 shower finished after 1m17s. 
-INFO: delphes done 
-  === Results Summary for run: test1 tag: tag_1 ===
-
-     Cross-section :   3.075e-06 +- 1.95e-08 pb
-     Nb of events :  1000
- 
-INFO: storing files of previous run 
-INFO: Done 
-INFO: Madanalysis5 hadron-level analysis was skipped following user request. 
-INFO: To run the analysis, remove or comment the tag '@MG5aMC skip_analysis' in
-  '/mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/Cards/madanalysis5_hadron_card.dat'. 
-quit
-INFO:  
-more information in /mnt/e/Apps/hepdataset/examples/study1/qqH_4L_LO/index.html
-quit
-
-Thanks for using Spey 0.2.7. 
-Please make sure to cite the paper:
-    SciPost Phys. 16, no.1, 032 (2024) 
-    http://arxiv.org/abs/arXiv:2307.06996
-
+INFO:  Idle: 16,  Running: 16,  Completed: 0 [ current time: 13h12 ] 
+INFO:  Idle: 15,  Running: 16,  Completed: 1 [  13m 44s  ] 
+INFO:  Idle: 13,  Running: 16,  Completed: 3 [  13m 50s  ] 
+INFO:  Idle: 12,  Running: 16,  Completed: 4 [  13m 57s  ] 
+INFO:  Idle: 11,  Running: 16,  Completed: 5 [  14m 1s  ] 
+INFO:  Idle: 10,  Running: 16,  Completed: 6 [  14m 6s  ] 
+INFO:  Idle: 6,  Running: 16,  Completed: 10 [  14m 9s  ] 
+INFO:  Idle: 3,  Running: 16,  Completed: 13 [  14m 13s  ] 
+INFO:  Idle: 1,  Running: 16,  Completed: 15 [  14m 32s  ] 
+INFO:  Idle: 0,  Running: 16,  Completed: 16 [  21m 10s  ] 
+INFO:  Idle: 0,  Running: 15,  Completed: 17 [  21m 49s  ] 
+INFO:  Idle: 0,  Running: 13,  Completed: 19 [  30m 35s  ] 
+INFO:  Idle: 0,  Running: 8,  Completed: 24 [  31m 6s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 31 [  31m 40s  ] 
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
