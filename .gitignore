@@ -9,9 +9,7 @@ HepDataset/
 HepDatasetSplitFlavour/
 *.pid
 
-src/utils/ml/
-src/utils/plotting/
-src/utils/stat/
+src/utils/*
 
 examples/study2/zz_incl_4L/**
 !examples/study2/zz_incl_4L/**/
