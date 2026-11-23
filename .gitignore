@@ -9,27 +9,9 @@ HepDataset/
 HepDatasetSplitFlavour/
 *.pid
 
-# Ignore everything in these dirs, except *.root files (and the dirs that hold them)
-examples/study1/ggH_4L_LO/**
-!examples/study1/ggH_4L_LO/**/
-!examples/study1/ggH_4L_LO/**/*.root
-!examples/study1/ggH_4L_LO/**/*.lhe.gz
-!examples/study1/ggH_4L_LO/**/parton_systematics.log
-examples/study1/qqH_4L_LO/**
-!examples/study1/qqH_4L_LO/**/
-!examples/study1/qqH_4L_LO/**/*.root
-!examples/study1/qqH_4L_LO/**/*.lhe.gz
-!examples/study1/qqH_4L_LO/**/parton_systematics.log
-examples/study1/ggZZ_4L_LO/**
-!examples/study1/ggZZ_4L_LO/**/
-!examples/study1/ggZZ_4L_LO/**/*.root
-!examples/study1/ggZZ_4L_LO/**/*.lhe.gz
-!examples/study1/ggZZ_4L_LO/**/parton_systematics.log
-examples/study1/qqZZ_4L_LO/**
-!examples/study1/qqZZ_4L_LO/**/
-!examples/study1/qqZZ_4L_LO/**/*.root
-!examples/study1/qqZZ_4L_LO/**/*.lhe.gz
-!examples/study1/qqZZ_4L_LO/**/parton_systematics.log
+src/utils/ml/
+src/utils/plotting/
+src/utils/stat/
 
 examples/study2/zz_incl_4L/**
 !examples/study2/zz_incl_4L/**/

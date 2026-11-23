@@ -1,0 +1,537 @@
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*              http://madgraph.phys.ucl.ac.be/             *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from /home/ammelsayed/.config/mg5_configuration.txt 
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+load MG5 configuration from ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt 
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+set fastjet to /home/ammelsayed/softwares/fastjet-3.5.3-install/bin/fastjet-config
+set eMELA to /home/ammelsayed/softwares/HEPTools/bin/eMELA-config
+set ninja to /home/ammelsayed/softwares/HEPTools/ninja/lib
+set collier to /home/ammelsayed/softwares/HEPTools/collier
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+import /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO.yml
+The import format was not given, so we guess it as command
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 1 --no_save
+set nb_core_pythia8 1 --no_save
+set nb_core_delphes 1 --no_save
+import model loop_sm
+INFO: Restrict model loop_sm with file ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/models/loop_sm/restrict_default.dat . 
+INFO: Run "set stdout_level DEBUG" before import for more information. 
+INFO: Change particles name to pass to MG5 convention 
+Defined multiparticle p = g u c d s u~ c~ d~ s~
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+Defined multiparticle all = g gh gh~ d u s c d~ u~ s~ c~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ b t b~ t~ z w+ h w- ta- ta+
+define p = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle p = g u c d s u~ c~ d~ s~ b b~
+define j = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle j = g u c d s u~ c~ d~ s~ b b~
+define l+ = e+ mu+
+Defined multiparticle l+ = e+ mu+
+define l- = e- mu-
+Defined multiparticle l- = e- mu-
+define vl = ve vm
+Defined multiparticle vl = ve vm
+define vl~ = ve~ vm~
+Defined multiparticle vl~ = ve~ vm~
+define neutral_vector = a z
+Defined multiparticle neutral_vector = a z
+generate g g > z z / h QCD=2 QED=2 [noborn=QCD]
+[1;34mInterpreting 'QED=2' as 'QED<=2'[0m
+[1;34mInterpreting 'QCD=2' as 'QCD<=2'[0m
+INFO: Contributing diagrams generated: 0 Born, 24(+12) loops, 6 R2, 0 UV 
+1 processes with 24 diagrams generated in 0.669 s
+Total: 1 processes with 24 diagrams
+output ggZZ_4mu_LO -f
+INFO: initialize a new directory: ggZZ_4mu_LO 
+INFO: remove old information in ggZZ_4mu_LO 
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: g g > z z QCD<=2 QED<=2 [ noborn = QCD ] / h 
+INFO: Processing color information for loop process: g g > z z QCD<=2 QED<=2 [ noborn = QCD ] / h 
+INFO: Creating color matrix  loop process: g g > z z QCD<=2 QED<=2 [ noborn = QCD ] / h 
+INFO: Creating files in directory /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/SubProcesses/PV0_0_1_gg_zz_no_h 
+INFO: Computing diagram color coefficients 
+INFO: Particles with .true. are generated off-shell: ['.false.', '.false.', '.false.', '.false.'] 
+INFO: Drawing loop Feynman diagrams for Process: g g > z z QCD<=2 QED<=2 [ noborn = QCD ] / h 
+INFO: Creating files in directory P0_gg_zz 
+INFO: Generating Feynman diagrams for Process: g g > z z QCD<=2 QED<=2 [ noborn = QCD ] / h 
+INFO: Finding symmetric diagrams for subprocess group gg_zz 
+Generated helas calls for 1 subprocesses (24 diagrams) in 0.237 s
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates 15 routines in  1.051 s
+The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
+If you want to make this value the default for future session, you can run 'save options --all'
+save configuration file to /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/Cards/me5_configuration.txt
+INFO: Use Fortran compiler gfortran 
+INFO: Use c++ compiler g++ 
+INFO: Generate jpeg diagrams 
+INFO: Generate web pages 
+Output to directory /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO done.
+Type "launch" to generate events from this process, or see
+/mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/README
+Run "open index.html" to see more information about this process.
+display diagrams ./diagrams/ggZZ_4mu_LO --no_open --merge
+Drawing Process: g g > z z QCD<=2 QED<=2 [ noborn = QCD ] / h
+Wrote file ./diagrams/ggZZ_4mu_LO/diagrams_0_gg_zz_no_h.eps
+Merged diagrams into ./diagrams/ggZZ_4mu_LO/all_diagrams.pdf
+time to draw 0.4135558605194092
+launch ggZZ_4mu_LO --name=test1
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /home/ammelsayed/.config/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/Cards/me5_configuration.txt  
+INFO: load configuration from /home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+generate_events test1
+stty: 'standard input': Inappropriate ioctl for device
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+set ebeam 6500
+[1mINFO: modify parameter ebeam1 of the run_card.dat to 6500.0 [0m
+[1mINFO: modify parameter ebeam2 of the run_card.dat to 6500.0 [0m
+INFO: copy ../cards/pythia8_card_TuneA14_noMPI.dat as pythia8_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param         : [32mparam_card.dat[0m                         |
+|  [31m2[0m. run           : [32mrun_card.dat[0m                           |
+|  [31m3[0m. pythia8       : [32mpythia8_card.dat[0m                       |
+|  [31m4[0m. delphes       : [32mdelphes_card.dat[0m                       |
+|  [31m5[0m. madspin       : [32mmadspin_card.dat[0m                       |
+|  [31m6[0m. MadLoopParams : [32mMadLoopParams.dat[0m                      |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+INFO: copy ../cards/delphes_card_ATLAS_FatJetPTMin50.tcl as delphes_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param         : [32mparam_card.dat[0m                         |
+|  [31m2[0m. run           : [32mrun_card.dat[0m                           |
+|  [31m3[0m. pythia8       : [32mpythia8_card.dat[0m                       |
+|  [31m4[0m. delphes       : [32mdelphes_card.dat[0m                       |
+|  [31m5[0m. madspin       : [32mmadspin_card.dat[0m                       |
+|  [31m6[0m. MadLoopParams : [32mMadLoopParams.dat[0m                      |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+set pdlabel lhapdf
+[1mINFO: modify parameter pdlabel of the run_card.dat to lhapdf [0m
+set lhaid 331700 
+[1mINFO: modify parameter lhaid of the run_card.dat to 331700 [0m
+set use_syst True
+[1mINFO: modify parameter use_syst of the run_card.dat to True [0m
+set systematics_program systematics
+[1mINFO: modify parameter systematics_program of the run_card.dat to systematics [0m
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+[1mINFO: modify parameter systematics_arguments of the run_card.dat to ['--together=mur,muf,dyn', '--pdf=errorset'] [0m
+set nevents 1000
+[1mINFO: modify parameter nevents of the run_card.dat to 1000 [0m
+set spinmode full
+[1mINFO: writting at line 50 of the file madspin_card.dat the line: " set spinmode full" [0m
+set bwcutoff 50
+[1mINFO: modify parameter bwcutoff of the run_card.dat to 50.0 [0m
+decay z > mu+ mu-
+[1mINFO: change madspin_card to define the decay of z: z > mu+ mu- [0m
+INFO: Update the dependent parameter of the param_card.dat 
+[1;34mWARNING: update the strong coupling value (alpha_s) to the value from the pdf selected: 0.11800216951342939 [0m
+[1;34mvalue '[]' for entry 'bypass_check' is not valid. Preserving previous value: '[]'.
+allowed values are any list composed of the following entries: partonshower[0m
+Generating 1000 events with run name test1
+survey  test1 
+INFO: compile directory 
+INFO: Using LHAPDF v6.5.6 interface for PDFs 
+initMadLoop -r -f
+Initializing MadLoop loop-induced matrix elements (this can take some time)...
+MadLoop initialization finished.
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P0_gg_zz  
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 18h24 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4m 19s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4m 20s  ] 
+INFO: End survey 
+refine 1000
+Creating Jobs
+INFO: Refine results to 1000 
+INFO: Generating 1000.0 unweighted events. 
+sum of cpu time of last step: 0 second
+INFO: Effective Luminosity 1143.0275320544677 pb^-1 
+INFO: need to improve 1 channels 
+- Current estimate of cross-section: 1.0061 +- 0.016382
+INFO:  Idle: 0,  Running: 1,  Completed: 0 [ current time: 18h28 ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 1 [  1m 13s  ] 
+INFO: P0_gg_zz/G1 is at 520/1159 (45%) event. Resubmit 1 job at iteration 1. 
+INFO:  Idle: 1,  Running: 0,  Completed: 3 [  2m 18s  ] 
+INFO: P0_gg_zz/G1 is at 1099/1165 (94%) event. Resubmit 1 job at iteration 2. 
+INFO:  Idle: 1,  Running: 0,  Completed: 5 [  4m 50s  ] 
+INFO: found enough event for P0_gg_zz/G1 
+INFO:  Idle: 0,  Running: 0,  Completed: 6 [  4m 56s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 6 [  4m 58s  ] 
+INFO: Combining runs 
+sum of cpu time of last step: 0 second
+INFO: finish refine 
+refine 1000 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 72.46899247169495 s 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cross-section :   1.024 +- 0.006237 pb
+     Nb of events :  1000
+ 
+INFO: Running Systematics computation 
+INFO: # Events generated with PDF: NNPDF40_nlo_as_01180 (331700) 
+INFO: # Will compute 145 weights per event. 
+INFO: # Currently at event 0 [elapsed time: 0.059 s] 
+INFO: #***************************************************************************
+#
+# original cross-section: 1.024400021399985
+#     scale variation: +22.3% -17.4%
+#     central scheme variation: +32.6% - 0%
+# PDF variation: +0.724% -0.724%
+#
+# dynamical scheme # 1 : 1.35855 +27.2% -20.2% # \sum ET
+# dynamical scheme # 2 : 1.0716 +22.7% -17.7% # \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 3 : 1.3147 +24% -18.5% # 0.5 \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 4 : 1.0244 +22.3% -17.4% # \sqrt{\hat s}
+#***************************************************************************
+ 
+INFO: End of systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight --mode=OFF -from_cards
+decay_events -from_cards
+INFO: Running MadSpin 
+INFO: This functionality allows for the decay of resonances 
+INFO: in a .lhe file, keeping track of the spin correlation effets. 
+INFO: BE AWARE OF THE CURRENT LIMITATIONS: 
+INFO:   (1) Only a succession of 2 body decay are currently allowed 
+************************************************************
+*                                                          *
+*           W E L C O M E  to  M A D S P I N               *
+*                                                          *
+************************************************************
+INFO: Extracting the banner ... 
+[1;31mCRITICAL: value of bwcutoff set to 50 from the input file. This is much too large value for Madspin and the validity of the Narrow-width-Approximation. Please ensure that you overwrite that value via "set BW_cut X"  to a smaller value (like X=10) [0m
+INFO: process: g g > z z  
+INFO: options: / h QCD=2 QED=2  
+INFO: detected model: loop_sm. Loading... 
+set fastjet to /home/ammelsayed/softwares/fastjet-3.5.3-install/bin/fastjet-config
+set eMELA to /home/ammelsayed/softwares/HEPTools/bin/eMELA-config
+set ninja to /home/ammelsayed/softwares/HEPTools/ninja/lib
+set collier to /home/ammelsayed/softwares/HEPTools/collier
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+Set group_subprocesses to Auto
+Note that you need to regenerate all processes
+set max_weight_ps_point 400  # number of PS to estimate the maximum for each event
+define light = 1 2 3 4 5 -1 -2 -3 -4 -5 11 12 13 14 15 16 -11 -12 -13 -14 -15 -16
+define light = 1 2 3 4 5 -1 -2 -3 -4 -5 11 12 13 14 15 16 -11 -12 -13 -14 -15 -16
+Defined multiparticle light = d u s c d~ u~ s~ c~ e- ve mu- vm vt e+ ve~ mu+ vm~ vt~ b b~ ta- ta+
+decay t > w+ b, w+ > light light
+decay t~ > w- b~, w- > light light
+decay w+ > light light
+decay w- > light light
+set spinmode full
+decay z > mu+ mu-
+launch
+INFO: Running MadSpin in spinmode madspin 
+INFO: MadSpin: decay_output = unweighted (auto, ordinary run) 
+INFO: Will use seed 329046072 
+INFO: MadSpin: unweighting = joint (auto, 2 decaying particle(s)) 
+INFO: generate 94000 decay event for particle z 
+stty: 'standard input': Inappropriate ioctl for device
+  0%|          | 0/731 [00:00<?, ?it/s]100%|██████████| 731/731 [00:00<00:00, 122710.17it/s]
+INFO: Time for decay event generation = 274.1 sec 
+INFO: Breit-Wigner truncation at BW_cut = 50 keeps 0.97925 of the cross-section; the reported sigma is scaled by it. 
+INFO: generating the production square matrix element for density 
+INFO: generate g g  > z* z* / h QCD=2 QED=2  [sqrvirt=QCD] ;output standalone /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/madspin_me --prefix=int --density=1 
+INFO: generate matrix element for decay only (1 - > N). 
+INFO: generate t* >  b w+ , w+ > light light  @0 --no_warning=duplicate --standalone;add process t~* >  b~ w- , w- > light light  @1 --no_warning=duplicate --standalone;add process w+* >  light light  @2 --no_warning=duplicate --standalone;add process w-* >  light light  @3 --no_warning=duplicate --standalone;add process z* >  mu+ mu-  @4 --no_warning=duplicate --standalone;output standalone /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/madspin_decay --prefix=int --density=1 -f 
+INFO: Done 53.04 
+INFO: Compiling code 
+INFO: Compiling code 
+INFO: Time ME generation: 174.28 sec 
+INFO: Estimating the maximum weight 
+INFO: ***************************** 
+INFO: Probing the first 75 events with 400 phase space points 
+  ========================================================================================== 
+ {                                                                                          }
+ {       [32m                                                                            [0m       }
+ {       [32m                               ,,                                           [0m       }
+ {       [32m`7MMM.     ,MMF'             `7MM  `7MMF'                                   [0m       }
+ {       [32m  MMMb    dPMM                 MM    MM                                     [0m       }
+ {       [32m  M YM   ,M MM   ,6"Yb.   ,M""bMM    MM         ,pW"Wq.   ,pW"Wq.`7MMpdMAo. [0m       }
+ {       [32m  M  Mb  M' MM  8)   MM ,AP    MM    MM        6W'   `Wb 6W'   `Wb MM   `Wb [0m       }
+ {       [32m  M  YM.P'  MM   ,pm9MM 8MI    MM    MM      , 8M     M8 8M     M8 MM    M8 [0m       }
+ {       [32m  M  `YM'   MM  8M   MM `Mb    MM    MM     ,M YA.   ,A9 YA.   ,A9 MM   ,AP [0m       }
+ {       [32m.JML. `'  .JMML.`Moo9^Yo.`Wbmd"MML..JMMmmmmMMM  `Ybmd9'   `Ybmd9'  MMbmmd'  [0m       }
+ {       [32m                                                                   MM       [0m       }
+ {       [32m                                                                 .JMML.     [0m       }
+ {       [32m[0mv3.8.1 (2026-10-09), Ref: arXiv:1103.0621v2, arXiv:1405.0301[32m                [0m       }
+ {       [32m                                                                            [0m       }
+ {                                                                                          }
+  ========================================================================================== 
+ ===============================================================
+ INFO: MadLoop read these parameters from /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/madspin_me/SubProcesses/MadLoop5_resources/MadLoopParams.dat                                                                                                                                                                                                                                                                                                                                                                                                                 
+ ===============================================================
+  > MLReductionLib            = 7|6|1
+  > CTModeRun                 =           -1
+  > MLStabThres               =    1.0000000000000000E-003
+  > NRotations_DP             =            0
+  > NRotations_QP             =            0
+  > CTStabThres               =    1.0000000000000000E-002
+  > CTLoopLibrary             =            2
+  > CTModeInit                =            1
+  > CheckCycle                =            3
+  > MaxAttempts               =           10
+  > UseLoopFilter             =  F
+  > HelicityFilterLevel       =            0
+  > ImprovePSPoint            =            2
+  > DoubleCheckHelicityFilter =  T
+  > LoopInitStartOver         =  F
+  > HelInitStartOver          =  F
+  > ZeroThres                 =    1.0000000000000001E-009
+  > OSThres                   =    1.0000000000000000E-008
+  > WriteOutFilters           =  T
+  > UseQPIntegrandForNinja    =  T
+  > UseQPIntegrandForCutTools =  T
+  > IREGIMODE                 =            2
+  > IREGIRECY                 =  T
+  > COLLIERMode               =            1
+  > COLLIERRequiredAccuracy   =    1.0000000000000000E-008
+  > COLLIERCanOutput          =  F
+  > COLLIERComputeUVpoles     =  F
+  > COLLIERComputeIRpoles     =  F
+  > COLLIERGlobalCache        =           -1
+  > COLLIERUseCacheForPoles   =  F
+  > COLLIERUseInternalStabilityTest =  T
+ ===============================================================
+ ##INFO: For loop-induced processes it is preferable to always set the parameter LoopInitStartOver to True, so it is hard-set here to True.
+ ##INFO: For loop-induced processes it is preferable to always set the parameter HelInitStartOver to True, so it is hard-set here to True.
+ ##INFO: Due to the dynamic setting of the reference scale for contributions comparisons, it is preferable to set the parameter CheckCycle to a value larger than 4, so it is hard-set here to 5.
+INFO: Event 1/75 :  16.712452s 
+INFO: Event 6/75 :  90.706096s 
+INFO: Event 11/75 :  162.022020s 
+INFO: Event 16/75 :  236.080601s 
+INFO: Event 21/75 :  307.135230s 
+INFO: Event 26/75 :  372.278303s 
+INFO: Event 31/75 :  437.020114s 
+INFO: Event 36/75 :  517.886084s 
+INFO: Event 41/75 :  585.815242s 
+INFO: Event 46/75 :  656.525136s 
+INFO: Event 51/75 :  722.388241s 
+INFO: Event 56/75 :  789.618101s 
+INFO: Event 61/75 :  856.895597s 
+INFO: Event 66/75 :  921.657484s 
+INFO: Event 71/75 :  987.925402s 
+INFO: Start generating decays 
+INFO: decaying event number 10/1000. Trials per event: 5.3 [4.397393703460693 s] 
+INFO: decaying event number 20/1000. Trials per event: 4.35 [7.2067811489105225 s] 
+INFO: decaying event number 30/1000. Trials per event: 5.333 [12.891497135162354 s] 
+INFO: decaying event number 40/1000. Trials per event: 5.475 [17.52672576904297 s] 
+INFO: decaying event number 50/1000. Trials per event: 6.98 [27.275025844573975 s] 
+INFO: decaying event number 60/1000. Trials per event: 6.983 [33.09160399436951 s] 
+INFO: decaying event number 70/1000. Trials per event: 7.243 [39.9047315120697 s] 
+INFO: decaying event number 80/1000. Trials per event: 7.1 [44.58754777908325 s] 
+INFO: decaying event number 90/1000. Trials per event: 6.922 [48.88188338279724 s] 
+INFO: decaying event number 100/1000. Trials per event: 6.74 [52.971596002578735 s] 
+INFO: decaying event number 200/1000. Trials per event: 6.425 [100.03555631637573 s] 
+INFO: decaying event number 300/1000. Trials per event: 6.803 [158.61288976669312 s] 
+INFO: decaying event number 400/1000. Trials per event: 7.098 [219.04053592681885 s] 
+INFO: decaying event number 500/1000. Trials per event: 7.194 [277.69261503219604 s] 
+INFO: decaying event number 600/1000. Trials per event: 7.172 [334.4530882835388 s] 
+INFO: decaying event number 700/1000. Trials per event: 7.293 [396.29676961898804 s] 
+INFO: decaying event number 800/1000. Trials per event: 7.147 [443.82909750938416 s] 
+INFO: decaying event number 900/1000. Trials per event: 7.278 [509.1212582588196 s] 
+INFO: decay unweighting done. [565.3 s] 
+INFO: MadSpin unweight efficiency: 0.1378 (1000 written / 7255 trials, 7.25 trials/event) 
+INFO: MadSpin overweight safety net: 0/1000 written events carried a non-unit weight -- no accept/reject bound was exceeded, so nothing was clipped and nothing is biased by it. 
+INFO: Done so far. output written in /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/Events/test1/unweighted_events_decayed.lhe 
+INFO: Time for decay = 566.84 sec 
+INFO: The decayed event file has been moved to the following location:  
+INFO: /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/Events/test1_decayed_1/unweighted_events.lhe.gz 
+INFO: MadSpin Done 
+[1;34mmain164 not found (or not compiled). Will try the old interface instead.[0m
+INFO: [92mRunning Pythia8 [arXiv:1410.3012][0m 
+Follow Pythia8 shower by running the following command (in a separate terminal):
+    tail -f /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/Events/test1_decayed_1/tag_1_pythia8.log
+INFO: Pythia8 shower finished after 6m15s. 
+INFO: prepare delphes run 
+INFO: Running Delphes 
+INFO: If you are interested in lhco output. please run root2lhco converter. 
+INFO:  or edit bin/internal/run_delphes3 to run the converter automatically. 
+INFO: delphes done 
+  === Results Summary for run: test1_decayed_1 tag: tag_1 ===
+
+     Cross-section :   0.001187 +- 7.224e-06 pb
+     Nb of events :  1000
+ 
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+more information in /mnt/e/Apps/hepdataset/examples/study1/ggZZ_4mu_LO/index.html
+quit
+
+Thanks for using Spey 0.2.7. 
+Please make sure to cite the paper:
+    SciPost Phys. 16, no.1, 032 (2024) 
+    http://arxiv.org/abs/arXiv:2307.06996
+
+  
+------------------------------------------------------------------------
+|              You are using CutTools - Version 1.9.3                  |
+|              Authors: G. Ossola, C. Papadopoulos, R. Pittau          |
+|              Published in JHEP 0803:042,2008                         |
+|              http://www.ugr.es/~pittau/CutTools                      |
+|                                                                      |
+|              Compiler with  34  significant digits detetected        |
+ ---------------------------------------------------------------------- 
+   
+########################################################################
+#                                                                      #
+#                      You are using OneLOop-3.6                       #
+#                                                                      #
+# for the evaluation of 1-loop scalar 1-, 2-, 3- and 4-point functions #
+#                                                                      #
+# author: Andreas van Hameren <hamerenREMOVETHIS@ifj.edu.pl>           #
+#   date: 18-02-2015                                                   #
+#                                                                      #
+# Please cite                                                          #
+#    A. van Hameren,                                                   #
+#      Comput.Phys.Commun. 182 (2011) 2427-2438, arXiv:1007.4716       #
+#    A. van Hameren, C.G. Papadopoulos and R. Pittau,                  #
+#      JHEP 0909:106,2009, arXiv:0903.4665                             #
+# in publications with results obtained with the help of this program. #
+#                                                                      #
+########################################################################
+                                                            
+         *******************************************        
+         *              C O L L I E R              *        
+         *                                         *        
+         *        Complex One-Loop Library         *        
+         *      In Extended Regularizations        *        
+         *                                         *        
+         *    by A.Denner, S.Dittmaier, L.Hofer    *        
+         *                                         *        
+         *              version 1.2.8              *        
+         *                                         *        
+         *******************************************        
+                                                            

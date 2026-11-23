@@ -48,7 +48,7 @@ def book_histograms(prefix=""):
         val.Sumw2()
     return h_dict
 
-def loop_tree(inputRootFile, xsec=1.0):
+def loop_mc_data(inputRootFile, xsec=1.0):
     Chain = build_chain(inputRootFile)
     TreeReader = ROOT.ExRootTreeReader(Chain)
     Jet_branch       = TreeReader.UseBranch("Jet")
@@ -138,6 +138,90 @@ def loop_tree(inputRootFile, xsec=1.0):
     return hs
 
 
+def loop_real_data(inputRootFile):
+    """Record 93924 (2025 O&E exactly4lep): flat tree "analysis", RVec branches,
+    momenta in GeV. Real data carry no generator weight, so each event counts one
+    and the histograms are raw yields at the sample luminosity (36 fb^-1, 2015+2016).
+    """
+    files = inputRootFile if isinstance(inputRootFile, list) else [inputRootFile]
+    Chain = ROOT.TChain("analysis")
+    for f in files:
+        Chain.Add(f)  # root:// URLs go in verbatim; Path().resolve() would break them
+
+    pt        = ROOT.ROOT.VecOps.RVec("float")()
+    eta       = ROOT.ROOT.VecOps.RVec("float")()
+    phi       = ROOT.ROOT.VecOps.RVec("float")()
+    energy    = ROOT.ROOT.VecOps.RVec("float")()
+    charge    = ROOT.ROOT.VecOps.RVec("int")()
+    lep_type  = ROOT.ROOT.VecOps.RVec("int")()
+    loose_id  = ROOT.ROOT.VecOps.RVec("bool")()
+    loose_iso = ROOT.ROOT.VecOps.RVec("bool")()
+    for name, buf in (("lep_pt", pt), ("lep_eta", eta), ("lep_phi", phi), ("lep_e", energy),
+                      ("lep_charge", charge), ("lep_type", lep_type),
+                      ("lep_isLooseID", loose_id), ("lep_isLooseIso", loose_iso)):
+        Chain.SetBranchAddress(name, buf)
+
+    # Book histograms for each channel
+    hs = {
+        "2e2mu": book_histograms(prefix="2e2mu"),
+        "4e"   : book_histograms(prefix="4e"),
+        "4mu"  : book_histograms(prefix="4mu")
+    }
+
+    for entry in tqdm(range(Chain.GetEntries()), desc="Processing data .."):
+        Chain.GetEntry(entry)
+
+        # Object selection
+        # -----------------------
+        # Same kinematics as loop_mc_data, plus the ntuple's own loose ID/isolation
+        # flags: the skim keeps every 4-lepton event down to 7 GeV, most of them fake.
+        goodLeptons = []
+        for i in range(pt.size()):
+            if abs(eta[i]) > 2.7 or pt[i] <= 10.0:
+                continue
+            if not (loose_id[i] and loose_iso[i]):
+                continue
+            fl = {11: "e", 13: "mu"}.get(lep_type[i])
+            if fl is None:
+                continue
+            p4 = ROOT.TLorentzVector()
+            p4.SetPtEtaPhiE(pt[i], eta[i], phi[i], energy[i])
+            goodLeptons.append((p4, fl, charge[i]))
+        goodLeptons.sort(key=lambda l: l[0].Pt(), reverse=True)
+        if len(goodLeptons) < 4:
+            continue
+        goodLeptons = goodLeptons[:4]
+
+        # Event selection
+        # -----------------------
+        # Same OSSF-pair counting as loop_mc_data: (2,0)=4e, (0,2)=4mu, (1,1)=2e2mu.
+        charge_counts = Counter((fl, 1 if q > 0 else -1) for _, fl, q in goodLeptons)
+        e_pairs = min(charge_counts[("e", 1)], charge_counts[("e", -1)])
+        mu_pairs = min(charge_counts[("mu", 1)], charge_counts[("mu", -1)])
+        ch = {(2, 0): "4e", (0, 2): "4mu", (1, 1): "2e2mu"}.get((e_pairs, mu_pairs))
+        if ch is None:
+            continue
+
+        # Fill histograms
+        # -----------------------
+        for i, (p4, _, _) in enumerate(goodLeptons, start=1):
+            hs[ch][f"pt_l{i}_{ch}"].Fill(p4.Pt(), 1.0)
+
+        hs[ch][f"lepPtSum_{ch}"].Fill(sum(l[0].Pt() for l in goodLeptons), 1.0)
+        hs[ch][f"m4l_{ch}"].Fill(sum((l[0] for l in goodLeptons), ROOT.TLorentzVector()).M(), 1.0)
+
+        ossf = [(goodLeptons[i][0] + goodLeptons[j][0], frozenset((i, j)))
+                for i, j in combinations(range(4), 2)
+                if goodLeptons[i][1] == goodLeptons[j][1] and goodLeptons[i][2] + goodLeptons[j][2] == 0]
+        Z1, Z2 = min((sorted((a, b), key=lambda z: abs(z.M() - 91.1))
+                      for (a, ia), (b, ib) in combinations(ossf, 2) if ia.isdisjoint(ib)),
+                     key=lambda zs: abs(zs[0].M() - 91.1))
+        hs[ch][f"z1Mass_{ch}"].Fill(Z1.M(), 1.0)
+        hs[ch][f"z2Mass_{ch}"].Fill(Z2.M(), 1.0)
+        hs[ch][f"absDeltaPhiZ1Z2_{ch}"].Fill(abs(Z1.P4().DeltaPhi(Z2.P4())), 1.0)
+
+    return hs
+
 def main():
     parser = argparse.ArgumentParser(description="Analyze Delphes ROOT files") 
     parser.add_argument("--lumi", type=float, default=10.0, help="Luminosity (fb^-1)")
@@ -147,22 +231,52 @@ def main():
 
     processes = {
         "Signal": {
-            "ggH_4L" : {
-                "name"  : "ggH #rightarrow 4l",
-                "files" : "./ggH_4L_LO/Events/test1/tag_1_delphes_events.root",
-                "xsec_fb" : 0.0004303 * 1e3
+            "ggH_4e" : {
+                "name"  : "ggH #rightarrow 4e",
+                "files" : "./ggH_4e_LO/Events/test1/tag_1_delphes_events.root",
+                "xsec_fb" : 0.0001048 * 1e3
+            },
+            "ggH_4mu" : {
+                "name"  : "ggH #rightarrow 4#mu",
+                "files" : "./ggH_4mu_LO/Events/test1/tag_1_delphes_events.root",
+                "xsec_fb" : 0.0001048 * 1e3
+            },
+            "ggH_2e2mu" : {
+                "name"  : "ggH #rightarrow ee#mu#mu",
+                "files" : "./ggH_2e2mu_LO/Events/test1/tag_1_delphes_events.root",
+                "xsec_fb" : 0.0001837 * 1e3
             }
         },
         "Background": {
-            "ggZZ_4L": {
-                "name"  : "ggZZ #rightarrow 4l",
-                "files" : "./ggZZ_4L_LO/Events/test1_decayed_1/tag_1_delphes_events.root",
-                "xsec_fb"  : 1.0
+            "ggZZ_4e": {
+                "name"  : "ggZZ #rightarrow 4e",
+                "files" : "./ggZZ_4e_LO/Events/test1_decayed_1/tag_1_delphes_events.root",
+                "xsec_fb"  : 0.001187 * 1e3
             },
-            "qqZZ_4L": {   
-                "name"  : "q#bar{q}ZZ #rightarrow 4l",
-                "files" : "./qqZZ_4L_LO/Events/test1/tag_1_delphes_events.root",
-                "xsec_fb"  : 0.03468 * 1e3
+            "ggZZ_4mu": {
+                "name"  : "ggZZ #rightarrow 4#mu",
+                "files" : "./ggZZ_4mu_LO/Events/test1_decayed_1/tag_1_delphes_events.root",
+                "xsec_fb"  : 0.001187 * 1e3
+            },
+            "ggZZ_2e2mu" : {
+                "name"  : "ggZZ #rightarrow ee#mu#mu",
+                "files" : "./ggZZ_2e2mu_LO/Events/test1_decayed_1/tag_1_delphes_events.root",
+                "xsec_fb" : 0.002374 * 1e3
+            },
+            "qqZZ_4e" : {
+                "name"  : "qqZZ #rightarrow 4e",
+                "files" : "./qqZZ_4e_LO/Events/test1/tag_1_delphes_events.root",
+                "xsec_fb" : 0.008266 * 1e3
+            },
+            "qqZZ_4mu" : {
+                "name"  : "qqZZ #rightarrow 4#mu",
+                "files" : "./qqZZ_4mu_LO/Events/test1/tag_1_delphes_events.root",
+                "xsec_fb" : 0.008277 * 1e3
+            },
+            "qqZZ_2e2mu" : {
+                "name"  : "qqZZ #rightarrow ee#mu#mu",
+                "files" : "./qqZZ_2e2mu_LO/Events/test1/tag_1_delphes_events.root",
+                "xsec_fb" : 0.01616 * 1e3
             }
         }
     }
@@ -176,7 +290,7 @@ def main():
         if proc_catagory == "Signal":
             signal_name = ", ".join(proc["name"] for proc in proc_data.values())
             for proc in proc_data.values():
-                hs = loop_tree(proc["files"], xsec=proc["xsec_fb"])
+                hs = loop_mc_data(proc["files"], xsec=proc["xsec_fb"])
                 for ch, hs_ch in hs.items():
                     for name, h in hs_ch.items():
                         h.Scale(args.lumi)
@@ -186,7 +300,7 @@ def main():
                             signal[(ch, name)] = h.Clone(f"sig_{ch}_{name}")
         else:
             for proc in proc_data.values():
-                hs = loop_tree(proc["files"], xsec=proc["xsec_fb"])
+                hs = loop_mc_data(proc["files"], xsec=proc["xsec_fb"])
                 for hs_ch in hs.values():
                     for h in hs_ch.values():
                         h.Scale(args.lumi)

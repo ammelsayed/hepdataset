@@ -1,210 +1,0 @@
-************************************************************
-*                                                          *
-*                     W E L C O M E to                     *
-*              M A D G R A P H 5 _ a M C @ N L O           *
-*                                                          *
-*                                                          *
-*                 *                       *                *
-*                   *        * *        *                  *
-*                     * * * * 5 * * * *                    *
-*                   *        * *        *                  *
-*                 *                       *                *
-*                                                          *
-*         VERSION 3.8.1                 2026-10-09         *
-*                                                          *
-*    The MadGraph5_aMC@NLO Development Team - Find us at   *
-*              http://madgraph.phys.ucl.ac.be/             *
-*                            and                           *
-*            http://amcatnlo.web.cern.ch/amcatnlo/         *
-*                                                          *
-*               Type 'help' for in-line help.              *
-*           Type 'tutorial' to learn how MG5 works         *
-*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
-*    Type 'tutorial MadLoop' to learn how MadLoop works    *
-*                                                          *
-************************************************************
-load MG5 configuration from /home/ammelsayed/.config/mg5_configuration.txt 
-set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
-load MG5 configuration from ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt 
-set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
-set fastjet to /home/ammelsayed/softwares/fastjet-3.5.3-install/bin/fastjet-config
-set eMELA to /home/ammelsayed/softwares/HEPTools/bin/eMELA-config
-set ninja to /home/ammelsayed/softwares/HEPTools/ninja/lib
-set collier to /home/ammelsayed/softwares/HEPTools/collier
-set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
-set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
-No valid web browser found. Please set in ./input/mg5_configuration.txt
-Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
-import /mnt/e/Apps/hepdataset/examples/study1/qqZZ_4L_LO.yml
-The import format was not given, so we guess it as command
-launch qqZZ_4L_LO --name=test1_more_data
-************************************************************
-*                                                          *
-*                      W E L C O M E to                    *
-*             M A D G R A P H 5 _ a M C @ N L O            *
-*                      M A D E V E N T                     *
-*                                                          *
-*                 *                       *                *
-*                   *        * *        *                  *
-*                     * * * * 5 * * * *                    *
-*                   *        * *        *                  *
-*                 *                       *                *
-*                                                          *
-*         VERSION 3.8.1                 2026-10-09         *
-*                                                          *
-*    The MadGraph5_aMC@NLO Development Team - Find us at   *
-*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
-*                                                          *
-*               Type 'help' for in-line help.              *
-*                                                          *
-************************************************************
-INFO: load configuration from /home/ammelsayed/.config/mg5_configuration.txt  
-INFO: load configuration from /mnt/e/Apps/hepdataset/examples/study1/qqZZ_4L_LO/Cards/me5_configuration.txt  
-INFO: load configuration from /home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt  
-INFO: load configuration from /mnt/e/Apps/hepdataset/examples/study1/qqZZ_4L_LO/Cards/me5_configuration.txt  
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid web browser found. Please set in ./input/mg5_configuration.txt
-Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
-generate_events test1_more_data
-stty: 'standard input': Inappropriate ioctl for device
-set nevents 25000
-[1mINFO: modify parameter nevents of the run_card.dat to 25000 [0m
-[1;34mWARNING: Particle 15 with small width detected (2.27e-12): See https://answers.launchpad.net/mg5amcnlo/+faq/3053 to learn the special handling of that case [0m
-INFO: Update the dependent parameter of the param_card.dat 
-[1;34mWARNING: update the strong coupling value (alpha_s) to the value from the pdf selected: 0.11800212445926275 [0m
-[1;34mvalue '[]' for entry 'bypass_check' is not valid. Preserving previous value: '[]'.
-allowed values are any list composed of the following entries: partonshower[0m
-Generating 25000 events with run name test1_more_data
-survey  test1_more_data 
-INFO: compile directory 
-[1;34mNot able to open file /mnt/e/Apps/hepdataset/examples/study1/qqZZ_4L_LO/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
-INFO: Using LHAPDF v6.5.6 interface for PDFs 
-compile Source Directory
-Using random number seed offset = 27
-INFO: Running Survey 
-Creating Jobs
-Working on SubProcesses
-INFO: Compiling for process 1/9. 
-INFO:     P1_qq_epemepem  
-  0%|          | 0/976 [00:00<?, ?it/s]100%|██████████| 976/976 [00:00<00:00, 11784.43it/s]
-  0%|          | 0/978 [00:00<?, ?it/s]100%|██████████| 978/978 [00:00<00:00, 13396.13it/s]
-INFO: Compiling for process 2/9. 
-INFO:     P1_qq_mupmummupmum  
-  0%|          | 0/976 [00:00<?, ?it/s] 53%|█████▎    | 518/976 [00:00<00:00, 5146.93it/s]100%|██████████| 976/976 [00:00<00:00, 1977.84it/s]
-  0%|          | 0/978 [00:00<?, ?it/s] 54%|█████▎    | 525/978 [00:00<00:00, 5205.39it/s]100%|██████████| 978/978 [00:00<00:00, 2165.74it/s]
-INFO: Compiling for process 3/9. 
-INFO:     P1_ccx_epemepem  
-  0%|          | 0/976 [00:00<?, ?it/s] 56%|█████▌    | 542/976 [00:00<00:00, 5385.87it/s]100%|██████████| 976/976 [00:00<00:00, 3700.84it/s]
-INFO: Compiling for process 4/9. 
-INFO:     P1_ccx_mupmummupmum  
-  0%|          | 0/976 [00:00<?, ?it/s] 53%|█████▎    | 520/976 [00:00<00:00, 4904.32it/s]100%|██████████| 976/976 [00:00<00:00, 2462.24it/s]
-INFO: Compiling for process 5/9. 
-INFO:     P1_bbx_epemepem  
-  0%|          | 0/976 [00:00<?, ?it/s] 51%|█████     | 498/976 [00:00<00:00, 4756.82it/s]100%|█████████▉| 974/976 [00:00<00:00, 952.67it/s] 100%|██████████| 976/976 [00:00<00:00, 1084.21it/s]
-INFO: Compiling for process 6/9. 
-INFO:     P1_bbx_mupmummupmum  
-  0%|          | 0/976 [00:00<?, ?it/s] 51%|█████     | 496/976 [00:00<00:00, 4572.00it/s] 98%|█████████▊| 954/976 [00:00<00:00, 1029.69it/s]100%|██████████| 976/976 [00:00<00:00, 1193.22it/s]
-INFO: Compiling for process 7/9. 
-INFO:     P1_qq_epemmupmum  
-  0%|          | 0/881 [00:00<?, ?it/s] 57%|█████▋    | 504/881 [00:00<00:00, 4851.28it/s]100%|██████████| 881/881 [00:00<00:00, 2316.74it/s]
-  0%|          | 0/883 [00:00<?, ?it/s] 59%|█████▉    | 519/883 [00:00<00:00, 4952.75it/s]100%|██████████| 883/883 [00:00<00:00, 3412.12it/s]
-INFO: Compiling for process 8/9. 
-INFO:     P1_ccx_epemmupmum  
-  0%|          | 0/881 [00:00<?, ?it/s] 58%|█████▊    | 510/881 [00:00<00:00, 4831.57it/s]100%|██████████| 881/881 [00:00<00:00, 2131.32it/s]
-INFO: Compiling for process 9/9. 
-INFO:     P1_bbx_epemmupmum  
-  0%|          | 0/881 [00:00<?, ?it/s] 57%|█████▋    | 500/881 [00:00<00:00, 4855.02it/s]100%|██████████| 881/881 [00:00<00:00, 1652.01it/s]
-INFO:     P1_qq_epemepem  
-INFO:     P1_qq_mupmummupmum  
-INFO:     P1_ccx_epemepem  
-INFO:     P1_ccx_mupmummupmum  
-INFO:     P1_bbx_epemepem  
-INFO:     P1_bbx_mupmummupmum  
-INFO:     P1_qq_epemmupmum  
-INFO:     P1_ccx_epemmupmum  
-INFO:     P1_bbx_epemmupmum  
-INFO:  Idle: 0,  Running: 8,  Completed: 40 [ current time: 13h14 ] 
-INFO:  Idle: 0,  Running: 7,  Completed: 41 [  10.4s  ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 44 [  13.6s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 47 [  21.1s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 48 [  22.7s  ] 
-INFO: End survey 
-refine 25000
-Creating Jobs
-INFO: Refine results to 25000 
-INFO: Generating 25000.0 unweighted events. 
-sum of cpu time of last step: 6m58s
-INFO: Effective Luminosity 873237.5430840503 pb^-1 
-INFO: need to improve 18 channels 
-- Current estimate of cross-section: 0.034354913205000004 +- 0.0003888203853704578
-    P1_qq_epemepem 
-    P1_qq_mupmummupmum 
-    P1_ccx_epemepem 
-    P1_ccx_mupmummupmum 
-    P1_bbx_epemepem 
-    P1_bbx_mupmummupmum 
-    P1_qq_epemmupmum 
-    P1_ccx_epemmupmum 
-    P1_bbx_epemmupmum 
-INFO:  Idle: 20,  Running: 16,  Completed: 2 [ current time: 13h15 ] 
-INFO:  Idle: 19,  Running: 16,  Completed: 3 [  3.4s  ] 
-INFO:  Idle: 18,  Running: 16,  Completed: 4 [  7s  ] 
-INFO:  Idle: 18,  Running: 15,  Completed: 5 [  10.5s  ] 
-INFO:  Idle: 14,  Running: 16,  Completed: 8 [  14.3s  ] 
-INFO:  Idle: 10,  Running: 16,  Completed: 12 [  18.6s  ] 
-INFO:  Idle: 6,  Running: 16,  Completed: 16 [  23.8s  ] 
-INFO:  Idle: 4,  Running: 16,  Completed: 18 [  28.2s  ] 
-INFO:  Idle: 1,  Running: 16,  Completed: 21 [  31.5s  ] 
-INFO:  Idle: 0,  Running: 14,  Completed: 24 [  35.7s  ] 
-INFO:  Idle: 0,  Running: 7,  Completed: 31 [  38.8s  ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 34 [  44.2s  ] 
-INFO:  Idle: 0,  Running: 2,  Completed: 36 [  47.4s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 37 [  1m 13s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 38 [  2m 6s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 38 [  2m 7s  ] 
-INFO: Combining runs 
-sum of cpu time of last step: 13m52s
-INFO: finish refine 
-refine 25000 --treshold=0.9
-No need for second refine due to stability of cross-section
-INFO: Combining Events 
-combination of events done in 198.58196115493774 s 
-  === Results Summary for run: test1_more_data tag: tag_1 ===
-
-     Cross-section :   0.03468 +- 5.595e-05 pb
-     Nb of events :  25000
- 
-INFO: Running Systematics computation 
-INFO:  Idle: 1,  Running: 9,  Completed: 0 [ current time: 13h21 ] 
-INFO:  Idle: 0,  Running: 9,  Completed: 1 [  2m 1s  ] 
-INFO:  Idle: 0,  Running: 5,  Completed: 5 [  2m 5s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 10 [  2m 8s  ] 
-INFO: # Events generated with PDF: NNPDF40_lo_as_01180 (331900) 
-INFO: # Will compute 145 weights per event. 
-INFO: #***************************************************************************
-#
-# original cross-section: 0.034683423287641846
-#     scale variation: +4.78% -5.46%
-#     central scheme variation: +3.4% -3.14%
-# PDF variation: +1.3% -1.3%
-#
-# dynamical scheme # 1 : 0.035363 +4.38% - 5% # \sum ET
-# dynamical scheme # 2 : 0.035363 +4.38% - 5% # \sum\sqrt{m^2+pt^2}
-# dynamical scheme # 3 : 0.0335943 +5.26% -5.98% # 0.5 \sum\sqrt{m^2+pt^2}
-# dynamical scheme # 4 : 0.0358621 +4.12% -4.71% # \sqrt{\hat s}
-#***************************************************************************
- 
-INFO: End of systematics computation 
-store_events
-INFO: Storing parton level results 
-INFO: End Parton 
-reweight --mode=OFF -from_cards
-decay_events -from_cards
-[1;34mmain164 not found (or not compiled). Will try the old interface instead.[0m
-INFO: [92mRunning Pythia8 [arXiv:1410.3012][0m 
-Splitting .lhe event file for PY8 parallelization...
-Submitting Pythia8 jobs...
-Pythia8 shower jobs: 1 Idle, 15 Running, 0 Done [4m38s]
-Pythia8 shower jobs: 0 Idle, 16 Running, 0 Done [9m38s]
