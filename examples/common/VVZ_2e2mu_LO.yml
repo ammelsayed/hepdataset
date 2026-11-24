@@ -1,0 +1,39 @@
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 12 --no_save
+set nb_core_pythia8 12 --no_save
+set nb_core_delphes 12 --no_save
+import model sm-full
+define p = g u c d s b u~ c~ d~ s~ b~
+define j = g u c d s b u~ c~ d~ s~ b~
+define l+ = e+ mu+
+define l- = e- mu-
+define vl = ve vm
+define vl~ = ve~ vm~
+generate p p > w+ w- z, w+ > e+ ve, w- > e- ve~, z > mu+ mu-
+add process p p > w+ w- z, w+ > mu+ vm, w- > mu- vm~, z > e+ e-
+add process p p > w+ z z, w+ > j j, z > e+ e-, z > mu+ mu-
+add process p p > w+ z z, w+ > l+ vl, z > e+ e-, z > mu+ mu-
+add process p p > w- z z, w- > j j, z > e+ e-, z > mu+ mu-
+add process p p > w- z z, w- > l- vl~, z > e+ e-, z > mu+ mu-
+add process p p > z z z, z > j j, z > e+ e-, z > mu+ mu-
+add process p p > z z z, z > l+ l-, z > e+ e-, z > mu+ mu-
+add process p p > z z z, z > vl vl~, z > e+ e-, z > mu+ mu-
+output VVZ_2e2mu_LO -f
+display diagrams ./diagrams/VVZ_2e2mu_LO --no_open --merge
+launch VVZ_2e2mu_LO --name=test1
+shower = Pythia8
+detector = Delphes
+analysis = OFF
+done
+set ebeam 6500
+../cards/pythia8_card_TuneA14_noMPI.dat
+../cards/delphes_card_ATLAS_FatJetPTMin50.tcl
+set pdlabel lhapdf
+set lhaid 331900 # NNPDF40_lo_as_01180
+set use_syst True
+set systematics_program systematics
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+set nevents 1000
+done

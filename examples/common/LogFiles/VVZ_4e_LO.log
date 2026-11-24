@@ -1,0 +1,677 @@
+nohup: ignoring input
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*              http://madgraph.phys.ucl.ac.be/             *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from /home/ammelsayed/.config/mg5_configuration.txt 
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+load MG5 configuration from ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt 
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+set fastjet to /home/ammelsayed/softwares/fastjet-3.5.3-install/bin/fastjet-config
+set eMELA to /home/ammelsayed/softwares/HEPTools/bin/eMELA-config
+set ninja to /home/ammelsayed/softwares/HEPTools/ninja/lib
+set collier to /home/ammelsayed/softwares/HEPTools/collier
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+import /mnt/e/Apps/hepdataset/examples/common/VVZ_4e_LO.yml
+The import format was not given, so we guess it as command
+launch VVZ_4e_LO --name=test1
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /home/ammelsayed/.config/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/examples/common/VVZ_4e_LO/Cards/me5_configuration.txt  
+INFO: load configuration from /home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/examples/common/VVZ_4e_LO/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+generate_events test1
+stty: 'standard input': Inappropriate ioctl for device
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [32mPythia8[0m              |
+| 2. Choose the detector simulation program    [1mdetector[0m = [32mDelphes[0m              |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=OFF' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [32mPythia8[0m              |
+| 2. Choose the detector simulation program    [1mdetector[0m = [32mDelphes[0m              |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=OFF' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [32mPythia8[0m              |
+| 2. Choose the detector simulation program    [1mdetector[0m = [32mDelphes[0m              |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [31mOFF[0m                  |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=OFF' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+set ebeam 6500
+[1mINFO: modify parameter ebeam1 of the run_card.dat to 6500.0 [0m
+[1mINFO: modify parameter ebeam2 of the run_card.dat to 6500.0 [0m
+INFO: copy ../cards/pythia8_card_TuneA14_noMPI.dat as pythia8_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param   : [32mparam_card.dat[0m                               |
+|  [31m2[0m. run     : [32mrun_card.dat[0m                                 |
+|  [31m3[0m. pythia8 : [32mpythia8_card.dat[0m                             |
+|  [31m4[0m. delphes : [32mdelphes_card.dat[0m                             |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+INFO: copy ../cards/delphes_card_ATLAS_FatJetPTMin50.tcl as delphes_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param   : [32mparam_card.dat[0m                               |
+|  [31m2[0m. run     : [32mrun_card.dat[0m                                 |
+|  [31m3[0m. pythia8 : [32mpythia8_card.dat[0m                             |
+|  [31m4[0m. delphes : [32mdelphes_card.dat[0m                             |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+set pdlabel lhapdf
+[1mINFO: modify parameter pdlabel of the run_card.dat to lhapdf [0m
+set lhaid 331900 
+[1mINFO: modify parameter lhaid of the run_card.dat to 331900 [0m
+set use_syst True
+[1mINFO: modify parameter use_syst of the run_card.dat to True [0m
+set systematics_program systematics
+[1mINFO: modify parameter systematics_program of the run_card.dat to systematics [0m
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+[1mINFO: modify parameter systematics_arguments of the run_card.dat to ['--together=mur,muf,dyn', '--pdf=errorset'] [0m
+set nevents 1000
+[1mINFO: modify parameter nevents of the run_card.dat to 1000 [0m
+[1;34mWARNING: Particle 15 with small width detected (2.27e-12): See https://answers.launchpad.net/mg5amcnlo/+faq/3053 to learn the special handling of that case [0m
+INFO: Update the dependent parameter of the param_card.dat 
+[1;34mWARNING: update the strong coupling value (alpha_s) to the value from the pdf selected: 0.11800212445926275 [0m
+[1;34mvalue '[]' for entry 'bypass_check' is not valid. Preserving previous value: '[]'.
+allowed values are any list composed of the following entries: partonshower[0m
+Generating 1000 events with run name test1
+survey  test1 
+INFO: compile directory 
+[1;34mNot able to open file /mnt/e/Apps/hepdataset/examples/common/VVZ_4e_LO/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
+INFO: Using LHAPDF v6.5.6 interface for PDFs 
+compile Source Directory
+Using random number seed offset = 27
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO: Compiling for process 1/71. 
+INFO:     P1_qq_wpwmz_wp_epvl_wm_emvl_z_epem  
+  0%|          | 0/1107 [00:00<?, ?it/s]100%|██████████| 1107/1107 [00:00<00:00, 22685.98it/s]
+  0%|          | 0/1121 [00:00<?, ?it/s]100%|██████████| 1121/1121 [00:00<00:00, 29885.05it/s]
+  0%|          | 0/1070 [00:00<?, ?it/s]100%|██████████| 1070/1070 [00:00<00:00, 58171.16it/s]
+  0%|          | 0/1070 [00:00<?, ?it/s]100%|██████████| 1070/1070 [00:00<00:00, 64614.15it/s]
+  0%|          | 0/1121 [00:00<?, ?it/s]100%|██████████| 1121/1121 [00:00<00:00, 31459.74it/s]
+INFO: Compiling for process 2/71. 
+INFO:     P1_qcx_wpwmz_wp_epvl_wm_emvl_z_epem  
+  0%|          | 0/1056 [00:00<?, ?it/s]100%|██████████| 1056/1056 [00:00<00:00, 57878.17it/s]
+  0%|          | 0/1049 [00:00<?, ?it/s]100%|██████████| 1049/1049 [00:00<00:00, 51757.77it/s]
+INFO: Compiling for process 3/71. 
+INFO:     P1_qbx_wpwmz_wp_epvl_wm_emvl_z_epem  
+  0%|          | 0/1070 [00:00<?, ?it/s]100%|██████████| 1070/1070 [00:00<00:00, 31144.38it/s]
+  0%|          | 0/1070 [00:00<?, ?it/s]100%|██████████| 1070/1070 [00:00<00:00, 56626.15it/s]
+  0%|          | 0/1063 [00:00<?, ?it/s]100%|██████████| 1063/1063 [00:00<00:00, 51466.53it/s]
+  0%|          | 0/1063 [00:00<?, ?it/s]100%|██████████| 1063/1063 [00:00<00:00, 55134.30it/s]
+INFO: Compiling for process 4/71. 
+INFO:     P1_ccx_wpwmz_wp_epvl_wm_emvl_z_epem  
+  0%|          | 0/1126 [00:00<?, ?it/s]100%|██████████| 1126/1126 [00:00<00:00, 17100.45it/s]
+INFO: Compiling for process 5/71. 
+INFO:     P1_bbx_wpwmz_wp_epvl_wm_emvl_z_epem  
+  0%|          | 0/1140 [00:00<?, ?it/s]100%|██████████| 1140/1140 [00:00<00:00, 25527.10it/s]
+INFO: Compiling for process 6/71. 
+INFO:     P2_qq_wpzz_wp_qq_z_epem_z_epem  
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 75432.03it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 68119.46it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 70587.75it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 76131.40it/s]
+INFO: Compiling for process 7/71. 
+INFO:     P2_qq_wpzz_wp_qbx_z_epem_z_epem  
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 46945.24it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 45206.39it/s]
+INFO: Compiling for process 8/71. 
+INFO:     P2_qq_wpzz_wp_qc_z_epem_z_epem  
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 45395.03it/s]
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 53290.56it/s]
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 27925.29it/s]
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 39726.75it/s]
+INFO: Compiling for process 9/71. 
+INFO:     P2_qq_wpzz_wp_cbx_z_epem_z_epem  
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 35498.06it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 36137.32it/s]
+INFO: Compiling for process 10/71. 
+INFO:     P2_qbx_wpzz_wp_qq_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 52211.46it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 47553.36it/s]
+INFO: Compiling for process 11/71. 
+INFO:     P2_qbx_wpzz_wp_qbx_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 51678.28it/s]
+INFO: Compiling for process 12/71. 
+INFO:     P2_qbx_wpzz_wp_qc_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 32820.39it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 29264.70it/s]
+INFO: Compiling for process 13/71. 
+INFO:     P2_qbx_wpzz_wp_cbx_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 17794.27it/s]
+INFO: Compiling for process 14/71. 
+INFO:     P2_qc_wpzz_wp_qq_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 58841.37it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 58413.89it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 56131.24it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 50042.70it/s]
+INFO: Compiling for process 15/71. 
+INFO:     P2_qc_wpzz_wp_qbx_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 36336.83it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 29940.18it/s]
+INFO: Compiling for process 16/71. 
+INFO:     P2_qc_wpzz_wp_qc_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 32336.94it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 39716.11it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 33941.79it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 45591.65it/s]
+INFO: Compiling for process 17/71. 
+INFO:     P2_qc_wpzz_wp_cbx_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 21078.90it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 20573.61it/s]
+INFO: Compiling for process 18/71. 
+INFO:     P2_cbx_wpzz_wp_qq_z_epem_z_epem  
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 17023.48it/s]
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 20405.88it/s]
+INFO: Compiling for process 19/71. 
+INFO:     P2_cbx_wpzz_wp_qbx_z_epem_z_epem  
+  0%|          | 0/1072 [00:00<?, ?it/s] 69%|██████▉   | 743/1072 [00:00<00:00, 7237.44it/s]100%|██████████| 1072/1072 [00:00<00:00, 9033.76it/s]
+INFO: Compiling for process 20/71. 
+INFO:     P2_cbx_wpzz_wp_qc_z_epem_z_epem  
+  0%|          | 0/1066 [00:00<?, ?it/s]100%|██████████| 1066/1066 [00:00<00:00, 18715.95it/s]
+  0%|          | 0/1066 [00:00<?, ?it/s]100%|██████████| 1066/1066 [00:00<00:00, 17807.37it/s]
+INFO: Compiling for process 21/71. 
+INFO:     P2_cbx_wpzz_wp_cbx_z_epem_z_epem  
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 13892.16it/s]
+INFO: Compiling for process 22/71. 
+INFO:     P4_qq_wmzz_wm_qq_z_epem_z_epem  
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 57672.09it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 59105.19it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 62861.44it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 56846.41it/s]
+INFO: Compiling for process 23/71. 
+INFO:     P4_qq_wmzz_wm_qb_z_epem_z_epem  
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 47735.79it/s]
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 39140.38it/s]
+INFO: Compiling for process 24/71. 
+INFO:     P4_qq_wmzz_wm_qcx_z_epem_z_epem  
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 53120.87it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 51184.63it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 49210.48it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 49912.11it/s]
+INFO: Compiling for process 25/71. 
+INFO:     P4_qq_wmzz_wm_bcx_z_epem_z_epem  
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 29733.77it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 28420.31it/s]
+INFO: Compiling for process 26/71. 
+INFO:     P4_qcx_wmzz_wm_qq_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 54795.68it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 49545.41it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 48073.41it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 49464.52it/s]
+INFO: Compiling for process 27/71. 
+INFO:     P4_qcx_wmzz_wm_qb_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 38850.71it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 38912.48it/s]
+INFO: Compiling for process 28/71. 
+INFO:     P4_qcx_wmzz_wm_qcx_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 27465.30it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 29160.64it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 23355.46it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 30781.61it/s]
+INFO: Compiling for process 29/71. 
+INFO:     P4_qcx_wmzz_wm_bcx_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 16173.66it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 15857.34it/s]
+INFO: Compiling for process 30/71. 
+INFO:     P4_qb_wmzz_wm_qq_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 38310.08it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 44987.99it/s]
+INFO: Compiling for process 31/71. 
+INFO:     P4_qb_wmzz_wm_qb_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 43770.85it/s]
+INFO: Compiling for process 32/71. 
+INFO:     P4_qb_wmzz_wm_qcx_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 44796.61it/s]
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 45536.66it/s]
+INFO: Compiling for process 33/71. 
+INFO:     P4_qb_wmzz_wm_bcx_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 25089.99it/s]
+INFO: Compiling for process 34/71. 
+INFO:     P4_bcx_wmzz_wm_qq_z_epem_z_epem  
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 24303.50it/s]
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 31223.83it/s]
+INFO: Compiling for process 35/71. 
+INFO:     P4_bcx_wmzz_wm_qb_z_epem_z_epem  
+  0%|          | 0/1066 [00:00<?, ?it/s]100%|██████████| 1066/1066 [00:00<00:00, 24704.41it/s]
+INFO: Compiling for process 36/71. 
+INFO:     P4_bcx_wmzz_wm_qcx_z_epem_z_epem  
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 20122.06it/s]
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 27799.00it/s]
+INFO: Compiling for process 37/71. 
+INFO:     P4_bcx_wmzz_wm_bcx_z_epem_z_epem  
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 11187.26it/s]
+INFO: Compiling for process 38/71. 
+INFO:     P3_qq_wpzz_wp_epvl_z_epem_z_epem  
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 41905.84it/s]
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 43920.07it/s]
+INFO: Compiling for process 39/71. 
+INFO:     P3_qq_wpzz_wp_mupvl_z_epem_z_epem  
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 52004.03it/s]
+  0%|          | 0/1059 [00:00<?, ?it/s]100%|██████████| 1059/1059 [00:00<00:00, 49093.33it/s]
+INFO: Compiling for process 40/71. 
+INFO:     P3_qbx_wpzz_wp_epvl_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 36580.64it/s]
+INFO: Compiling for process 41/71. 
+INFO:     P3_qbx_wpzz_wp_mupvl_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 27820.91it/s]
+INFO: Compiling for process 42/71. 
+INFO:     P3_qc_wpzz_wp_epvl_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 29707.62it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 30608.88it/s]
+INFO: Compiling for process 43/71. 
+INFO:     P3_qc_wpzz_wp_mupvl_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 14624.74it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 23604.07it/s]
+INFO: Compiling for process 44/71. 
+INFO:     P3_cbx_wpzz_wp_epvl_z_epem_z_epem  
+  0%|          | 0/1066 [00:00<?, ?it/s]100%|██████████| 1066/1066 [00:00<00:00, 22137.69it/s]
+INFO: Compiling for process 45/71. 
+INFO:     P3_cbx_wpzz_wp_mupvl_z_epem_z_epem  
+  0%|          | 0/1066 [00:00<?, ?it/s]100%|██████████| 1066/1066 [00:00<00:00, 16448.31it/s]
+INFO: Compiling for process 46/71. 
+INFO:     P5_qq_wmzz_wm_emvl_z_epem_z_epem  
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 42888.60it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 44054.34it/s]
+INFO: Compiling for process 47/71. 
+INFO:     P5_qq_wmzz_wm_mumvl_z_epem_z_epem  
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 56504.84it/s]
+  0%|          | 0/1065 [00:00<?, ?it/s]100%|██████████| 1065/1065 [00:00<00:00, 58732.17it/s]
+INFO: Compiling for process 48/71. 
+INFO:     P5_qcx_wmzz_wm_emvl_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 44106.27it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 32714.45it/s]
+INFO: Compiling for process 49/71. 
+INFO:     P5_qcx_wmzz_wm_mumvl_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 35335.42it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 36273.92it/s]
+INFO: Compiling for process 50/71. 
+INFO:     P5_qb_wmzz_wm_emvl_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 48464.80it/s]
+INFO: Compiling for process 51/71. 
+INFO:     P5_qb_wmzz_wm_mumvl_z_epem_z_epem  
+  0%|          | 0/1062 [00:00<?, ?it/s]100%|██████████| 1062/1062 [00:00<00:00, 32880.23it/s]
+INFO: Compiling for process 52/71. 
+INFO:     P5_bcx_wmzz_wm_emvl_z_epem_z_epem  
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 33895.67it/s]
+INFO: Compiling for process 53/71. 
+INFO:     P5_bcx_wmzz_wm_mumvl_z_epem_z_epem  
+  0%|          | 0/1072 [00:00<?, ?it/s]100%|██████████| 1072/1072 [00:00<00:00, 18989.65it/s]
+INFO: Compiling for process 54/71. 
+INFO:     P6_qq_zzz_z_qq_z_epem_z_epem  
+  0%|          | 0/1039 [00:00<?, ?it/s]100%|██████████| 1039/1039 [00:00<00:00, 45057.14it/s]
+  0%|          | 0/1047 [00:00<?, ?it/s]100%|██████████| 1047/1047 [00:00<00:00, 40077.72it/s]
+  0%|          | 0/1047 [00:00<?, ?it/s]100%|██████████| 1047/1047 [00:00<00:00, 20643.05it/s]
+  0%|          | 0/1063 [00:00<?, ?it/s]100%|██████████| 1063/1063 [00:00<00:00, 42230.27it/s]
+INFO: Compiling for process 55/71. 
+INFO:     P6_qq_zzz_z_ccx_z_epem_z_epem  
+  0%|          | 0/1039 [00:00<?, ?it/s]100%|██████████| 1039/1039 [00:00<00:00, 25774.39it/s]
+  0%|          | 0/1047 [00:00<?, ?it/s]100%|██████████| 1047/1047 [00:00<00:00, 29860.51it/s]
+INFO: Compiling for process 56/71. 
+INFO:     P6_qq_zzz_z_bbx_z_epem_z_epem  
+  0%|          | 0/1039 [00:00<?, ?it/s]100%|██████████| 1039/1039 [00:00<00:00, 15291.78it/s]
+  0%|          | 0/1047 [00:00<?, ?it/s]100%|██████████| 1047/1047 [00:00<00:00, 11976.21it/s]
+INFO: Compiling for process 57/71. 
+INFO:     P6_ccx_zzz_z_qq_z_epem_z_epem  
+  0%|          | 0/1061 [00:00<?, ?it/s]100%|██████████| 1061/1061 [00:00<00:00, 19982.02it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 20671.98it/s]
+INFO: Compiling for process 58/71. 
+INFO:     P6_ccx_zzz_z_ccx_z_epem_z_epem  
+  0%|          | 0/1061 [00:00<?, ?it/s]100%|██████████| 1061/1061 [00:00<00:00, 13095.86it/s]
+INFO: Compiling for process 59/71. 
+INFO:     P6_ccx_zzz_z_bbx_z_epem_z_epem  
+  0%|          | 0/1061 [00:00<?, ?it/s]100%|██████████| 1061/1061 [00:00<00:00, 14767.60it/s]
+INFO: Compiling for process 60/71. 
+INFO:     P6_bbx_zzz_z_qq_z_epem_z_epem  
+  0%|          | 0/1061 [00:00<?, ?it/s]100%|██████████| 1061/1061 [00:00<00:00, 28137.05it/s]
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 21883.18it/s]
+INFO: Compiling for process 61/71. 
+INFO:     P6_bbx_zzz_z_ccx_z_epem_z_epem  
+  0%|          | 0/1061 [00:00<?, ?it/s]100%|██████████| 1061/1061 [00:00<00:00, 17113.95it/s]
+INFO: Compiling for process 62/71. 
+INFO:     P6_bbx_zzz_z_bbx_z_epem_z_epem  
+  0%|          | 0/1061 [00:00<?, ?it/s]100%|██████████| 1061/1061 [00:00<00:00, 15232.75it/s]
+INFO: Compiling for process 63/71. 
+INFO:     P7_qq_zzz_z_epem_z_epem_z_epem  
+  0%|          | 0/1036 [00:00<?, ?it/s]100%|██████████| 1036/1036 [00:00<00:00, 20522.73it/s]
+  0%|          | 0/1044 [00:00<?, ?it/s]100%|██████████| 1044/1044 [00:00<00:00, 22385.63it/s]
+INFO: Compiling for process 64/71. 
+INFO:     P7_qq_zzz_z_mupmum_z_epem_z_epem  
+  0%|          | 0/1036 [00:00<?, ?it/s]100%|██████████| 1036/1036 [00:00<00:00, 22544.87it/s]
+  0%|          | 0/1044 [00:00<?, ?it/s]100%|██████████| 1044/1044 [00:00<00:00, 24920.77it/s]
+INFO: Compiling for process 65/71. 
+INFO:     P7_ccx_zzz_z_epem_z_epem_z_epem  
+  0%|          | 0/1054 [00:00<?, ?it/s]100%|██████████| 1054/1054 [00:00<00:00, 31679.85it/s]
+INFO: Compiling for process 66/71. 
+INFO:     P7_ccx_zzz_z_mupmum_z_epem_z_epem  
+  0%|          | 0/1054 [00:00<?, ?it/s]100%|██████████| 1054/1054 [00:00<00:00, 17302.67it/s]
+INFO: Compiling for process 67/71. 
+INFO:     P7_bbx_zzz_z_epem_z_epem_z_epem  
+  0%|          | 0/1054 [00:00<?, ?it/s]100%|██████████| 1054/1054 [00:00<00:00, 22007.70it/s]
+INFO: Compiling for process 68/71. 
+INFO:     P7_bbx_zzz_z_mupmum_z_epem_z_epem  
+  0%|          | 0/1054 [00:00<?, ?it/s]100%|██████████| 1054/1054 [00:00<00:00, 12603.52it/s]
+INFO: Compiling for process 69/71. 
+INFO:     P8_qq_zzz_z_vlvl_z_epem_z_epem  
+  0%|          | 0/1047 [00:00<?, ?it/s]100%|██████████| 1047/1047 [00:00<00:00, 59967.72it/s]
+  0%|          | 0/1063 [00:00<?, ?it/s]100%|██████████| 1063/1063 [00:00<00:00, 61599.13it/s]
+INFO: Compiling for process 70/71. 
+INFO:     P8_ccx_zzz_z_vlvl_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 54672.73it/s]
+INFO: Compiling for process 71/71. 
+INFO:     P8_bbx_zzz_z_vlvl_z_epem_z_epem  
+  0%|          | 0/1069 [00:00<?, ?it/s]100%|██████████| 1069/1069 [00:00<00:00, 43388.79it/s]
+INFO:     P1_qq_wpwmz_wp_epvl_wm_emvl_z_epem  
+INFO:     P1_qcx_wpwmz_wp_epvl_wm_emvl_z_epem  
+INFO:     P1_qbx_wpwmz_wp_epvl_wm_emvl_z_epem  
+INFO:     P1_ccx_wpwmz_wp_epvl_wm_emvl_z_epem  
+INFO:     P1_bbx_wpwmz_wp_epvl_wm_emvl_z_epem  
+INFO:     P2_qq_wpzz_wp_qq_z_epem_z_epem  
+INFO:     P2_qq_wpzz_wp_qbx_z_epem_z_epem  
+INFO:     P2_qq_wpzz_wp_qc_z_epem_z_epem  
+INFO:     P2_qq_wpzz_wp_cbx_z_epem_z_epem  
+INFO:     P2_qbx_wpzz_wp_qq_z_epem_z_epem  
+INFO:     P2_qbx_wpzz_wp_qbx_z_epem_z_epem  
+INFO:     P2_qbx_wpzz_wp_qc_z_epem_z_epem  
+INFO:     P2_qbx_wpzz_wp_cbx_z_epem_z_epem  
+INFO:     P2_qc_wpzz_wp_qq_z_epem_z_epem  
+INFO:     P2_qc_wpzz_wp_qbx_z_epem_z_epem  
+INFO:     P2_qc_wpzz_wp_qc_z_epem_z_epem  
+INFO:     P2_qc_wpzz_wp_cbx_z_epem_z_epem  
+INFO:     P2_cbx_wpzz_wp_qq_z_epem_z_epem  
+INFO:     P2_cbx_wpzz_wp_qbx_z_epem_z_epem  
+INFO:     P2_cbx_wpzz_wp_qc_z_epem_z_epem  
+INFO:     P2_cbx_wpzz_wp_cbx_z_epem_z_epem  
+INFO:     P4_qq_wmzz_wm_qq_z_epem_z_epem  
+INFO:     P4_qq_wmzz_wm_qb_z_epem_z_epem  
+INFO:     P4_qq_wmzz_wm_qcx_z_epem_z_epem  
+INFO:     P4_qq_wmzz_wm_bcx_z_epem_z_epem  
+INFO:     P4_qcx_wmzz_wm_qq_z_epem_z_epem  
+INFO:     P4_qcx_wmzz_wm_qb_z_epem_z_epem  
+INFO:     P4_qcx_wmzz_wm_qcx_z_epem_z_epem  
+INFO:     P4_qcx_wmzz_wm_bcx_z_epem_z_epem  
+INFO:     P4_qb_wmzz_wm_qq_z_epem_z_epem  
+INFO:     P4_qb_wmzz_wm_qb_z_epem_z_epem  
+INFO:     P4_qb_wmzz_wm_qcx_z_epem_z_epem  
+INFO:     P4_qb_wmzz_wm_bcx_z_epem_z_epem  
+INFO:     P4_bcx_wmzz_wm_qq_z_epem_z_epem  
+INFO:     P4_bcx_wmzz_wm_qb_z_epem_z_epem  
+INFO:     P4_bcx_wmzz_wm_qcx_z_epem_z_epem  
+INFO:     P4_bcx_wmzz_wm_bcx_z_epem_z_epem  
+INFO:     P3_qq_wpzz_wp_epvl_z_epem_z_epem  
+INFO:     P3_qq_wpzz_wp_mupvl_z_epem_z_epem  
+INFO:     P3_qbx_wpzz_wp_epvl_z_epem_z_epem  
+INFO:     P3_qbx_wpzz_wp_mupvl_z_epem_z_epem  
+INFO:     P3_qc_wpzz_wp_epvl_z_epem_z_epem  
+INFO:     P3_qc_wpzz_wp_mupvl_z_epem_z_epem  
+INFO:     P3_cbx_wpzz_wp_epvl_z_epem_z_epem  
+INFO:     P3_cbx_wpzz_wp_mupvl_z_epem_z_epem  
+INFO:     P5_qq_wmzz_wm_emvl_z_epem_z_epem  
+INFO:     P5_qq_wmzz_wm_mumvl_z_epem_z_epem  
+INFO:     P5_qcx_wmzz_wm_emvl_z_epem_z_epem  
+INFO:     P5_qcx_wmzz_wm_mumvl_z_epem_z_epem  
+INFO:     P5_qb_wmzz_wm_emvl_z_epem_z_epem  
+INFO:     P5_qb_wmzz_wm_mumvl_z_epem_z_epem  
+INFO:     P5_bcx_wmzz_wm_emvl_z_epem_z_epem  
+INFO:     P5_bcx_wmzz_wm_mumvl_z_epem_z_epem  
+INFO:     P6_qq_zzz_z_qq_z_epem_z_epem  
+INFO:     P6_qq_zzz_z_ccx_z_epem_z_epem  
+INFO:     P6_qq_zzz_z_bbx_z_epem_z_epem  
+INFO:     P6_ccx_zzz_z_qq_z_epem_z_epem  
+INFO:     P6_ccx_zzz_z_ccx_z_epem_z_epem  
+INFO:     P6_ccx_zzz_z_bbx_z_epem_z_epem  
+INFO:     P6_bbx_zzz_z_qq_z_epem_z_epem  
+INFO:     P6_bbx_zzz_z_ccx_z_epem_z_epem  
+INFO:     P6_bbx_zzz_z_bbx_z_epem_z_epem  
+INFO:     P7_qq_zzz_z_epem_z_epem_z_epem  
+INFO:     P7_qq_zzz_z_mupmum_z_epem_z_epem  
+INFO:     P7_ccx_zzz_z_epem_z_epem_z_epem  
+INFO:     P7_ccx_zzz_z_mupmum_z_epem_z_epem  
+INFO:     P7_bbx_zzz_z_epem_z_epem_z_epem  
+INFO:     P7_bbx_zzz_z_mupmum_z_epem_z_epem  
+INFO:     P8_qq_zzz_z_vlvl_z_epem_z_epem  
+INFO:     P8_ccx_zzz_z_vlvl_z_epem_z_epem  
+INFO:     P8_bbx_zzz_z_vlvl_z_epem_z_epem  
+INFO:  Idle: 1,  Running: 6,  Completed: 415 [ current time: 15h10 ] 
+INFO:  Idle: 0,  Running: 7,  Completed: 415 [  0.033s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 421 [  5.5s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 422 [  6s  ] 
+INFO: End survey 
+refine 1000
+Creating Jobs
+INFO: Refine results to 1000 
+INFO: Generating 1000.0 unweighted events. 
+sum of cpu time of last step: 16m56s
+INFO: Effective Luminosity 10987704.963273128 pb^-1 
+INFO: need to improve 32 channels 
+- Current estimate of cross-section: 0.0001092129797815878 +- 0.00048204133657044507
+    P1_qq_wpwmz_wp_epvl_wm_emvl_z_epem 
+    P1_qcx_wpwmz_wp_epvl_wm_emvl_z_epem 
+    P1_qbx_wpwmz_wp_epvl_wm_emvl_z_epem 
+    P1_ccx_wpwmz_wp_epvl_wm_emvl_z_epem 
+    P1_bbx_wpwmz_wp_epvl_wm_emvl_z_epem 
+    P2_qq_wpzz_wp_qq_z_epem_z_epem 
+    P2_qq_wpzz_wp_qbx_z_epem_z_epem 
+    P2_qq_wpzz_wp_qc_z_epem_z_epem 
+    P2_qq_wpzz_wp_cbx_z_epem_z_epem 
+    P2_qbx_wpzz_wp_qq_z_epem_z_epem 
+    P2_qbx_wpzz_wp_qbx_z_epem_z_epem 
+    P2_qbx_wpzz_wp_qc_z_epem_z_epem 
+    P2_qbx_wpzz_wp_cbx_z_epem_z_epem 
+    P2_qc_wpzz_wp_qq_z_epem_z_epem 
+    P2_qc_wpzz_wp_qbx_z_epem_z_epem 
+    P2_qc_wpzz_wp_qc_z_epem_z_epem 
+    P2_qc_wpzz_wp_cbx_z_epem_z_epem 
+    P2_cbx_wpzz_wp_qq_z_epem_z_epem 
+    P2_cbx_wpzz_wp_qbx_z_epem_z_epem 
+    P2_cbx_wpzz_wp_qc_z_epem_z_epem 
+    P2_cbx_wpzz_wp_cbx_z_epem_z_epem 
+    P4_qq_wmzz_wm_qq_z_epem_z_epem 
+    P4_qq_wmzz_wm_qb_z_epem_z_epem 
+    P4_qq_wmzz_wm_qcx_z_epem_z_epem 
+    P4_qq_wmzz_wm_bcx_z_epem_z_epem 
+    P4_qcx_wmzz_wm_qq_z_epem_z_epem 
+    P4_qcx_wmzz_wm_qb_z_epem_z_epem 
+    P4_qcx_wmzz_wm_qcx_z_epem_z_epem 
+    P4_qcx_wmzz_wm_bcx_z_epem_z_epem 
+    P4_qb_wmzz_wm_qq_z_epem_z_epem 
+    P4_qb_wmzz_wm_qb_z_epem_z_epem 
+    P4_qb_wmzz_wm_qcx_z_epem_z_epem 
+    P4_qb_wmzz_wm_bcx_z_epem_z_epem 
+    P4_bcx_wmzz_wm_qq_z_epem_z_epem 
+    P4_bcx_wmzz_wm_qb_z_epem_z_epem 
+    P4_bcx_wmzz_wm_qcx_z_epem_z_epem 
+    P4_bcx_wmzz_wm_bcx_z_epem_z_epem 
+    P3_qq_wpzz_wp_epvl_z_epem_z_epem 
+    P3_qq_wpzz_wp_mupvl_z_epem_z_epem 
+    P3_qbx_wpzz_wp_epvl_z_epem_z_epem 
+    P3_qbx_wpzz_wp_mupvl_z_epem_z_epem 
+    P3_qc_wpzz_wp_epvl_z_epem_z_epem 
+    P3_qc_wpzz_wp_mupvl_z_epem_z_epem 
+    P3_cbx_wpzz_wp_epvl_z_epem_z_epem 
+    P3_cbx_wpzz_wp_mupvl_z_epem_z_epem 
+    P5_qq_wmzz_wm_emvl_z_epem_z_epem 
+    P5_qq_wmzz_wm_mumvl_z_epem_z_epem 
+    P5_qcx_wmzz_wm_emvl_z_epem_z_epem 
+    P5_qcx_wmzz_wm_mumvl_z_epem_z_epem 
+    P5_qb_wmzz_wm_emvl_z_epem_z_epem 
+    P5_qb_wmzz_wm_mumvl_z_epem_z_epem 
+    P5_bcx_wmzz_wm_emvl_z_epem_z_epem 
+    P5_bcx_wmzz_wm_mumvl_z_epem_z_epem 
+    P6_qq_zzz_z_qq_z_epem_z_epem 
+    P6_qq_zzz_z_ccx_z_epem_z_epem 
+    P6_qq_zzz_z_bbx_z_epem_z_epem 
+    P6_ccx_zzz_z_qq_z_epem_z_epem 
+    P6_ccx_zzz_z_ccx_z_epem_z_epem 
+    P6_ccx_zzz_z_bbx_z_epem_z_epem 
+    P6_bbx_zzz_z_qq_z_epem_z_epem 
+    P6_bbx_zzz_z_ccx_z_epem_z_epem 
+    P6_bbx_zzz_z_bbx_z_epem_z_epem 
+    P7_qq_zzz_z_epem_z_epem_z_epem 
+    P7_qq_zzz_z_mupmum_z_epem_z_epem 
+    P7_ccx_zzz_z_epem_z_epem_z_epem 
+    P7_ccx_zzz_z_mupmum_z_epem_z_epem 
+    P7_bbx_zzz_z_epem_z_epem_z_epem 
+    P7_bbx_zzz_z_mupmum_z_epem_z_epem 
+    P8_qq_zzz_z_vlvl_z_epem_z_epem 
+    P8_ccx_zzz_z_vlvl_z_epem_z_epem 
+    P8_bbx_zzz_z_vlvl_z_epem_z_epem 
+INFO:  Idle: 1,  Running: 1,  Completed: 30 [ current time: 15h13 ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 30 [  0.021s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 32 [  0.68s  ] 
+INFO: Combining runs 
+sum of cpu time of last step: 15m26s
+INFO: finish refine 
+refine 1000 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 56.338984966278076 s 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cross-section :   0.0001085 +- 7.988e-07 pb
+     Nb of events :  1000
+ 
+INFO: Running Systematics computation 
+INFO: # Events generated with PDF: NNPDF40_lo_as_01180 (331900) 
+INFO: # Will compute 145 weights per event. 
+INFO: # Currently at event 0 [elapsed time: 0.0036 s] 
+INFO: #***************************************************************************
+#
+# original cross-section: 0.00010845437465999774
+#     scale variation: +1.01% -1.26%
+#     central scheme variation: + 0% -3.01%
+# PDF variation: +3.05% -3.05%
+#
+# dynamical scheme # 1 : 0.000106891 +1.33% -1.48% # \sum ET
+# dynamical scheme # 2 : 0.000106891 +1.33% -1.48% # \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 3 : 0.000108309 +1.08% -1.31% # 0.5 \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 4 : 0.000105187 +1.37% -1.5% # \sqrt{\hat s}
+#***************************************************************************
+ 
+INFO: End of systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight --mode=OFF -from_cards
+decay_events -from_cards
+[1;34mmain164 not found (or not compiled). Will try the old interface instead.[0m
+INFO: [92mRunning Pythia8 [arXiv:1410.3012][0m 
+Splitting .lhe event file for PY8 parallelization...
+Submitting Pythia8 jobs...
+Pythia8 shower jobs: 1 Idle, 9 Running, 0 Done [2 seconds]
+Pythia8 shower jobs: 0 Idle, 9 Running, 1 Done [54 seconds]
+Pythia8 shower jobs: 0 Idle, 8 Running, 2 Done [54 seconds]
+Pythia8 shower jobs: 0 Idle, 7 Running, 3 Done [55 seconds]
+Pythia8 shower jobs: 0 Idle, 6 Running, 4 Done [55 seconds]
+Pythia8 shower jobs: 0 Idle, 5 Running, 5 Done [55 seconds]
+Pythia8 shower jobs: 0 Idle, 4 Running, 6 Done [56 seconds]
+Pythia8 shower jobs: 0 Idle, 3 Running, 7 Done [56 seconds]
+Pythia8 shower jobs: 0 Idle, 2 Running, 8 Done [56 seconds]
+Pythia8 shower jobs: 0 Idle, 1 Running, 9 Done [56 seconds]
+Pythia8 shower jobs: 0 Idle, 0 Running, 10 Done [57 seconds]
+Merging results from the split PY8 runs...
+INFO: Pythia8 shower finished after 1m16s. 
+INFO: prepare delphes run 
+INFO: Running Delphes 
+INFO: If you are interested in lhco output. please run root2lhco converter. 
+INFO:  or edit bin/internal/run_delphes3 to run the converter automatically. 
+INFO: delphes done 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cross-section :   0.0001085 +- 7.988e-07 pb
+     Nb of events :  1000
+ 
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+more information in /mnt/e/Apps/hepdataset/examples/common/VVZ_4e_LO/index.html
+quit
+Checking if MG5 is up-to-date... (takes up to 5s)
+No new version of MG5 available
