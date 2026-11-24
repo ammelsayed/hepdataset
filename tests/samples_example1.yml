@@ -1,19 +1,19 @@
 Background:
 
   tt_1L:
-    cross_section: 0.7528           # [pb] tt (1L)
-    cross_section_err_high: 0.0
-    cross_section_err_low: 0.0
-    k_factor : 1.0
+    fiducial_cross_section: 0.7528           # [pb] tt (1L)
+    fiducial_cross_section_err_high: 0.0
+    fiducial_cross_section_err_low: 0.0
+    flat_k_factor: 1.0
     files:
       - /data/ammelsayed/new_stuff/tt_1L/Events/run_02_01/tag_1_delphes_events.root
       - /data/ammelsayed/new_stuff/tt_1L/Events/run_02_02/tag_1_delphes_events.root
 
   tt_2L:
-    cross_section: 0.37395           # [pb] tt (2L)
-    cross_section_err_high: 0.0
-    cross_section_err_low: 0.0
-    k_factor : 1.0
+    fiducial_cross_section: 0.37395           # [pb] tt (2L)
+    fiducial_cross_section_err_high: 0.0
+    fiducial_cross_section_err_low: 0.0
+    flat_k_factor: 1.0
     files:
       - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_01_01/tag_1_delphes_events.root
       - /data/ammelsayed/new_stuff/tt_2L_edited/Events/run_01_02/tag_1_delphes_events.root
@@ -21,9 +21,9 @@ Background:
 
 Signal:
   M1000:
-    cross_section: 0.0023793         # [pb] = 2.379300 fb / 1000
-    k_factor : 1.0
-    cross_section_err_high: 0.000332031
-    cross_section_err_low: 0.000331945
+    fiducial_cross_section: 0.0023793         # [pb] = 2.379300 fb / 1000
+    flat_k_factor: 1.0
+    fiducial_cross_section_err_high: 0.000332031
+    fiducial_cross_section_err_low: 0.000331945
     files:
       - /data/ammelsayed/Samples/signal/FDM/Events/sig1000/tag_1_delphes_events.root

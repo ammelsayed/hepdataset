@@ -63,7 +63,8 @@ def make_dataset(
             proc_RootFiles      = proc_meta["files"]
             proc_NbRootFiles    = len(proc_RootFiles)
             proc_totalNbEvents  = proc_meta["nb_events"]
-            proc_CrossSection   = proc_meta["cross_section"] * 1000
+            # pb -> fb
+            proc_CrossSection   = proc_meta["fiducial_cross_section"] * 1000
 
             if not proc_RootFiles or not proc_totalNbEvents:
                 continue

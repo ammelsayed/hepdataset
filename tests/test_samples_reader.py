@@ -130,8 +130,8 @@ class TestRead:
             f"""
 Background:
   complete:
-    cross_section: 0.5
-    k_factor: 1.2
+    fiducial_cross_section: 0.5
+    flat_k_factor: 1.2
     files:
       - "{good1}"
       - "{good2}"
@@ -142,7 +142,7 @@ Background:
     files:
       - "/does/not/exist.root"
   missing_files_key:
-    cross_section: 0.9
+    fiducial_cross_section: 0.9
 Signal:
   sparse:
     files:
@@ -152,18 +152,20 @@ Signal:
 
         data = SamplesReader(str(card)).read()
 
-        # 'incomplete' receives default cross section / errors / k-factor
+        # 'incomplete' receives default cross sections / errors / k-factor
         incomplete = data["Background"]["incomplete"]
-        assert incomplete["cross_section"] == 1.0
-        assert incomplete["k_factor"] == 1.0
-        assert incomplete["cross_section_err_high"] == 0.0
-        assert incomplete["cross_section_err_low"] == 0.0
+        assert incomplete["inclusive_cross_section"] == 1.0
+        assert incomplete["fiducial_cross_section"] == 1.0
+        assert incomplete["flat_k_factor"] == 1.0
+        assert incomplete["fiducial_cross_section_err_high"] == 0.0
+        assert incomplete["fiducial_cross_section_err_low"] == 0.0
+        assert incomplete["differential_k_factors"] is None
         assert incomplete["nb_events"] == 2
 
         # valid card stored as given, nb_events summed
         complete = data["Background"]["complete"]
-        assert complete["cross_section"] == 0.5
-        assert complete["k_factor"] == 1.2
+        assert complete["fiducial_cross_section"] == 0.5
+        assert complete["flat_k_factor"] == 1.2
         assert complete["nb_events"] == 5
 
         # processes with bad/empty files are removed
@@ -186,8 +188,8 @@ Signal:
                 {
                     "Signal": {
                         "proc": {
-                            "cross_section": 1.0,
-                            "k_factor": 1.0,
+                            "fiducial_cross_section": 1.0,
+                            "flat_k_factor": 1.0,
                             "files": [str(good)],
                         }
                     }
@@ -206,20 +208,20 @@ Signal:
 class TestExports:
     @staticmethod
     def test_to_json_roundtrip(tmp_path):
-        data = {"Background": {"p": {"nb_events": 3, "cross_section": 1.0}}}
+        data = {"Background": {"p": {"nb_events": 3, "fiducial_cross_section": 1.0}}}
         out = tmp_path / "out.json"
         SamplesReader.to_json(data, str(out))
         assert json.loads(out.read_text()) == data
 
     @staticmethod
     def test_to_xml_contains_tags(tmp_path):
-        data = {"Signal": {"proc": {"cross_section": 1.0}}}
+        data = {"Signal": {"proc": {"fiducial_cross_section": 1.0}}}
         out = tmp_path / "out.xml"
         SamplesReader.to_xml(data, str(out))
         text = out.read_text()
         assert "<Signal>" in text
         assert "<proc>" in text
-        assert "cross_section" in text
+        assert "<fiducial_cross_section>" in text
 
 
 # --------------------------------------------------------------------------
@@ -234,10 +236,10 @@ class TestPrintTable:
             "Background": {
                 "tt": {
                     "nb_events": 100,
-                    "cross_section": 0.5,
-                    "cross_section_err_high": 0.01,
-                    "cross_section_err_low": 0.02,
-                    "k_factor": 1.0,
+                    "fiducial_cross_section": 0.5,
+                    "fiducial_cross_section_err_high": 0.01,
+                    "fiducial_cross_section_err_low": 0.02,
+                    "flat_k_factor": 1.0,
                 }
             }
         }
