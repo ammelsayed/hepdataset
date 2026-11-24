@@ -1,0 +1,394 @@
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*              http://madgraph.phys.ucl.ac.be/             *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from /home/ammelsayed/.config/mg5_configuration.txt 
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+load MG5 configuration from ../../../../../../home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt 
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+set fastjet to /home/ammelsayed/softwares/fastjet-3.5.3-install/bin/fastjet-config
+set eMELA to /home/ammelsayed/softwares/HEPTools/bin/eMELA-config
+set ninja to /home/ammelsayed/softwares/HEPTools/ninja/lib
+set collier to /home/ammelsayed/softwares/HEPTools/collier
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+set lhapdf to /home/ammelsayed/softwares/lhapdf-6.5.6/bin/lhapdf-config
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+import /mnt/e/Apps/hepdataset/examples/study1/qqZZ_2e2mu_LO.yml
+The import format was not given, so we guess it as command
+set automatic_html_opening False --no_save
+set notification_center False --no_save
+set zerowidth_tchannel False --no_save
+set nb_core 12 --no_save
+set nb_core_pythia8 12 --no_save
+set nb_core_delphes 12 --no_save
+import model sm-full
+INFO: Change particles name to pass to MG5 convention 
+Defined multiparticle p = g u d s u~ d~ s~ c c~
+Defined multiparticle j = g u d s u~ d~ s~ c c~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+[1;34mPass the definition of 'j' and 'p' to 3 flavour scheme.[0m
+Defined multiparticle all = g u d s u~ d~ s~ a ve vm vt ve~ vm~ vt~ c t b c~ t~ b~ z w+ h w- e- mu- ta- e+ mu+ ta+
+define p = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle p = g u d s u~ d~ s~ c b c~ b~
+define j = g u c d s b u~ c~ d~ s~ b~
+Defined multiparticle j = g u d s u~ d~ s~ c b c~ b~
+define l+ = e+ mu+
+Defined multiparticle l+ = e+ mu+
+define l- = e- mu-
+Defined multiparticle l- = e- mu-
+define vl = ve vm
+Defined multiparticle vl = ve vm
+define vl~ = ve~ vm~
+Defined multiparticle vl~ = ve~ vm~
+generate p p > e+ e- mu+ mu- / h QED=4 QCD=0
+[1;34mInterpreting 'QED=4' as 'QED<=4'[0m
+INFO: Trying process: g g > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: u c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: d s~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: d b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: s s~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: s b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process u~ u > e+ e- mu+ mu- added to mirror process u u~ > e+ e- mu+ mu- 
+INFO: Trying process: u~ c > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process d~ d > e+ e- mu+ mu- added to mirror process d d~ > e+ e- mu+ mu- 
+INFO: Trying process: d~ b > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process s~ s > e+ e- mu+ mu- added to mirror process s s~ > e+ e- mu+ mu- 
+INFO: Trying process: s~ b > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Trying process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Trying process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1  
+INFO: Process has 24 diagrams 
+INFO: Process c~ c > e+ e- mu+ mu- added to mirror process c c~ > e+ e- mu+ mu- 
+INFO: Process b~ b > e+ e- mu+ mu- added to mirror process b b~ > e+ e- mu+ mu- 
+5 processes with 120 diagrams generated in 0.205 s
+Total: 5 processes with 120 diagrams
+output qqZZ_2e2mu_LO -f
+INFO: initialize a new directory: qqZZ_2e2mu_LO 
+INFO: remove old information in qqZZ_2e2mu_LO 
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Reusing existing color information for process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Combined process s s~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 with process d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Helas calls for process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Processing color information for process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Creating files in directory P1_qq_epemmupmum 
+INFO: Generating Feynman diagrams for Process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Generating Feynman diagrams for Process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group qq_epemmupmum 
+INFO: Creating files in directory P1_ccx_epemmupmum 
+INFO: Generating Feynman diagrams for Process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group ccx_epemmupmum 
+INFO: Creating files in directory P1_bbx_epemmupmum 
+INFO: Generating Feynman diagrams for Process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1 
+INFO: Finding symmetric diagrams for subprocess group bbx_epemmupmum 
+Generated helas calls for 4 subprocesses (96 diagrams) in 0.260 s
+Wrote files for 192 helas calls in 26.196 s
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates 5 routines in  3.144 s
+The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
+If you want to make this value the default for future session, you can run 'save options --all'
+save configuration file to /mnt/e/Apps/hepdataset/examples/study1/qqZZ_2e2mu_LO/Cards/me5_configuration.txt
+INFO: Use Fortran compiler gfortran 
+INFO: Use c++ compiler g++ 
+INFO: Generate jpeg diagrams 
+INFO: Generate web pages 
+INFO: Generating MadAnalysis5 default cards tailored to this process 
+[1;34mWARNING: MadAnalysis5 failed to write a hadron-level default analysis card for this process. [0m
+[1;34mWARNING: Therefore, hadron-level default analysis with MadAnalysis5 will be empty. [0m
+INFO: Cards created in 6.53s 
+Output to directory /mnt/e/Apps/hepdataset/examples/study1/qqZZ_2e2mu_LO done.
+Type "launch" to generate events from this process, or see
+/mnt/e/Apps/hepdataset/examples/study1/qqZZ_2e2mu_LO/README
+Run "open index.html" to see more information about this process.
+display diagrams ./diagrams/qqZZ_2e2mu_LO --no_open --merge
+Drawing Process: u u~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_2e2mu_LO/diagrams_1_uux_epemmupmum_no_h.eps
+Drawing Process: d d~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_2e2mu_LO/diagrams_1_ddx_epemmupmum_no_h.eps
+Drawing Process: c c~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_2e2mu_LO/diagrams_1_ccx_epemmupmum_no_h.eps
+Drawing Process: b b~ > e+ e- mu+ mu- QCD=0 QED<=4 / h @1
+Wrote file ./diagrams/qqZZ_2e2mu_LO/diagrams_1_bbx_epemmupmum_no_h.eps
+Merged diagrams into ./diagrams/qqZZ_2e2mu_LO/all_diagrams.pdf
+time to draw 0.604708194732666
+launch qqZZ_2e2mu_LO --name=test1
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.8.1                 2026-10-09         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /home/ammelsayed/.config/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/examples/study1/qqZZ_2e2mu_LO/Cards/me5_configuration.txt  
+INFO: load configuration from /home/ammelsayed/softwares/MG5_aMC_v3_8_1/input/mg5_configuration.txt  
+INFO: load configuration from /mnt/e/Apps/hepdataset/examples/study1/qqZZ_2e2mu_LO/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default gzip "gzip". Set another one in ./input/mg5_configuration.txt
+generate_events test1
+stty: 'standard input': Inappropriate ioctl for device
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+The following switches determine which programs are run:
+/==============================================================================\
+| 1. Choose the shower/hadronization program   [1m  shower[0m = [31mOFF[0m                  |
+| 2. Choose the detector simulation program    [1mdetector[0m = [31mOFF[0m                  |
+| 3. Choose an analysis package (plot/convert) [1manalysis[0m = [32mMadAnalysis5[0m         |
+| 4. Decay onshell particles                   [1m madspin[0m = [31mOFF[0m                  |
+| 5. Add weights to events for new hypp.       [1mreweight[0m = [31mOFF[0m                  |
+\==============================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'shower=Pythia8' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.
+set ebeam 6500
+[1mINFO: modify parameter ebeam1 of the run_card.dat to 6500.0 [0m
+[1mINFO: modify parameter ebeam2 of the run_card.dat to 6500.0 [0m
+INFO: copy ../cards/pythia8_card_TuneA14_noMPI.dat as pythia8_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param   : [32mparam_card.dat[0m                               |
+|  [31m2[0m. run     : [32mrun_card.dat[0m                                 |
+|  [31m3[0m. pythia8 : [32mpythia8_card.dat[0m                             |
+|  [31m4[0m. delphes : [32mdelphes_card.dat[0m                             |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+INFO: copy ../cards/delphes_card_ATLAS_FatJetPTMin50.tcl as delphes_card.dat 
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param   : [32mparam_card.dat[0m                               |
+|  [31m2[0m. run     : [32mrun_card.dat[0m                                 |
+|  [31m3[0m. pythia8 : [32mpythia8_card.dat[0m                             |
+|  [31m4[0m. delphes : [32mdelphes_card.dat[0m                             |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, 3, pythia8, 4, enter path, ... ]
+set pdlabel lhapdf
+[1mINFO: modify parameter pdlabel of the run_card.dat to lhapdf [0m
+set lhaid 331900 
+[1mINFO: modify parameter lhaid of the run_card.dat to 331900 [0m
+set use_syst True
+[1mINFO: modify parameter use_syst of the run_card.dat to True [0m
+set systematics_program systematics
+[1mINFO: modify parameter systematics_program of the run_card.dat to systematics [0m
+set systematics_arguments ['--together=mur,muf,dyn', '--pdf=errorset']
+[1mINFO: modify parameter systematics_arguments of the run_card.dat to ['--together=mur,muf,dyn', '--pdf=errorset'] [0m
+set nevents 1000
+[1mINFO: modify parameter nevents of the run_card.dat to 1000 [0m
+[1;34mWARNING: Particle 15 with small width detected (2.27e-12): See https://answers.launchpad.net/mg5amcnlo/+faq/3053 to learn the special handling of that case [0m
+INFO: Update the dependent parameter of the param_card.dat 
+[1;34mWARNING: update the strong coupling value (alpha_s) to the value from the pdf selected: 0.11800212445926275 [0m
+[1;34mvalue '[]' for entry 'bypass_check' is not valid. Preserving previous value: '[]'.
+allowed values are any list composed of the following entries: partonshower[0m
+Generating 1000 events with run name test1
+survey  test1 
+INFO: compile directory 
+INFO: Using LHAPDF v6.5.6 interface for PDFs 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO: Compiling for process 1/3. 
+INFO:     P1_qq_epemmupmum  
+  0%|          | 0/881 [00:00<?, ?it/s] 61%|██████    | 536/881 [00:00<00:00, 5320.60it/s]100%|██████████| 881/881 [00:00<00:00, 5822.85it/s]
+  0%|          | 0/883 [00:00<?, ?it/s] 63%|██████▎   | 552/883 [00:00<00:00, 5445.89it/s]100%|██████████| 883/883 [00:00<00:00, 7869.17it/s]
+INFO: Compiling for process 2/3. 
+INFO:     P1_ccx_epemmupmum  
+  0%|          | 0/881 [00:00<?, ?it/s] 63%|██████▎   | 552/881 [00:00<00:00, 3672.40it/s]100%|██████████| 881/881 [00:00<00:00, 5661.71it/s]
+INFO: Compiling for process 3/3. 
+INFO:     P1_bbx_epemmupmum  
+  0%|          | 0/881 [00:00<?, ?it/s] 57%|█████▋    | 506/881 [00:00<00:00, 4931.28it/s]100%|██████████| 881/881 [00:00<00:00, 2720.43it/s]
+INFO:     P1_qq_epemmupmum  
+INFO:     P1_ccx_epemmupmum  
+INFO:     P1_bbx_epemmupmum  
+INFO:  Idle: 1,  Running: 8,  Completed: 18 [ current time: 18h24 ] 
+INFO:  Idle: 0,  Running: 9,  Completed: 18 [  0.12s  ] 
+INFO:  Idle: 0,  Running: 8,  Completed: 19 [  12.2s  ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 23 [  16.7s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 27 [  18.2s  ] 
+INFO: End survey 
+refine 1000
+Creating Jobs
+INFO: Refine results to 1000 
+INFO: Generating 1000.0 unweighted events. 
+sum of cpu time of last step: 2m48s
+INFO: Effective Luminosity 74261.30761456846 pb^-1 
+INFO: need to improve 0 channels 
+- Current estimate of cross-section: 0.016159155266 +- 0.0001461719095538416
+    P1_qq_epemmupmum 
+    P1_ccx_epemmupmum 
+    P1_bbx_epemmupmum 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 18h24 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [  0.11s  ] 
+INFO: Combining runs 
+sum of cpu time of last step: 2m48s
+INFO: finish refine 
+refine 1000 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 25.00753092765808 s 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cross-section :   0.01616 +- 0.0001462 pb
+     Nb of events :  1000
+ 
+INFO: Running Systematics computation 
+INFO: # Events generated with PDF: NNPDF40_lo_as_01180 (331900) 
+INFO: # Will compute 145 weights per event. 
+INFO: # Currently at event 0 [elapsed time: 0.02 s] 
+INFO: #***************************************************************************
+#
+# original cross-section: 0.01615915515599987
+#     scale variation: +5.04% -5.74%
+#     central scheme variation: +3.73% -3.14%
+# PDF variation: +2.16% -2.16%
+#
+# dynamical scheme # 1 : 0.0165095 +4.57% -5.2% # \sum ET
+# dynamical scheme # 2 : 0.0165095 +4.57% -5.2% # \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 3 : 0.0156517 +5.48% -6.2% # 0.5 \sum\sqrt{m^2+pt^2}
+# dynamical scheme # 4 : 0.0167618 +4.29% -4.89% # \sqrt{\hat s}
+#***************************************************************************
+ 
+INFO: End of systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight --mode=OFF -from_cards
+decay_events -from_cards
+[1;34mmain164 not found (or not compiled). Will try the old interface instead.[0m
+INFO: [92mRunning Pythia8 [arXiv:1410.3012][0m 
+Splitting .lhe event file for PY8 parallelization...
+Submitting Pythia8 jobs...
+Pythia8 shower jobs: 1 Idle, 9 Running, 0 Done [9 seconds]
+Pythia8 shower jobs: 0 Idle, 9 Running, 1 Done [4m33s]
+Pythia8 shower jobs: 0 Idle, 8 Running, 2 Done [4m34s]
+Pythia8 shower jobs: 0 Idle, 7 Running, 3 Done [4m38s]
+Pythia8 shower jobs: 0 Idle, 6 Running, 4 Done [4m38s]
+Pythia8 shower jobs: 0 Idle, 5 Running, 5 Done [4m39s]
+Pythia8 shower jobs: 0 Idle, 4 Running, 6 Done [4m41s]
+Pythia8 shower jobs: 0 Idle, 3 Running, 7 Done [4m42s]
+Pythia8 shower jobs: 0 Idle, 2 Running, 8 Done [4m44s]
+Pythia8 shower jobs: 0 Idle, 1 Running, 9 Done [4m49s]
+Pythia8 shower jobs: 0 Idle, 0 Running, 10 Done [4m51s]
+Merging results from the split PY8 runs...
+INFO: Running Delphes on Pythia8 splits 
+Submitting Delphes jobs...
+Delphes jobs: 1 Idle, 9 Running, 0 Done [1 seconds]
+Delphes jobs: 0 Idle, 9 Running, 1 Done [1m55s]
+Delphes jobs: 0 Idle, 8 Running, 2 Done [1m56s]
+Delphes jobs: 0 Idle, 7 Running, 3 Done [1m58s]
+Delphes jobs: 0 Idle, 6 Running, 4 Done [1m58s]
+Delphes jobs: 0 Idle, 5 Running, 5 Done [2m00s]
+Delphes jobs: 0 Idle, 4 Running, 6 Done [2m01s]
+Delphes jobs: 0 Idle, 3 Running, 7 Done [2m01s]
+Delphes jobs: 0 Idle, 2 Running, 8 Done [2m02s]
+Delphes jobs: 0 Idle, 1 Running, 9 Done [2m02s]
+Delphes jobs: 0 Idle, 0 Running, 10 Done [2m05s]
+Merging Delphes ROOT files with hadd...
+Skipping HepMC merge (Delphes already ran on the splits and HepMC output is set to autoremove).
+INFO: Pythia8 shower finished after 12m08s. 
+INFO: delphes done 
+  === Results Summary for run: test1 tag: tag_1 ===
+
+     Cross-section :   0.01616 +- 0.0001462 pb
+     Nb of events :  1000
+ 
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+more information in /mnt/e/Apps/hepdataset/examples/study1/qqZZ_2e2mu_LO/index.html
+quit
+
+Thanks for using Spey 0.2.7. 
+Please make sure to cite the paper:
+    SciPost Phys. 16, no.1, 032 (2024) 
+    http://arxiv.org/abs/arXiv:2307.06996
+
