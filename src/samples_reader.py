@@ -348,13 +348,9 @@ class SamplesReader:
                 # Check for the cross section data and the k-factors
                 # usually k-factors are pT dependent of the event
                 # for v5.0.0 we are going to assume they are global
-                # An inclusive cross section may be absent or explicitly null:
-                # the card then only quotes a fiducial value, and consumers
-                # fall back to it. Null is kept, so that "unknown" is not
-                # mistaken for 1 pb.
                 if 'inclusive_cross_section' not in proc_info:
-                    print(f"Warning: '{proc_name}' in '{category}' is missing 'inclusive_cross_section'; leaving it null.")
-                    proc_info['inclusive_cross_section'] = None
+                    print(f"Warning: '{proc_name}' in '{category}' is missing 'inclusive_cross_section'. Going to set it to 1.0 by default.")
+                    proc_info['inclusive_cross_section'] = 1.0
 
                 if 'fiducial_cross_section' not in proc_info:
                     print(f"Warning: '{proc_name}' in '{category}' is missing 'fiducial_cross_section'. Going to set it to 1.0 by default.")
@@ -375,12 +371,6 @@ class SamplesReader:
                 if 'differential_k_factors' not in proc_info:
                     print(f"Warning: '{proc_name}' in '{category}' is missing 'differential_k_factors'.")
                     proc_info['differential_k_factors'] = None
-
-                # Cards written before the key rename still carry the old names;
-                # say so once rather than letting the defaults mask the mismatch.
-                if 'cross_section' in proc_info:
-                    print(f"Warning: '{proc_name}' in '{category}' uses the legacy key 'cross_section'; "
-                          f"rename it to 'inclusive_cross_section' or 'fiducial_cross_section'.")
         
         # Remove the skipped processes now that iteration is done
         for category, proc_name in to_remove:

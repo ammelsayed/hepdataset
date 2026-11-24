@@ -152,9 +152,9 @@ Signal:
 
         data = SamplesReader(str(card)).read()
 
-        # 'incomplete' receives null inclusive / default fiducial, errors and k-factor
+        # 'incomplete' receives default cross sections / errors / k-factor
         incomplete = data["Background"]["incomplete"]
-        assert incomplete["inclusive_cross_section"] is None
+        assert incomplete["inclusive_cross_section"] == 1.0
         assert incomplete["fiducial_cross_section"] == 1.0
         assert incomplete["flat_k_factor"] == 1.0
         assert incomplete["fiducial_cross_section_err_high"] == 0.0

@@ -3,7 +3,6 @@
 
 import os
 import sys
-import warnings
 import importlib
 try:
     from importlib.resources import files as resource_files
@@ -14,34 +13,6 @@ from pathlib import Path
 def resolve_category_name(category):
     cat = str(category).lower()
     return "bkg" if cat == "background" else "sig" if cat == "signal" else "Unknown"
-
-def process_cross_section(proc_meta):
-    """Cross section in pb for one process, as quoted by the samples card.
-
-    A card may quote an inclusive cross section, a fiducial one, or both. An
-    inclusive value that is absent or null falls back to the fiducial value,
-    which is what cards without a generator-level cross section provide. Cards
-    written before the key rename still expose 'cross_section'.
-    """
-    for key in ("inclusive_cross_section", "fiducial_cross_section"):
-        value = proc_meta.get(key)
-        if value is not None:
-            return value
-
-    legacy = proc_meta.get("cross_section")
-    if legacy is not None:
-        warnings.warn(
-            "samples card uses the legacy key 'cross_section'; rename it to "
-            "'inclusive_cross_section' or 'fiducial_cross_section'",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return legacy
-
-    raise KeyError(
-        "process metadata has no cross section: expected "
-        "'inclusive_cross_section' or 'fiducial_cross_section'"
-    )
 
 def _load_loop(name):
     """Import a hepdataset.loops module and return its loop_tree."""
@@ -93,7 +64,7 @@ def make_dataset(
             proc_NbRootFiles    = len(proc_RootFiles)
             proc_totalNbEvents  = proc_meta["nb_events"]
             # pb -> fb
-            proc_CrossSection   = process_cross_section(proc_meta) * 1000
+            proc_CrossSection   = proc_meta["fiducial_cross_section"] * 1000
 
             if not proc_RootFiles or not proc_totalNbEvents:
                 continue
